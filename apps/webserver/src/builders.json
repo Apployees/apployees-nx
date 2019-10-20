@@ -1,0 +1,11 @@
+{
+  "extends": ["@apployees-nx/node"],
+  "$schema": "@angular-devkit/architect/src/builders-schema.json",
+  "builders": {
+    "build": {
+      "implementation": "./builder-build",
+      "schema": "./builders/build/schema.json",
+      "description": "Build the webserver."
+    }
+  }
+}

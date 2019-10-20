@@ -1,0 +1,21 @@
+{
+  "name": "apployees-nx/webserver",
+  "version": "0.1",
+  "extends": ["@nrwl/workspace"],
+  "schematics": {
+    "init": {
+      "factory": "./schematic-init",
+      "schema": "./schematics/init/schema.json",
+      "description": "Initialize the @apployees-nx/webserver plugin",
+      "aliases": ["ng-add"],
+      "hidden": true
+    },
+
+    "application": {
+      "factory": "./schematic-application",
+      "schema": "./schematics/application/schema.json",
+      "aliases": ["app"],
+      "description": "Create a webserver application"
+    }
+  }
+}

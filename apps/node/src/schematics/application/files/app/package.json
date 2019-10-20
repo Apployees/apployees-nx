@@ -1,0 +1,4 @@
+{
+  "description": "Whatever you add in this package.json will be merged into the output package.json.",
+  "version": "0.0.1"
+}

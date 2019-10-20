@@ -1,11 +1,34 @@
 {
-  "npmScope": "hammerpack",
+  "npmScope": "apployees-nx",
   "implicitDependencies": {
+    "angular.json": "*",
     "workspace.json": "*",
     "package.json": "*",
     "tsconfig.json": "*",
     "tslint.json": "*",
     "nx.json": "*"
   },
-  "projects": {}
+  "projects": {
+    "webserver": {
+      "tags": []
+    },
+    "node": {
+      "tags": []
+    },
+    "common-build-utils": {
+      "tags": []
+    },
+    "examples-library1": {
+      "tags": []
+    },
+    "examples-library2": {
+      "tags": []
+    },
+    "examples-import-types": {
+      "tags": []
+    },
+    "examples-webserver": {
+      "tags": []
+    }
+  }
 }

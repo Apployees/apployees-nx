@@ -2,6 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "rootDir": ".",
+    "baseUrl": ".",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
@@ -9,13 +10,16 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "es2015",
-    "module": "esnext",
+    "module": "commonjs",
     "typeRoots": ["node_modules/@types"],
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@apployees-nx/examples/library1": ["libs/examples/library1/src/index.ts"],
+      "@apployees-nx/examples/library2": ["libs/examples/library2/src/index.ts"],
+      "@apployees-nx/common-build-utils": ["libs/common-build-utils/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

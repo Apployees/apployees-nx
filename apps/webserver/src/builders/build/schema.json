@@ -1,0 +1,288 @@
+{
+  "title": "Webserver Application Build Target",
+  "description": "Webserver application build target options for Build Facade",
+  "type": "object",
+  "properties": {
+    "dev": {
+      "type": "boolean",
+      "description": "Build the application for development mode",
+      "default": true
+    },
+    "devHost": {
+      "type": "string",
+      "default": "0.0.0.0",
+      "description": "The host to use to run the server when in dev mode (i.e. when dev=true)."
+    },
+    "devAppPort": {
+      "type": "number",
+      "default": 3000,
+      "description": "The port to use to run the application server when in dev mode (i.e. when dev=true)."
+    },
+    "devWebpackPort": {
+      "type": "number",
+      "default": 3030,
+      "description": "The port to run the Webpack server when in dev mode (i.e. dev=true). This is the server that runs HMR."
+    },
+    "appHtml": {
+      "type": "string",
+      "description": "The name of the HTML file that will be used for all routes."
+    },
+    "serverMain": {
+      "type": "string",
+      "description": "The name of the main entry-point file for the server."
+    },
+    "clientMain": {
+      "type": "string",
+      "description": "The name of the main entry-point file for the client."
+    },
+    "tsConfig": {
+      "type": "string",
+      "description": "The name of the Typescript configuration file."
+    },
+    "watch": {
+      "type": "boolean",
+      "description": "Run build when files change.",
+      "default": false
+    },
+    "poll": {
+      "type": "number",
+      "description": "Frequency of file watcher in ms."
+    },
+    "sourceMap": {
+      "type": "boolean",
+      "description": "Produce source maps. This flag is only used when dev=false. When dev=true, source maps are always produced.",
+      "default": true
+    },
+    "progress": {
+      "type": "boolean",
+      "description": "Log progress to the console while building.",
+      "default": false
+    },
+    "assets": {
+      "type": "array",
+      "description": "List of static application assets. Instead of using this, it is preferred that you import/require assets directly in code -- this way you won't have to tweak around with URLs.",
+      "default": [],
+      "items": {
+        "$ref": "#/definitions/assetPattern"
+      }
+    },
+    "imageInlineSizeLimit": {
+      "type": "number",
+      "description": "The size threshold after which images should not be inlined. Defined in bytes.",
+      "default": 10000
+    },
+    "publicUrl": {
+      "type": "string",
+      "description": "The \"public path\" at which the app is served -- you can override this with PUBLIC_URL environment variable. We need to know it to put the right <script> hrefs into HTML even in single-page apps that may serve index.html for nested URLs like /todos/42. We can't use a relative path in HTML because we don't want to load something like /todos/42/static/js/bundle.7289d.js. We have to know the root.",
+      "default": "/"
+    },
+    "serverExternalDependencies": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["none", "all"]
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "description": "node_module dependencies to keep external to the server bundle. (\"all\" (default), \"none\", or an array of module names)",
+      "default": "all"
+    },
+    "serverExternalLibraries": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["none", "all"]
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "description": "Libraries within the mono-repo to keep external to the server bundle. (\"all\" (default), \"none\", or an array of library names.)",
+      "default": "none"
+    },
+    "clientExternalDependencies": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["none", "all"]
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "description": "node_module dependencies to keep external to the client bundle. (\"all\" (default), \"none\", or an array of module names)",
+      "default": "all"
+    },
+    "clientExternalLibraries": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["none", "all"]
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "description": "Libraries within the mono-repo to keep external to the client bundle. (\"all\" (default), \"none\", or an array of library names.)",
+      "default": "none"
+    },
+    "statsJson": {
+      "type": "boolean",
+      "description": "Generates a 'stats.json' file which can be analyzed using tools such as: #webpack-bundle-analyzer' or https: //webpack.github.io/analyse.",
+      "default": false
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Emits verbose output",
+      "default": false
+    },
+    "extractLicenses": {
+      "type": "boolean",
+      "description": "Extract all licenses in a separate file, in the case of production builds only.",
+      "default": false
+    },
+    "optimization": {
+      "type": "boolean",
+      "description": "Defines the optimization level of the build.",
+      "default": false
+    },
+    "showCircularDependencies": {
+      "type": "boolean",
+      "description": "Show circular dependency warnings on builds.",
+      "default": true
+    },
+    "inlineRuntimeChunk": {
+      "type": "boolean",
+      "description": "Some apps do not need the benefits of saving a web request, so not inlining the chunk makes for a smoother build process.",
+      "default": true
+    },
+    "maxWorkers": {
+      "type": "number",
+      "description": "Number of workers to use for type checking. (defaults to # of CPUS - 2)"
+    },
+    "outputHashing": {
+      "type": "string",
+      "description": "Define the output filename cache-busting hashing mode.",
+      "default": "none",
+      "enum": ["none", "all", "media", "bundles"]
+    },
+    "serverFileReplacements": {
+      "description": "Replace files with other files in the build for server.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "replace": {
+            "type": "string"
+          },
+          "with": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": ["replace", "with"]
+      },
+      "default": []
+    },
+    "clientFileReplacements": {
+      "description": "Replace files with other files in the build for client.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "replace": {
+            "type": "string"
+          },
+          "with": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": ["replace", "with"]
+      },
+      "default": []
+    },
+    "serverWebpackConfig": {
+      "type": "string",
+      "description": "Path to a function which takes a webpack config, context and returns the resulting webpack config for the server"
+    },
+    "clientWebpackConfig": {
+      "type": "string",
+      "description": "Path to a function which takes a webpack config, context and returns the resulting webpack config for the client"
+    },
+    "inspectHost": {
+      "type": "string",
+      "default": "127.0.0.1",
+      "description": "The host to inspect the process on"
+    },
+    "inspectPort": {
+      "type": "number",
+      "default": 0,
+      "description": "The port to inspect the process on. Setting port to 0 will assign random free ports to all forked processes."
+    },
+    "inspect": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["inspect", "inspect-brk"]
+        },
+        {
+          "type": "boolean"
+        }
+      ],
+      "description": "Ensures the app is starting with debugging",
+      "default": "inspect"
+    }
+  },
+  "required": ["tsConfig", "serverMain", "clientMain", "appHtml"],
+
+  "definitions": {
+    "assetPattern": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "glob": {
+              "type": "string",
+              "description": "The pattern to match."
+            },
+            "input": {
+              "type": "string",
+              "description": "The input directory path in which to apply 'glob'. Defaults to the project root."
+            },
+            "ignore": {
+              "description": "An array of globs to ignore.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "output": {
+              "type": "string",
+              "description": "Absolute path within the output."
+            }
+          },
+          "additionalProperties": false,
+          "required": ["glob", "input", "output"]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

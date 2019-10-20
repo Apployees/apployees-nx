@@ -1,0 +1,64 @@
+import { BuildBuilderOptions, FileReplacement } from '@apployees-nx/common-build-utils';
+import * as _ from 'lodash';
+import { Stats } from 'webpack';
+
+export const extensions = [
+  '.web.mjs',
+  '.mjs',
+  '.web.js',
+  '.js',
+  '.web.ts',
+  '.ts',
+  '.web.tsx',
+  '.tsx',
+  '.json',
+  '.web.jsx',
+  '.jsx'
+];
+
+export function getAliases(replacements: FileReplacement[]): { [key: string]: string } {
+  return _.extend({},
+    {
+      // Support React Native Web
+      // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
+      'react-native': 'react-native-web'
+    },
+    (replacements || []).reduce(
+      (aliases, replacement) => ({
+        ...aliases,
+        [replacement.replace]: replacement.with
+      }),
+      {}
+    )
+  );
+}
+
+export function getStatsConfig(options: BuildBuilderOptions): Stats.ToStringOptions {
+  return {
+    hash: true,
+    timings: false,
+    cached: false,
+    cachedAssets: false,
+    modules: false,
+    warnings: true,
+    errors: true,
+    colors: !options.verbose && !options.statsJson,
+    chunks: !options.verbose,
+    assets: !!options.verbose,
+    chunkOrigins: !!options.verbose,
+    chunkModules: !!options.verbose,
+    children: !!options.verbose,
+    reasons: !!options.verbose,
+    version: !!options.verbose,
+    errorDetails: !!options.verbose,
+    moduleTrace: !!options.verbose,
+    usedExports: !!options.verbose
+  };
+}
+
+export const FILENAMES = {
+  thirdPartyLicenses: `3rdpartylicenses.txt`,
+  appHtml: `app.html`,
+  manifestJson: `manifest.json`,
+  publicFolder: `public`
+};

@@ -1,0 +1,57 @@
+{
+  "title": "Schema for Executing NodeJS apps",
+  "description": "NodeJS execution options",
+  "type": "object",
+  "properties": {
+    "buildTarget": {
+      "type": "string",
+      "description": "The target to run to build you the app"
+    },
+    "entryFile": {
+      "type": "string",
+      "description": "The entry file to run after the build. By default this is 'main.js'.",
+      "default": "main.js"
+    },
+    "waitUntilTargets": {
+      "type": "array",
+      "description": "The targets to run to before starting the node app",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "host": {
+      "type": "string",
+      "default": "127.0.0.1",
+      "description": "The host to inspect the process on"
+    },
+    "port": {
+      "type": "number",
+      "default": 0,
+      "description": "The port to inspect the process on. Setting port to 0 will assign random free ports to all forked processes."
+    },
+    "inspect": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["inspect", "inspect-brk"]
+        },
+        {
+          "type": "boolean"
+        }
+      ],
+      "description": "Ensures the app is starting with debugging",
+      "default": "inspect"
+    },
+    "args": {
+      "type": "array",
+      "description": "Extra args when starting the app",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": ["buildTarget"]
+}
