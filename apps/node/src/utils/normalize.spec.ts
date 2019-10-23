@@ -1,7 +1,7 @@
 import { normalizeBuildOptions } from './normalize';
 import { Path, normalize } from '@angular-devkit/core';
 
-import * as fs from 'fs';
+import fs from 'fs';
 import { BuildNodeBuilderOptions } from './node-types';
 
 describe('normalizeBuildOptions', () => {

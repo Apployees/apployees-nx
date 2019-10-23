@@ -10,7 +10,7 @@
     },
     "main": {
       "type": "string",
-      "description": "The name of the main entry-point file."
+      "description": "The path to the main entry-point file."
     },
     "otherEntries": {
       "type": "object",
@@ -36,8 +36,50 @@
     },
     "progress": {
       "type": "boolean",
-      "description": "Log progress to the console while building.",
-      "default": false
+      "description": "Log progress to the console while building. Only works for dev=true.",
+      "default": true
+    },
+    "notifier": {
+      "description": "Pops up a notifier when the build is done. Works only in dev=true mode. If set to true, all notifications will be shown. Otherwise, you can configure options for it (see schema or https://github.com/johnnyreilly/fork-ts-checker-notifier-webpack-plugin).",
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "excludeWarnings": {
+              "type": "boolean",
+              "description": "If set to true, warnings will not cause a notification.",
+              "default": false
+            },
+            "alwaysNotify": {
+              "type": "boolean",
+              "description": "Trigger a notification every time. Call it \"noisy-mode\".",
+              "default": false
+            },
+            "skipFirstNotification": {
+              "type": "boolean",
+              "description": "Do not notify on the first build. This allows you to receive notifications on subsequent incremental builds without being notified on the initial build.",
+              "default": false
+            },
+            "skipSuccessful": {
+              "type": "boolean",
+              "description": "Skip notifications for successful builds.",
+              "default": true
+            }
+          }
+        }
+      ],
+      "default": true
+    },
+    "envFolderPath": {
+      "type": "string",
+      "description": "The path to the folder that contains this project's .env environment files."
+    },
+    "additionalEnvFile": {
+      "type": "string",
+      "description": "The path to an additional environment file. This will be loaded first before any others for the NODE_ENV are loaded, and will take priority over all others."
     },
     "assets": {
       "type": "array",
@@ -51,7 +93,10 @@
       "oneOf": [
         {
           "type": "string",
-          "enum": ["none", "all"]
+          "enum": [
+            "none",
+            "all"
+          ]
         },
         {
           "type": "array",
@@ -67,7 +112,10 @@
       "oneOf": [
         {
           "type": "string",
-          "enum": ["none", "all"]
+          "enum": [
+            "none",
+            "all"
+          ]
         },
         {
           "type": "array",
@@ -104,10 +152,6 @@
       "description": "Show circular dependency warnings on builds.",
       "default": true
     },
-    "maxWorkers": {
-      "type": "number",
-      "description": "Number of workers to use for type checking. (defaults to # of CPUS - 2)"
-    },
     "fileReplacements": {
       "description": "Replace files with other files in the build.",
       "type": "array",
@@ -122,7 +166,10 @@
           }
         },
         "additionalProperties": false,
-        "required": ["replace", "with"]
+        "required": [
+          "replace",
+          "with"
+        ]
       },
       "default": []
     },
@@ -131,8 +178,10 @@
       "description": "Path to a function which takes a webpack config, context and returns the resulting webpack config"
     }
   },
-  "required": ["tsConfig", "main"],
-
+  "required": [
+    "tsConfig",
+    "main"
+  ],
   "definitions": {
     "assetPattern": {
       "oneOf": [
@@ -160,7 +209,11 @@
             }
           },
           "additionalProperties": false,
-          "required": ["glob", "input", "output"]
+          "required": [
+            "glob",
+            "input",
+            "output"
+          ]
         },
         {
           "type": "string"

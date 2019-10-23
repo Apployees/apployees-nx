@@ -1,9 +1,10 @@
 import { Configuration } from 'webpack';
-import * as mergeWebpack from 'webpack-merge';
+import mergeWebpack from 'webpack-merge';
 
 import { getNodeExternals } from '@apployees-nx/common-build-utils';
 import { getBaseWebpackPartial } from './config';
 import { BuildNodeBuilderOptions } from './node-types';
+import { BuilderContext } from "@angular-devkit/architect";
 
 function getNodePartial(options: BuildNodeBuilderOptions) {
   const webpackConfig: Configuration = {
@@ -29,9 +30,9 @@ function getNodePartial(options: BuildNodeBuilderOptions) {
   return webpackConfig;
 }
 
-export function getNodeWebpackConfig(options: BuildNodeBuilderOptions) {
+export function getNodeWebpackConfig(options: BuildNodeBuilderOptions, context?: BuilderContext) {
   return mergeWebpack([
-    getBaseWebpackPartial(options),
+    getBaseWebpackPartial(options, context),
     getNodePartial(options)
   ]);
 }

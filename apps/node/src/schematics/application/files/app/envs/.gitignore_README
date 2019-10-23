@@ -1,0 +1,9 @@
+# ======================================================================================================================
+# The .env.local.* files should be git-ignored. However, we need to check them in first, otherwise no one
+# will see them when they do a git checkout. So:
+#
+# 1. Check, commit, and push everything.
+# 2. Rename this file to .gitignore, and remove this block comment.
+# 3. Check, commit, and push everything again.
+# ======================================================================================================================
+.env.local.*

@@ -13,6 +13,11 @@
       "default": "0.0.0.0",
       "description": "The host to use to run the server when in dev mode (i.e. when dev=true)."
     },
+    "devHttps": {
+      "type": "boolean",
+      "description": "True if the dev server should use HTTPS. False by default.",
+      "default": false
+    },
     "devAppPort": {
       "type": "number",
       "default": 3000,
@@ -51,12 +56,46 @@
     "sourceMap": {
       "type": "boolean",
       "description": "Produce source maps. This flag is only used when dev=false. When dev=true, source maps are always produced.",
-      "default": true
+      "default": false
     },
     "progress": {
       "type": "boolean",
-      "description": "Log progress to the console while building.",
-      "default": false
+      "description": "Log progress to the console while building. Only works for dev=true.",
+      "default": true
+    },
+    "notifier": {
+      "description": "Pops up a notifier when the build is done. Works only in dev=true mode. If set to true, all notifications will be shown. Otherwise, you can configure options for it (see schema or https://github.com/johnnyreilly/fork-ts-checker-notifier-webpack-plugin).",
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "excludeWarnings": {
+              "type": "boolean",
+              "description": "If set to true, warnings will not cause a notification.",
+              "default": false
+            },
+            "alwaysNotify": {
+              "type": "boolean",
+              "description": "Trigger a notification every time. Call it \"noisy-mode\".",
+              "default": false
+            },
+            "skipFirstNotification": {
+              "type": "boolean",
+              "description": "Do not notify on the first build. This allows you to receive notifications on subsequent incremental builds without being notified on the initial build.",
+              "default": false
+            },
+            "skipSuccessful": {
+              "type": "boolean",
+              "description": "Skip notifications for successful builds.",
+              "default": true
+            }
+          }
+        }
+      ],
+      "default": true
     },
     "assets": {
       "type": "array",
@@ -66,14 +105,22 @@
         "$ref": "#/definitions/assetPattern"
       }
     },
+    "envFolderPath": {
+      "type": "string",
+      "description": "The path to the folder that contains this project's .env environment files. Defaults to a folder called 'envs' in the root of the project."
+    },
+    "additionalEnvFile": {
+      "type": "string",
+      "description": "The path to an additional environment file. This will be loaded first before any others for the NODE_ENV are loaded, and will take priority over all others."
+    },
     "imageInlineSizeLimit": {
       "type": "number",
       "description": "The size threshold after which images should not be inlined. Defined in bytes.",
       "default": 10000
     },
-    "publicUrl": {
+    "assetsUrl": {
       "type": "string",
-      "description": "The \"public path\" at which the app is served -- you can override this with PUBLIC_URL environment variable. We need to know it to put the right <script> hrefs into HTML even in single-page apps that may serve index.html for nested URLs like /todos/42. We can't use a relative path in HTML because we don't want to load something like /todos/42/static/js/bundle.7289d.js. We have to know the root.",
+      "description": "The \"public path\" at which the app is served -- you can override this with ASSETS_URL environment variable. We need to know it to put the right <script> hrefs into HTML even in single-page apps that may serve index.html for nested URLs like /todos/42. We can't use a relative path in HTML because we don't want to load something like /todos/42/static/js/bundle.7289d.js. We have to know the root.",
       "default": "/"
     },
     "serverExternalDependencies": {
@@ -170,14 +217,10 @@
       "description": "Some apps do not need the benefits of saving a web request, so not inlining the chunk makes for a smoother build process.",
       "default": true
     },
-    "maxWorkers": {
-      "type": "number",
-      "description": "Number of workers to use for type checking. (defaults to # of CPUS - 2)"
-    },
     "outputHashing": {
       "type": "string",
       "description": "Define the output filename cache-busting hashing mode.",
-      "default": "none",
+      "default": "all",
       "enum": ["none", "all", "media", "bundles"]
     },
     "serverFileReplacements": {

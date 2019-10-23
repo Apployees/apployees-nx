@@ -1,5 +1,5 @@
 import { Tree } from '@angular-devkit/schematics';
-import * as stripJsonComments from 'strip-json-comments';
+import stripJsonComments from 'strip-json-comments';
 import { createEmptyWorkspace, getFileContent } from '@nrwl/workspace/testing';
 import { runSchematic } from '../../utils/testing';
 import { NxJson, readJsonInTree } from '@nrwl/workspace';
@@ -31,6 +31,8 @@ describe('app', () => {
             },
             configurations: {
               production: {
+                dev: false,
+                watch: false,
                 optimization: true,
                 extractLicenses: true,
                 inspect: false,
@@ -43,9 +45,9 @@ describe('app', () => {
                 ]
               },
               development: {
+                dev: true,
                 optimization: false,
-                extractLicenses: false,
-                watch: true
+                extractLicenses: false
               }
             }
           },

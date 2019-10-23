@@ -18,6 +18,13 @@ export interface SourceMapOptions {
   hidden: boolean;
 }
 
+export interface NotifierType {
+  excludeWarnings: boolean;
+  alwaysNotify: boolean;
+  skipFirstNotification: boolean;
+  skipSuccessful: boolean;
+}
+
 export interface BuildBuilderOptions {
   dev?: boolean;
   outputPath: string;
@@ -26,12 +33,14 @@ export interface BuildBuilderOptions {
   sourceMap?: boolean | SourceMapOptions;
   optimization?: boolean | OptimizationOptions;
   showCircularDependencies?: boolean;
-  maxWorkers?: number;
   poll?: number;
 
   assets?: any[];
+  envFolderPath?: string;
+  additionalEnvFile?: string;
 
   progress?: boolean;
+  notifier?: NotifierType|boolean;
   statsJson?: boolean;
   extractLicenses?: boolean;
   verbose?: boolean;

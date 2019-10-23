@@ -38,7 +38,10 @@
               "optimization": false,
               "extractLicenses": false,
               "watch": true,
-              "verbose": true
+              "verbose": true,
+              "notifier": {
+                "excludeWarnings": true
+              }
             }
           }
         },
@@ -176,14 +179,17 @@
               "optimization": false,
               "extractLicenses": false,
               "inspect": true,
-              "watch": true
+              "watch": true,
+              "notifier": {
+                "excludeWarnings": true
+              }
             }
           }
         },
         "serve": {
           "builder": "@apployees-nx/node:execute",
           "options": {
-            "buildTarget": "node:build"
+            "buildTarget": "node:build:development"
           }
         },
         "lint": {
@@ -243,9 +249,7 @@
             "development": {
               "dev": true,
               "optimization": false,
-              "extractLicenses": false,
-              "inspect": true,
-              "watch": true
+              "extractLicenses": false
             }
           }
         },

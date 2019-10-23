@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as express from 'express';
+import path from 'path';
+import express from 'express';
 
 import htmlMiddleware from './middleware/html';
 import renderMiddleware from './middleware/render';

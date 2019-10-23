@@ -1,5 +1,5 @@
 import { BuildBuilderOptions, FileReplacement } from '@apployees-nx/common-build-utils';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { Stats } from 'webpack';
 
 export const extensions = [
@@ -59,6 +59,6 @@ export function getStatsConfig(options: BuildBuilderOptions): Stats.ToStringOpti
 export const FILENAMES = {
   thirdPartyLicenses: `3rdpartylicenses.txt`,
   appHtml: `app.html`,
-  manifestJson: `manifest.json`,
+  manifestJson: `asset-manifest.json`,
   publicFolder: `public`
 };

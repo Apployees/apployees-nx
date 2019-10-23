@@ -1,34 +1,32 @@
-import * as path from 'path';
-import * as fs from 'fs-extra';
-import { resolve } from 'path';
-import chalk from 'chalk';
-import { BuilderContext, createBuilder } from '@angular-devkit/architect';
-import { JsonObject } from '@angular-devkit/core';
-import { runWebpack, runWebpackDevServer } from '@angular-devkit/build-webpack';
-import { forkJoin, from, iif, Observable, of, pipe } from 'rxjs';
-import { concatMap, flatMap, map, single, switchMap } from 'rxjs/operators';
-import { getSourceRoot, OUT_FILENAME, WebpackBuildEvent, writePackageJson } from '@apployees-nx/common-build-utils';
-import { BuildWebserverBuilderOptions } from '../../utils/common/webserver-types';
-import { normalizeBuildOptions } from '../../utils/common/normalize';
-import { getServerConfig } from '../../utils/server/server-config';
-import { getClientConfig } from '../../utils/client/client-config';
-import { checkBrowsers } from 'react-dev-utils/browsersHelper';
-import * as openBrowser from 'react-dev-utils/openBrowser';
-import * as FileSizeReporter from 'react-dev-utils/FileSizeReporter';
+import path, { resolve } from "path";
+import fs from "fs-extra";
+import chalk from "chalk";
+import { BuilderContext, createBuilder } from "@angular-devkit/architect";
+import { JsonObject } from "@angular-devkit/core";
+import { DevServerBuildOutput, runWebpack, runWebpackDevServer } from "@angular-devkit/build-webpack";
+import { forkJoin, from, Observable, of } from "rxjs";
+import { concatMap, map, switchMap } from "rxjs/operators";
 import {
-  choosePort,
-  prepareUrls,
-  printInstructions,
-  createCompiler
-} from 'react-dev-utils/WebpackDevServerUtils';
-import * as errorOverlayMiddleware from 'react-dev-utils/errorOverlayMiddleware';
-import * as evalSourceMapMiddleware from 'react-dev-utils/evalSourceMapMiddleware';
-import clearConsole = require('react-dev-utils/clearConsole');
-import _ = require('lodash');
-import { Configuration } from 'webpack';
-import * as webpack from 'webpack';
-import escape = require('escape-string-regexp');
-import WebpackDevServer = require('webpack-dev-server');
+  getSourceRoot,
+  loadEnvironmentVariables,
+  OUT_FILENAME,
+  WebpackBuildEvent,
+  writePackageJson
+} from "@apployees-nx/common-build-utils";
+import { BuildWebserverBuilderOptions } from "../../utils/common/webserver-types";
+import { normalizeBuildOptions } from "../../utils/common/normalize";
+import { getServerConfig } from "../../utils/server/server-config";
+import { getClientConfig } from "../../utils/client/client-config";
+import { checkBrowsers } from "react-dev-utils/browsersHelper";
+import FileSizeReporter from "react-dev-utils/FileSizeReporter";
+import { choosePort, createCompiler, prepareUrls } from "react-dev-utils/WebpackDevServerUtils";
+import errorOverlayMiddleware from "react-dev-utils/errorOverlayMiddleware";
+import evalSourceMapMiddleware from "react-dev-utils/evalSourceMapMiddleware";
+import _ from "lodash";
+import webpack, { Configuration } from "webpack";
+import escape from "escape-string-regexp";
+import WebpackDevServer from "webpack-dev-server";
+import noopServiceWorkerMiddleware from "react-dev-utils/noopServiceWorkerMiddleware";
 
 const measureFileSizesBeforeBuild =
   FileSizeReporter.measureFileSizesBeforeBuild;
@@ -41,38 +39,43 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;
 const isInteractive = process.stdout.isTTY;
 
 try {
-  require('dotenv').config();
+  require("dotenv").config();
 } catch (e) {
 }
 
-
 export default createBuilder<JsonObject & BuildWebserverBuilderOptions>(run);
+
+interface WebpackDevServerReference {
+  server: WebpackDevServer;
+}
 
 function run(
   options: JsonObject & BuildWebserverBuilderOptions,
   context: BuilderContext
 ): Observable<WebpackBuildEvent> {
 
-  const mode = options.dev ? 'development' : 'production';
+  const nodeEnv: string = options.dev ? "development" : "production";
   // do this otherwise our bootstrapped @apployees-nx/node actually replaces this
   // to "development" or "production" at build time.
-  const nodeEnv = 'NODE_ENV';
-  const babelEnv = 'BABEL_ENV';
-  process.env[nodeEnv] = mode;
-  process.env[babelEnv] = mode;
+  const nodeEnvKey = "NODE_ENV";
+  const babelEnvKey = "BABEL_ENV";
+  process.env[nodeEnvKey] = nodeEnv;
+  process.env[babelEnvKey] = nodeEnv;
 
-  let devServer;
+  const devServer: WebpackDevServerReference = { server: WebpackDevServer };
   const devSocket = {
-    warnings: warnings =>
-      devServer.sockWrite(devServer.sockets, 'warnings', warnings),
-    errors: errors =>
-      devServer.sockWrite(devServer.sockets, 'errors', errors),
+    warnings: warnings => {
+      devServer.server.sockWrite(devServer.server.sockets, "warnings", warnings);
+    },
+    errors: errors => {
+      devServer.server.sockWrite(devServer.server.sockets, "errors", errors);
+    }
   };
   let yarnExists;
 
   return from(getSourceRoot(context)).pipe(
     map(sourceRoot =>
-      normalizeBuildOptions(options, context.workspaceRoot, sourceRoot)
+      normalizeBuildOptions(options, context, sourceRoot)
     ),
     switchMap((options: BuildWebserverBuilderOptions) =>
       checkBrowsers(path.resolve(options.root, options.sourceRoot), isInteractive)
@@ -80,6 +83,7 @@ function run(
     switchMap((options: BuildWebserverBuilderOptions) => {
 
       yarnExists = fs.existsSync(path.resolve(options.root, "yarn.lock"));
+      loadEnvironmentVariables(options, context);
 
       if (options.dev) {
         return choosePort(options.devHost, options.devAppPort)
@@ -100,8 +104,8 @@ function run(
                 options.devWebpackPort = webpackPort;
                 process.env.DEV_PORT = webpackPort;
 
-                options.publicUrl = `http://${options.devHost}:${webpackPort}/`;
-                options.devUrls_calculated = prepareUrls("http", options.devHost, webpackPort);
+                options.assetsUrl = `http://${options.devHost}:${webpackPort}/`;
+                options.devUrls_calculated = prepareUrls("http", options.devHost, appPort);
 
                 return options;
               });
@@ -136,7 +140,7 @@ function run(
       if (!fs.existsSync(options.appHtml) ||
         !fs.existsSync(options.clientMain) ||
         !fs.existsSync(options.serverMain)) {
-        throw new Error('One of appHtml, clientMain, or serverMain is not specified.');
+        throw new Error("One of appHtml, clientMain, or serverMain is not specified.");
       }
 
       let serverConfig = getServerConfig(options, context, true);
@@ -158,88 +162,35 @@ function run(
       return [options, serverConfig, clientConfig, previousFileSizesForPublicFolder];
     }),
     concatMap(([options, serverConfig, clientConfig, previousFileSizesForPublicFolder]:
-                 [BuildWebserverBuilderOptions, Configuration, Configuration, object]) =>
-      forkJoin(
+                 [BuildWebserverBuilderOptions, Configuration, Configuration, object]) => {
 
-        // compile the server
-        iif(() => options.dev,
+        if (options.dev) {
+          return forkJoin(
+            runWebpack(serverConfig, context, {
+              logging: stats => {
+                context.logger.info(stats.toString(serverConfig.stats));
+              },
+              webpackFactory: (config: Configuration) => of(createCompiler({
+                webpack: webpack,
+                config: serverConfig,
+                appName: context.target.project + " - Server",
+                useYarn: yarnExists,
+                tscCompileOnError: true,
+                useTypeScript: true,
+                devSocket: devSocket,
+                urls: options.devUrls_calculated
+              }))
+            }),
 
-          // // this is for dev === true
-          // of(new Promise((resolve, reject) => {
-          //
-          //
-          //   const serverCompiler = createCompiler({
-          //     webpack: webpack,
-          //     config: serverConfig,
-          //     appName: 'Server',
-          //     useYarn: yarnExists,
-          //     tscCompileOnError: true,
-          //     useTypeScript: true,
-          //     devSocket: devSocket,
-          //     urls: options.devUrls_calculated
-          //   });
-          //
-          //   // Start server in watch mode
-          //   serverCompiler.watch(
-          //     {
-          //       quiet: true,
-          //       stats: 'none',
-          //     },
-          //     () => {}
-          //   );
-          //
-          //   // Open app in browser when server ready
-          //   let serverStarted;
-          //
-          //   serverCompiler.plugin('done', () => {
-          //     if (!serverStarted) {
-          //       serverStarted = true;
-          //       printInstructions(context.target.project, options.devUrls_calculated, yarnExists);
-          //       setTimeout(() => {
-          //         openBrowser(options.devUrls_calculated.localUrlForBrowser);
-          //       }, 1000);
-          //     }
-          //   });
-          // })),
-
-          // this is for dev === true
-          runWebpack(serverConfig, context, {
-            logging: stats => {
-              context.logger.info(stats.toString(serverConfig.stats));
-            },
-            webpackFactory: (config: Configuration) => of(createCompiler({
-              webpack: webpack,
-              config: serverConfig,
-              appName: 'Server',
-              useYarn: yarnExists,
-              tscCompileOnError: true,
-              useTypeScript: true,
-              devSocket: devSocket,
-              urls: options.devUrls_calculated
-            }))
-          }),
-
-          // this is for dev === false
-          runWebpack(serverConfig, context, {
-            logging: stats => {
-              context.logger.info(stats.toString(serverConfig.stats));
-            }
-          })
-        ),
-
-        // compile the client
-        iif(() => options.dev,
-
-          // this is for dev === true
-          runWebpackDevServer(clientConfig, context, {
+            runWebpackDevServer(clientConfig, context, {
               logging: stats => {
                 context.logger.info(stats.toString(clientConfig.stats));
               },
-              devServerConfig: createWebpackServerOptions(options),
+              devServerConfig: createWebpackServerOptions(options, devServer),
               webpackFactory: (config: webpack.Configuration) => of(createCompiler({
                 webpack: webpack,
                 config: clientConfig,
-                appName: 'Client',
+                appName: context.target.project + " - Client",
                 useYarn: yarnExists,
                 tscCompileOnError: true,
                 useTypeScript: true,
@@ -253,13 +204,22 @@ function run(
               })
             ),
 
-          runWebpack(clientConfig, context, {
-            logging: stats => {
-              context.logger.info(stats.toString(clientConfig.stats));
+            of(options)
+          );
+        } else {
+          return forkJoin(
+            runWebpack(serverConfig, context, {
+              logging: stats => {
+                context.logger.info(stats.toString(serverConfig.stats));
+              }
+            }),
 
-              if (!options.dev) {
+            runWebpack(clientConfig, context, {
+              logging: stats => {
+                context.logger.info(stats.toString(clientConfig.stats));
+
                 console.log(previousFileSizesForPublicFolder);
-                context.logger.info('\n\nFile sizes of files in /public after gzip:\n');
+                context.logger.info("\n\nFile sizes of files in /public after gzip:\n");
                 printFileSizesAfterBuild(
                   stats,
                   previousFileSizesForPublicFolder,
@@ -268,15 +228,15 @@ function run(
                   WARN_AFTER_CHUNK_GZIP_SIZE
                 );
               }
-            }
-          })
-        ),
+            }),
 
-        of(options)
-      )
+            of(options)
+          );
+        }
+      }
     ),
     map(([serverBuildEvent, clientBuildEventOrDevServerBuildOutput, options]:
-           [WebpackBuildEvent, WebpackBuildEvent, BuildWebserverBuilderOptions]) => {
+           [WebpackBuildEvent, WebpackBuildEvent | DevServerBuildOutput, BuildWebserverBuilderOptions]) => {
       if (!options.dev) {
         serverBuildEvent.success = serverBuildEvent.success && clientBuildEventOrDevServerBuildOutput.success;
         serverBuildEvent.error = serverBuildEvent.error && clientBuildEventOrDevServerBuildOutput.error;
@@ -287,10 +247,11 @@ function run(
         );
         return [serverBuildEvent as WebpackBuildEvent, options];
       } else {
-        return [clientBuildEventOrDevServerBuildOutput, options];
+        return [clientBuildEventOrDevServerBuildOutput as DevServerBuildOutput, options];
       }
     }),
-    map(([clientBuildEventOrDevServerBuildOutput, options]: [WebpackBuildEvent, BuildWebserverBuilderOptions]) => {
+    map(([clientBuildEventOrDevServerBuildOutput, options]:
+           [WebpackBuildEvent & DevServerBuildOutput, BuildWebserverBuilderOptions]) => {
       // we only consider server external dependencies and libraries because it is the server
       // code that is run by node, not the browser code. It is expected that any
       // clientExternalDependencies and clientExternalLibraries are fetched in the browser separately.
@@ -298,11 +259,10 @@ function run(
       if (!options.dev) {
         writePackageJson(options, context, options.serverExternalDependencies, options.serverExternalLibraries);
 
-        printHostingInstructions(options.publicUrl, options.publicOutputFolder_calculated, options.outputPath);
+        printHostingInstructions(options.assetsUrl, options.publicOutputFolder_calculated, options.outputPath);
 
         return clientBuildEventOrDevServerBuildOutput;
       } else {
-        console.log(`The public URL is ${options.publicUrl}`);
         return clientBuildEventOrDevServerBuildOutput;
       }
     })
@@ -317,34 +277,37 @@ function printHostingInstructions(assetsPath, publicOutputFolder_calculated, bui
     )}'.`
   );
   console.log();
-  if (assetsPath.startsWith('/')) {
+  if (assetsPath.startsWith("/")) {
     console.log(
       `All of your static assets will be served from the rendering server (specifically from ${chalk.green(publicOutputFolder_calculated)}).`
     );
-    console.log('\nWe recommend serving static assets from a CDN in production.');
+    console.log("\nWe recommend serving static assets from a CDN in production.");
     console.log(
       `\nYou can control this with the ${chalk.cyan(
-        'ASSETS_PATH'
+        "ASSETS_URL"
       )} environment variable and set its value to the CDN URL.`
     );
     console.log();
   }
   console.log(`The ${chalk.cyan(buildFolder)} folder is ready to be deployed.`);
   console.log();
-  console.log('You may run the app with node:');
+  console.log("You may run the app with node:");
   console.log();
-  console.log(` ${chalk.cyan('node')} ${buildFolder}`);
+  console.log(` ${chalk.cyan("node")} ${buildFolder}`);
   console.log();
 }
 
-function createWebpackServerOptions(options: BuildWebserverBuilderOptions) {
+function createWebpackServerOptions(options: BuildWebserverBuilderOptions,
+                                    serverReference: WebpackDevServerReference) {
   return {
+    // this needs to remain disabled because our webpackdevserver runs on a
+    // different port than the server app.
     disableHostCheck: true,
     // Enable gzip compression of generated files.
     compress: true,
     // Silence WebpackDevServer's own logs since they're generally not useful.
     // It will still show compile warnings and errors with this setting.
-    clientLogLevel: 'none',
+    clientLogLevel: "none",
     // Enable hot reloading server. It will provide /sockjs-node/ endpoint
     // for the WebpackDevServer client so it can learn when the files were
     // updated. The WebpackDevServer client is included as an entry point
@@ -353,7 +316,7 @@ function createWebpackServerOptions(options: BuildWebserverBuilderOptions) {
     hot: true,
     // It is important to tell WebpackDevServer to use the same "root" path
     // as we specified in the config. In development, we always serve from /.
-    publicPath: '/',
+    publicPath: process.env.ASSETS_URL || options.assetsUrl,
     // WebpackDevServer is noisy by default so we emit custom message instead
     // by listening to the compiler events with `compiler.hooks[...].tap` calls above.
     quiet: true,
@@ -362,34 +325,43 @@ function createWebpackServerOptions(options: BuildWebserverBuilderOptions) {
     // src/node_modules is not ignored to support absolute imports
     // https://github.com/facebook/create-react-app/issues/1065
     watchOptions: {
-      ignored: ignoredFiles(path.resolve(options.root, options.sourceRoot)),
+      ignored: ignoredFiles(path.resolve(options.root, options.sourceRoot))
     },
     host: options.devHost,
     port: options.devWebpackPort,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      "Access-Control-Allow-Origin": "*"
     },
     overlay: false,
     historyApiFallback: {
       // Paths with dots should still use the history fallback.
       // See https://github.com/facebook/create-react-app/issues/387.
-      disableDotRule: true,
+      disableDotRule: true
     },
     public: options.devUrls_calculated.lanUrlForConfig,
     before(app, server) {
+      serverReference.server = server;
+
       // This lets us fetch source contents from webpack for the error overlay
       app.use(evalSourceMapMiddleware(server));
       // This lets us open files from the runtime error overlay.
       app.use(errorOverlayMiddleware());
-    },
+
+      // This service worker file is effectively a 'no-op' that will reset any
+      // previous service worker registered for the same host:port combination.
+      // We do this in development to avoid hitting the production cache if
+      // it used the same host and port.
+      // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
+      app.use(noopServiceWorkerMiddleware());
+    }
   };
-};
+}
 
 function ignoredFiles(appSrc) {
   return new RegExp(
     `^(?!${escape(
-      path.normalize(appSrc + '/').replace(/[\\]+/g, '/')
+      path.normalize(appSrc + "/").replace(/[\\]+/g, "/")
     )}).+/node_modules/`,
-    'g'
+    "g"
   );
-};
+}

@@ -3,7 +3,7 @@ import {
   nodeExecuteBuilderHandler
 } from './execute.impl';
 import { of, from } from 'rxjs';
-import * as devkitArchitect from '@angular-devkit/architect';
+import devkitArchitect from '@angular-devkit/architect';
 import { MockBuilderContext, getMockContext } from '../../utils/testing';
 import { InspectType } from '@apployees-nx/common-build-utils';
 

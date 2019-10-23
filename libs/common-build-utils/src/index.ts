@@ -1,5 +1,7 @@
 export * from "./lib/builder/sources";
 export * from "./lib/builder/normalize";
+export * from "./lib/builder/common-env-utils";
+export * from "./lib/builder/common-plugins";
 
 export * from "./lib/generate-package-json/write-package-json";
 

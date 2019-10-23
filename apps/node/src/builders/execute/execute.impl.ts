@@ -6,7 +6,7 @@ import {
   targetFromTargetString
 } from '@angular-devkit/architect';
 import { ChildProcess, fork } from 'child_process';
-import * as treeKill from 'tree-kill';
+import treeKill from 'tree-kill';
 
 import { bindCallback, from, Observable, of, zip } from 'rxjs';
 import { concatMap, filter, first, map, mapTo, tap } from 'rxjs/operators';

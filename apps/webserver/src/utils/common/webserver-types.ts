@@ -8,6 +8,7 @@ import {
 export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   devHost?: string;
   devAppPort?: number;
+  devHttps?: boolean;
   devWebpackPort?: number;
   devUrls_calculated?: {
     lanUrlForConfig;
@@ -23,7 +24,7 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   sourceMap?: boolean;
   outputHashing?: "none" | "all" | "media" | "bundles";
   imageInlineSizeLimit?: number;
-  publicUrl?: string;
+  assetsUrl?: string;
   publicOutputFolder_calculated?: string;
   inlineRuntimeChunk?: boolean;
   serverExternalDependencies?: ExternalDependencies;

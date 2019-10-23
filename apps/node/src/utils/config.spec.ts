@@ -1,10 +1,10 @@
 import { getBaseWebpackPartial } from './config';
 import { normalize, getSystemPath } from '@angular-devkit/core';
 
-import * as ts from 'typescript';
+import ts from 'typescript';
 import { LicenseWebpackPlugin } from 'license-webpack-plugin';
-import CircularDependencyPlugin = require('circular-dependency-plugin');
-import ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+import CircularDependencyPlugin from 'circular-dependency-plugin';
+import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
 jest.mock('tsconfig-paths-webpack-plugin');
 import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { ProgressPlugin } from 'webpack';
@@ -22,7 +22,9 @@ describe('getBaseWebpackPartial', () => {
       statsJson: false
     };
     (TsConfigPathsPlugin as any).mockImplementation(
-      function MockPathsPlugin() {}
+      function MockPathsPlugin() {
+        // nothing
+      }
     );
   });
 
@@ -258,20 +260,6 @@ describe('getBaseWebpackPartial', () => {
 
         expect(result.mode).toEqual('production');
       });
-    });
-  });
-
-  describe('the max workers option', () => {
-    it('should set the maximum workers for the type checker', () => {
-      const result = getBaseWebpackPartial({
-        ...input,
-        maxWorkers: 1
-      });
-
-      const typeCheckerPlugin = result.plugins.find(
-        plugin => plugin instanceof ForkTsCheckerWebpackPlugin
-      ) as ForkTsCheckerWebpackPlugin;
-      expect(typeCheckerPlugin.options.workers).toEqual(1);
     });
   });
 

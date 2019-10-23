@@ -1,15 +1,25 @@
-import { resolve } from 'path';
-import { normalizeAssets, normalizeFileReplacements, normalizeOtherEntries } from '@apployees-nx/common-build-utils';
-import { BuildWebserverBuilderOptions } from './webserver-types';
-import { FILENAMES } from './common-config';
+import { resolve } from "path";
+import {
+  getDefaultEnvsFolderForProject,
+  normalizeAssets,
+  normalizeFileReplacements,
+  normalizeOtherEntries
+} from "@apployees-nx/common-build-utils";
+import { BuildWebserverBuilderOptions } from "./webserver-types";
+import { FILENAMES } from "./common-config";
+import { BuilderContext } from "@angular-devkit/architect";
 
 
 export function normalizeBuildOptions<T extends BuildWebserverBuilderOptions>(
   options: T,
-  root: string,
+  context: BuilderContext,
   sourceRoot: string
 ): T {
+
+  const root = context.workspaceRoot;
+
   const outputPath = resolve(root, options.outputPath);
+
   return {
     ...options,
     root: root,
@@ -17,6 +27,10 @@ export function normalizeBuildOptions<T extends BuildWebserverBuilderOptions>(
     outputPath: outputPath,
     tsConfig: resolve(root, options.tsConfig),
     assets: normalizeAssets(options.assets, root, sourceRoot),
+    envFolderPath: options.envFolderPath ?
+      resolve(root, options.envFolderPath) : getDefaultEnvsFolderForProject(root, context),
+    additionalEnvFile: options.additionalEnvFile ?
+      resolve(root, options.additionalEnvFile) : options.additionalEnvFile,
     publicOutputFolder_calculated: resolve(outputPath, FILENAMES.publicFolder),
     appHtml: resolve(root, options.appHtml),
 

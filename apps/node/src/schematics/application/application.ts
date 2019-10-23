@@ -24,7 +24,7 @@ import { getProjectConfig } from '@nrwl/workspace';
 import { offsetFromRoot } from '@nrwl/workspace';
 import init from '../init/init';
 import { existsSync } from 'fs';
-import * as path from 'path';
+import path from 'path';
 
 interface NormalizedSchema extends Schema {
   appProjectRoot: Path;
@@ -57,6 +57,7 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
         optimization: true,
         extractLicenses: true,
         inspect: false,
+        watch: false,
         dev: false,
         fileReplacements: [
           {
@@ -68,8 +69,7 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
       development: {
         optimization: false,
         dev: true,
-        extractLicenses: false,
-        watch: true
+        extractLicenses: false
       }
     }
   };

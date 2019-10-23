@@ -1,7 +1,7 @@
 import { BuildWebserverBuilderOptions } from '../common/webserver-types';
-import { getPublicUrl } from '../common/env';
-import MiniCssExtractPlugin = require('mini-css-extract-plugin');
-import postcssNormalize = require('postcss-normalize');
+import { getAssetsUrl } from '../common/env';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import postcssNormalize from 'postcss-normalize';
 import {
   cssModuleRegex,
   cssRegex,
@@ -20,14 +20,23 @@ export function getClientLoaders(
   // Webpack uses `publicPath` to determine where the app is being served from.
   // It requires a trailing slash, or the file assets will get an incorrect path.
   // In development, we always serve from the root. This makes config easier.
-  const publicPath = getPublicUrl(options);
+  const publicPath = getAssetsUrl(options);
   // Some apps do not use client-side routing with pushState.
   // For these, "homepage" can be set to "." to enable relative asset paths.
   const shouldUseRelativeAssetPaths = publicPath === './';
 
   // common function to get style loaders
-  const getStyleLoaders = (cssOptions?) => {
-    const loaders = [
+  const getStyleLoaders = (isForModule: boolean, cssOptions?) => {
+    cssOptions = isForModule ?
+      {
+        ...cssOptions,
+        localsConvention: 'dashesOnly',
+        modules: {
+          localIdentName: getCSSModuleLocalIdent(isEnvDevelopment)
+        }
+      } : cssOptions;
+
+    return [
       isEnvDevelopment && require.resolve('style-loader'),
       isEnvProduction && {
         loader: MiniCssExtractPlugin.loader,
@@ -38,7 +47,10 @@ export function getClientLoaders(
       },
       {
         loader: require.resolve('css-loader'),
-        options: cssOptions,
+        options: {
+          ...cssOptions,
+          sourceMap: isEnvProduction && shouldUseSourceMap,
+        },
       },
       {
         // Options for PostCSS as we reference these options twice
@@ -66,15 +78,6 @@ export function getClientLoaders(
         },
       },
     ].filter(Boolean);
-    // if (preProcessor) {
-    //   loaders.push({
-    //     loader: require.resolve(preProcessor),
-    //     options: {
-    //       sourceMap: isEnvProduction && shouldUseSourceMap,
-    //     },
-    //   });
-    // }
-    return loaders;
   };
 
   return [
@@ -99,7 +102,7 @@ export function getClientLoaders(
     {
       test: cssRegex,
       exclude: cssModuleRegex,
-      use: getStyleLoaders({
+      use: getStyleLoaders(false, {
         importLoaders: 1,
         sourceMap: isEnvProduction && shouldUseSourceMap,
       }),
@@ -113,11 +116,8 @@ export function getClientLoaders(
     // using the extension .module.css
     {
       test: cssModuleRegex,
-      use: getStyleLoaders({
-        importLoaders: 1,
-        sourceMap: isEnvProduction && shouldUseSourceMap,
-        modules: true,
-        getLocalIdent: getCSSModuleLocalIdent,
+      use: getStyleLoaders(true, {
+        importLoaders: 1
       }),
     },
     // Opt-in support for SASS (using .scss or .sass extensions).
@@ -126,10 +126,9 @@ export function getClientLoaders(
     {
       test: sassRegex,
       exclude: sassModuleRegex,
-      use: getStyleLoaders(
+      use: getStyleLoaders(false,
         {
-          importLoaders: 2,
-          sourceMap: isEnvProduction && shouldUseSourceMap,
+          importLoaders: 2
         },
       ).concat({
         loader: require.resolve('sass-loader'),
@@ -147,12 +146,9 @@ export function getClientLoaders(
     // using the extension .module.scss or .module.sass
     {
       test: sassModuleRegex,
-      use: getStyleLoaders(
+      use: getStyleLoaders(true,
         {
           importLoaders: 2,
-          sourceMap: isEnvProduction && shouldUseSourceMap,
-          modules: true,
-          getLocalIdent: getCSSModuleLocalIdent,
         },
       ).concat({
         loader: require.resolve('sass-loader'),
@@ -167,10 +163,9 @@ export function getClientLoaders(
     {
       test: lessRegex,
       exclude: lessModuleRegex,
-      use: getStyleLoaders(
+      use: getStyleLoaders(false,
         {
           importLoaders: 2,
-          sourceMap: isEnvProduction && shouldUseSourceMap,
         },
       ).concat({
         loader: require.resolve('less-loader'),
@@ -188,12 +183,9 @@ export function getClientLoaders(
     // using the extension .module.less
     {
       test: lessModuleRegex,
-      use: getStyleLoaders(
+      use: getStyleLoaders(true,
         {
           importLoaders: 2,
-          sourceMap: isEnvProduction && shouldUseSourceMap,
-          modules: true,
-          getLocalIdent: getCSSModuleLocalIdent,
         }
       ).concat({
         loader: require.resolve('less-loader'),

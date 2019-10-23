@@ -1,5 +1,5 @@
-import { BuildWebserverBuilderOptions } from '../common/webserver-types';
-import { getPublicUrl } from '../common/env';
+import { BuildWebserverBuilderOptions } from "../common/webserver-types";
+import { getAssetsUrl } from "../common/env";
 import {
   cssModuleRegex,
   cssRegex,
@@ -7,7 +7,7 @@ import {
   lessRegex,
   sassModuleRegex,
   sassRegex
-} from '../common/common-loaders';
+} from "../common/common-loaders";
 
 export function getServerLoaders(
   options: BuildWebserverBuilderOptions
@@ -19,158 +19,160 @@ export function getServerLoaders(
   // Webpack uses `publicPath` to determine where the app is being served from.
   // It requires a trailing slash, or the file assets will get an incorrect path.
   // In development, we always serve from the root. This makes config easier.
-  const publicPath = getPublicUrl(options);
-  // Some apps do not use client-side routing with pushState.
-  // For these, "homepage" can be set to "." to enable relative asset paths.
-  const shouldUseRelativeAssetPaths = publicPath === './';
+  const publicPath = getAssetsUrl(options);
 
   // common function to get style loaders
-  const getStyleLoaders = (cssOptions?) => {
-    const loaders = [
+  const getStyleLoaders = (isForModule: boolean, cssOptions?) => {
+    cssOptions = isForModule ?
       {
-        loader: require.resolve('css-loader'),
-        options: cssOptions,
-      },
+        ...cssOptions,
+        localsConvention: "dashesOnly",
+        modules: {
+          localIdentName: getCSSModuleLocalIdent(isEnvDevelopment)
+        }
+      } : cssOptions;
+
+    return [
       {
-        loader: require.resolve('postcss-loader'),
+        loader: require.resolve("css-loader"),
         options: {
-          ident: 'postcss',
-          plugins: () => [
-            require('postcss-flexbugs-fixes'),
-            require('postcss-preset-env')({
-              autoprefixer: {
-                flexbox: 'no-2009',
-              },
-              stage: 3,
-            }),
-          ],
-        },
+          ...cssOptions,
+          onlyLocals: true
+        }
       },
+      {
+        loader: require.resolve("postcss-loader"),
+        options: {
+          ident: "postcss",
+          plugins: () => [
+            require("postcss-flexbugs-fixes"),
+            require("postcss-preset-env")({
+              autoprefixer: {
+                flexbox: "no-2009"
+              },
+              stage: 3
+            })
+          ]
+        }
+      }
     ].filter(Boolean);
-    return loaders;
   };
 
   return [
     {
       test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-      loader: require.resolve('url-loader'),
+      loader: require.resolve("url-loader"),
       options: {
         limit: options.imageInlineSizeLimit,
-        name: 'static/media/[name].[hash:8].[ext]',
-      },
+        name: "static/media/[name].[hash:8].[ext]"
+      }
     },
     {
       test: cssRegex,
       exclude: cssModuleRegex,
-      loader: require.resolve('css-loader'),
+      loader: require.resolve("css-loader")
     },
     {
       test: cssModuleRegex,
-      use: getStyleLoaders({
-        importLoaders: 1,
-        modules: true,
-        getLocalIdent: getCSSModuleLocalIdent,
-      }),
+      use: getStyleLoaders(true, {
+        importLoaders: 1
+      })
     },
     {
       test: sassRegex,
       exclude: sassModuleRegex,
-      use: getStyleLoaders(
+      use: getStyleLoaders(false,
         {
-          importLoaders: 2,
+          importLoaders: 2
         }
       ).concat(
         {
-          loader: require.resolve('resolve-url-loader'),
+          loader: require.resolve("resolve-url-loader"),
           options: {
-            sourceMap: isEnvProduction && shouldUseSourceMap,
-          },
+            sourceMap: isEnvProduction && shouldUseSourceMap
+          }
         },
         {
-          loader: require.resolve('sass-loader'),
+          loader: require.resolve("sass-loader"),
           options: {
-            sourceMap: true,
-          },
+            sourceMap: true
+          }
         }
       ),
-      sideEffects: true,
+      sideEffects: true
     },
     {
       test: sassModuleRegex,
-      use: getStyleLoaders(
+      use: getStyleLoaders(true,
         {
-          importLoaders: 2,
-          modules: true,
-          getLocalIdent: getCSSModuleLocalIdent,
+          importLoaders: 2
         }
       ).concat(
         {
-          loader: require.resolve('resolve-url-loader'),
+          loader: require.resolve("resolve-url-loader"),
           options: {
-            sourceMap: isEnvProduction && shouldUseSourceMap,
-          },
+            sourceMap: isEnvProduction && shouldUseSourceMap
+          }
         },
         {
-          loader: require.resolve('sass-loader'),
+          loader: require.resolve("sass-loader"),
           options: {
-            sourceMap: true,
-          },
+            sourceMap: true
+          }
         }
-      ),
+      )
     },
     {
       test: lessRegex,
       exclude: lessModuleRegex,
-      use: getStyleLoaders(
+      use: getStyleLoaders(false,
         {
-          importLoaders: 2,
+          importLoaders: 2
         }
       ).concat(
         {
-          loader: require.resolve('resolve-url-loader'),
+          loader: require.resolve("resolve-url-loader"),
           options: {
-            sourceMap: isEnvProduction && shouldUseSourceMap,
-          },
+            sourceMap: isEnvProduction && shouldUseSourceMap
+          }
         },
         {
-          loader: require.resolve('less-loader'),
+          loader: require.resolve("less-loader"),
           options: {
-            sourceMap: true,
-          },
+            sourceMap: true
+          }
         }
       ),
-      sideEffects: true,
+      sideEffects: true
     },
     {
       test: lessModuleRegex,
-      use: getStyleLoaders(
+      use: getStyleLoaders(true,
         {
-          importLoaders: 2,
-          modules: true,
-          getLocalIdent: getCSSModuleLocalIdent,
+          importLoaders: 2
         }
       ).concat(
         {
-          loader: require.resolve('resolve-url-loader'),
+          loader: require.resolve("resolve-url-loader"),
           options: {
-            sourceMap: isEnvProduction && shouldUseSourceMap,
-          },
+            sourceMap: isEnvProduction && shouldUseSourceMap
+          }
         },
         {
-          loader: require.resolve('less-loader'),
+          loader: require.resolve("less-loader"),
           options: {
-            sourceMap: true,
-          },
+            sourceMap: true
+          }
         }
-      ),
+      )
     },
     {
-      loader: require.resolve('file-loader'),
+      loader: require.resolve("file-loader"),
       exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
       options: {
-        name: 'static/media/[name].[hash:8].[ext]',
-        emitFile: false,
-      },
-    },
+        name: "static/media/[name].[hash:8].[ext]",
+        emitFile: false
+      }
+    }
   ];
 }

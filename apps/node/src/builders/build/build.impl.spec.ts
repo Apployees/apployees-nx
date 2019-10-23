@@ -1,13 +1,13 @@
-import { normalize, JsonObject, workspaces } from '@angular-devkit/core';
-import { join } from 'path';
+import { JsonObject, normalize, workspaces } from "@angular-devkit/core";
+import { join } from "path";
+import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import { of } from "rxjs";
+import buildWebpack from "@angular-devkit/build-webpack";
+import { Architect } from "@angular-devkit/architect";
+import { getTestArchitect } from "../../utils/testing";
+import { BuildNodeBuilderOptions } from "../../utils/node-types";
+
 jest.mock('tsconfig-paths-webpack-plugin');
-import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
-import { of } from 'rxjs';
-import * as fs from 'fs';
-import * as buildWebpack from '@angular-devkit/build-webpack';
-import { Architect } from '@angular-devkit/architect';
-import { getTestArchitect } from '../../utils/testing';
-import { BuildNodeBuilderOptions } from '../../utils/node-types';
 
 describe('NodeBuildBuilder', () => {
   let testOptions: BuildNodeBuilderOptions & JsonObject;

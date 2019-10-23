@@ -1,34 +1,73 @@
-import { BuildWebserverBuilderOptions } from './webserver-types';
-import { getClientEnvironment } from './env';
-import resolve = require('resolve');
-import webpack = require('webpack');
-import MiniCssExtractPlugin = require('mini-css-extract-plugin');
-import WriteFileWebpackPlugin = require('write-file-webpack-plugin');
-import CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-import ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
-import ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
-import typescriptFormatter = require('react-dev-utils/typescriptFormatter');
-import WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
-import findup = require('findup-sync');
+import { BuildWebserverBuilderOptions } from "./webserver-types";
+import { getWebserverEnvironmentVariables } from "./env";
+import resolve from "resolve";
+import webpack from "webpack";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import WriteFileWebpackPlugin from "write-file-webpack-plugin";
+import CaseSensitivePathsPlugin from "case-sensitive-paths-webpack-plugin";
+import ModuleNotFoundPlugin from "react-dev-utils/ModuleNotFoundPlugin";
+import ForkTsCheckerWebpackPlugin from "react-dev-utils/ForkTsCheckerWebpackPlugin";
+import typescriptFormatter from "react-dev-utils/typescriptFormatter";
+import WatchMissingNodeModulesPlugin from "react-dev-utils/WatchMissingNodeModulesPlugin";
+import findup from "findup-sync";
+import { BuilderContext } from "@angular-devkit/architect";
+import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
+import WebpackNotifier from "webpack-notifier";
+import { getNotifierOptions } from "@apployees-nx/common-build-utils";
 
-export function getPlugins(options: BuildWebserverBuilderOptions, isEnvClient: boolean) {
+export function getPlugins(options: BuildWebserverBuilderOptions,
+                           context: BuilderContext,
+                           isEnvClient: boolean) {
   const isEnvDevelopment = options.dev;
   const isEnvProduction = !options.dev;
-  const env = getClientEnvironment(options);
-  const nodeModulesPath = findup('node_modules');
-  const rootPath = findup('angular.json') || findup('nx.json') || options.root;
+  const nodeModulesPath = findup("node_modules");
+  const rootPath = findup("angular.json") || findup("nx.json") || options.root;
+  const notifierOptions = getNotifierOptions(options);
 
   return [
+    isEnvDevelopment && (options.notifier !== false) &&
+    new WebpackNotifier({
+      title: context.target.project,
+      ...notifierOptions
+    }),
+    isEnvDevelopment && (options.notifier !== false) &&
+    new ForkTsNotifier({
+      title: context.target.project,
+      ...notifierOptions,
+      skipSuccessful: true // always skip successful for fork otherwise we get duplicate notifications
+    }),
+
     // This gives some necessary context to module not found errors, such as
     // the requesting resource.
     new ModuleNotFoundPlugin(rootPath),
+
+
     // Makes some environment variables available to the JS code, for example:
     // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
     // It is absolutely essential that NODE_ENV is set to production
     // during a production build.
     // Otherwise React will be compiled in the very slow development mode.
-    (isEnvClient || isEnvDevelopment) &&
-    new webpack.DefinePlugin(env.stringified),
+
+    // we use define here instead of EnvironmentPlugin because on the browser
+    // process.env needs to be completely defined (i.e. it doesn't already
+    // exist)
+    isEnvClient && new webpack.DefinePlugin({
+      NODE_ENV: options.dev ? "development" : "production",
+      RENDER_ENV: "client"
+    }),
+    // on the server tho, we need the EnvironmentPlugin because we do not want
+    // to overwrite all of process.env
+    !isEnvClient && new webpack.EnvironmentPlugin({
+      NODE_ENV: options.dev ? "development" : "production",
+      RENDER_ENV: "server"
+    }),
+
+    // now we define the env variables loaded from .env files into the top-level
+    // 'env' object.
+    new webpack.DefinePlugin(
+      getWebserverEnvironmentVariables(
+        options, context, isEnvClient).stringified),
+
     // This is necessary to emit hot updates
     isEnvDevelopment && new WriteFileWebpackPlugin(),
     isEnvDevelopment && new webpack.HotModuleReplacementPlugin(),
@@ -45,8 +84,8 @@ export function getPlugins(options: BuildWebserverBuilderOptions, isEnvClient: b
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: 'static/css/[name].[contenthash:8].css',
-      chunkFilename: 'static/css/[name].[contenthash:8].chunk.css'
+      filename: "static/css/[name].[contenthash:8].css",
+      chunkFilename: "static/css/[name].[contenthash:8].chunk.css"
     }),
     // Moment.js is an extremely popular library that bundles large locale files
     // by default due to how Webpack interprets its code. This is a practical
@@ -56,11 +95,10 @@ export function getPlugins(options: BuildWebserverBuilderOptions, isEnvClient: b
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     // TypeScript type checking
     new ForkTsCheckerWebpackPlugin({
-      typescript: resolve.sync('typescript', {
+      typescript: resolve.sync("typescript", {
         basedir: nodeModulesPath
       }),
       async: isEnvDevelopment,
-      // workers: options.maxWorkers || ForkTsCheckerWebpackPlugin.TWO_CPUS_FREE,
       useTypescriptIncrementalApi: true,
       checkSyntacticErrors: true,
       resolveModuleNameModule: (process.versions as any).pnp
@@ -71,10 +109,10 @@ export function getPlugins(options: BuildWebserverBuilderOptions, isEnvClient: b
         : undefined,
       tsconfig: options.tsConfig,
       reportFiles: [
-        '**',
-        '!**/__tests__/**',
-        '!**/?(*.)(spec|test).*',
-        '!**/src/setupTests.*'
+        "**",
+        "!**/__tests__/**",
+        "!**/?(*.)(spec|test).*",
+        "!**/src/setupTests.*"
       ],
       watch: rootPath,
       silent: true,

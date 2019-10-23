@@ -1,22 +1,32 @@
-import { resolve } from 'path';
+import { resolve } from "path";
 import {
+  getDefaultEnvsFolderForProject,
+  loadEnvironmentVariables,
   normalizeAssets,
   normalizeFileReplacements,
   normalizeOtherEntries
-} from '@apployees-nx/common-build-utils';
-import { BuildNodeBuilderOptions } from './node-types';
+} from "@apployees-nx/common-build-utils";
+import { BuildNodeBuilderOptions } from "./node-types";
+import { BuilderContext } from "@angular-devkit/architect";
 
 
 export function normalizeBuildOptions<T extends BuildNodeBuilderOptions>(
   options: T,
-  root: string,
+  context: BuilderContext,
   sourceRoot: string
 ): T {
-  return {
+
+  const root = context.workspaceRoot;
+
+  const normalized: T = {
     ...options,
     root: root,
     sourceRoot: sourceRoot,
     main: resolve(root, options.main),
+    envFolderPath: options.envFolderPath ?
+      resolve(root, options.envFolderPath) : getDefaultEnvsFolderForProject(root, context),
+    additionalEnvFile: options.additionalEnvFile ?
+      resolve(root, options.additionalEnvFile) : options.additionalEnvFile,
     otherEntries: normalizeOtherEntries(root, options.otherEntries),
     outputPath: resolve(root, options.outputPath),
     tsConfig: resolve(root, options.tsConfig),
@@ -26,4 +36,8 @@ export function normalizeBuildOptions<T extends BuildNodeBuilderOptions>(
       ? resolve(root, options.webpackConfig)
       : options.webpackConfig
   } as T;
+
+  loadEnvironmentVariables(normalized, context);
+
+  return normalized;
 }

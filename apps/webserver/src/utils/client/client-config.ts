@@ -1,29 +1,29 @@
-import * as webpack from 'webpack';
+import webpack from 'webpack';
 import { Configuration, ProgressPlugin } from 'webpack';
-import * as path from 'path';
+import path from 'path';
 import { dirname } from 'path';
 import { LicenseWebpackPlugin } from 'license-webpack-plugin';
-import * as CopyWebpackPlugin from 'copy-webpack-plugin';
-import * as TerserWebpackPlugin from 'terser-webpack-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import TerserWebpackPlugin from 'terser-webpack-plugin';
 import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { getOutputHashFormat } from '../common/hash-format';
 import { BuildWebserverBuilderOptions } from '../common/webserver-types';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { BuilderContext } from '@angular-devkit/architect';
 import { getBaseLoaders } from '../common/common-loaders';
-import { getClientEnvironment, getPublicUrl } from '../common/env';
+import { getWebserverEnvironmentVariables, getAssetsUrl } from '../common/env';
 import { getClientLoaders } from './client-loaders';
 import { getPlugins } from '../common/plugins';
 import { extensions, FILENAMES, getAliases, getStatsConfig } from '../common/common-config';
-import CircularDependencyPlugin = require('circular-dependency-plugin');
-import isWsl = require('is-wsl');
-import OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-import safePostCssParser = require('postcss-safe-parser');
-import PnpWebpackPlugin = require('pnp-webpack-plugin');
-import ManifestPlugin = require('webpack-manifest-plugin');
-import InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
-import InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-import HtmlWebpackPlugin = require('html-webpack-plugin');
+import CircularDependencyPlugin from 'circular-dependency-plugin';
+import isWsl from 'is-wsl';
+import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
+import safePostCssParser from 'postcss-safe-parser';
+import PnpWebpackPlugin from 'pnp-webpack-plugin';
+import ManifestPlugin from 'webpack-manifest-plugin';
+import InlineChunkHtmlPlugin from 'react-dev-utils/InlineChunkHtmlPlugin';
+import InterpolateHtmlPlugin from 'react-dev-utils/InterpolateHtmlPlugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 export function getClientConfig(
   options: BuildWebserverBuilderOptions,
@@ -45,7 +45,10 @@ export function getClientConfig(
   const isEnvDevelopment = options.dev;
   const isEnvProduction = !options.dev;
   const shouldUseSourceMap = options.sourceMap;
-  const publicPath = getPublicUrl(options);
+
+  const webserverEnvironmentVariables = getWebserverEnvironmentVariables(options, context, true);
+
+  const publicPath = getAssetsUrl(options);
 
   const webpackConfig: Configuration = {
     name: 'client',
@@ -102,7 +105,10 @@ export function getClientConfig(
         chunks: 'all',
         name: false
       },
-      runtimeChunk: true
+      runtimeChunk: true,
+
+      // see https://github.com/webpack/webpack/issues/7128
+      namedModules: false
     },
     resolve: {
       extensions,
@@ -130,6 +136,7 @@ export function getClientConfig(
       strictExportPresence: true,
       rules: [
         ...getBaseLoaders(
+          options,
           dirname(options.clientMain),
           esm,
           options.verbose,
@@ -146,6 +153,7 @@ export function getClientConfig(
     },
 
     plugins: [
+      ...getPlugins(options, context, true),
       // Generates an `app.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
@@ -179,12 +187,13 @@ export function getClientConfig(
       options.inlineRuntimeChunk &&
       new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
       // Makes some environment variables available in index.html.
-      // The public URL is available as %ASSETS_PATH% in index.html, e.g.:
-      // <link rel="shortcut icon" href="%ASSETS_PATH%/favicon.ico">
+      // The public URL is available as %ASSETS_URL% in index.html, e.g.:
+      // <link rel="shortcut icon" href="%ASSETS_URL%/favicon.ico">
       // In production, it will be an empty string unless you specify "homepage"
       // in `package.json`, in which case it will be the pathname of that URL.
       // In development, this will be an empty string.
-      new InterpolateHtmlPlugin(HtmlWebpackPlugin, getClientEnvironment(options).raw),
+      new InterpolateHtmlPlugin(HtmlWebpackPlugin,
+        webserverEnvironmentVariables.raw),
       // Generate a manifest file which contains a mapping of all asset filenames
       // to their corresponding output file so that tools can pick it up without
       // having to parse `index.html`.
@@ -201,8 +210,7 @@ export function getClientConfig(
             files: manifestFiles
           };
         }
-      }),
-      ...getPlugins(options, true)
+      })
     ].filter(Boolean),
     // Some libraries import Node modules but don't use them in the browser.
     // Tell Webpack to provide empty mocks for them so importing them works.
@@ -223,7 +231,7 @@ export function getClientConfig(
 
   const extraPlugins: webpack.Plugin[] = [];
 
-  if (options.progress) {
+  if (options.progress && isEnvDevelopment) {
     extraPlugins.push(new ProgressPlugin());
   }
 

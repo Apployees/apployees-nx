@@ -1,1 +1,5 @@
+export default function noop() {
+  // nothing
+}
+
 console.log('Hello World!');

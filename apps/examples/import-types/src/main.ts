@@ -1,8 +1,8 @@
 // es6 style imports
-import * as _ from "lodash";
+import _ from "lodash";
 
 // require assignment using a package that is not directly added in the root package.json
-import * as cookie from "cookie";
+import cookie from "cookie";
 
 // just a require call
 require("typescript");
@@ -37,4 +37,28 @@ function importLibraries() {
 importLibraries();
 
 isValidVersion("1.2.3");
-throw "err";
+
+/**
+ * Note that your environment variables from all those environment files from
+ * build time are actually available under env.XYZ. If you want to override these
+ * at runtime from the runtime ones, do:
+ *
+ * process.env.myVar || env.myVar
+ *
+ * This will favour myVar in process.env over what is compiled. Remember that
+ * at build time, env.myVar will actually be substituted with the literal from
+ * the .env files. So the above code will actually look like:
+ *
+ * process.env.myVar || "someValueOfMyVar"
+ */
+console.log("env:");
+console.log(JSON.stringify(env, null, 2));
+console.log(`ENV_X=${env.ENV_X}`);
+console.log(`ENV_ANY=${env.ENV_ANY}`);
+console.log(`ENV_DEV=${env.ENV_DEV}`);
+console.log(`ENV_LOCAL_ANY=${env.ENV_LOCAL_ANY}`);
+console.log(`ENV_LOCAL_DEV=${env.ENV_LOCAL_DEV}`);
+console.log(`ENV_LOCAL_PROD=${env.ENV_LOCAL_PROD}`);
+console.log(`ENV_LOCAL_TEST=${env.ENV_LOCAL_TEST}`);
+console.log(`ENV_PROD=${env.ENV_PROD}`);
+console.log(`ENV_TEST=${env.ENV_TEST}`);
