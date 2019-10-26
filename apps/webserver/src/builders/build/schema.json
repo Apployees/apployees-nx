@@ -5,18 +5,26 @@
   "properties": {
     "dev": {
       "type": "boolean",
-      "description": "Build the application for development mode",
+      "description": "Build the application for development mode. Will watch for changes.",
       "default": true
     },
     "devHost": {
       "type": "string",
-      "default": "0.0.0.0",
+      "default": "localhost",
       "description": "The host to use to run the server when in dev mode (i.e. when dev=true)."
     },
     "devHttps": {
       "type": "boolean",
-      "description": "True if the dev server should use HTTPS. False by default.",
+      "description": "True if the dev server should use HTTPS. False by default. Only valid when dev=true.",
       "default": false
+    },
+    "devHttpsSslKey": {
+      "type": "string",
+      "description": "The path to the SSL key to use for serving HTTPS when devHttps=true."
+    },
+    "devHttpsSslCert": {
+      "type": "string",
+      "description": "The path to the SSL certificate to use for serving HTTPS when devHttps=true."
     },
     "devAppPort": {
       "type": "number",
@@ -43,15 +51,6 @@
     "tsConfig": {
       "type": "string",
       "description": "The name of the Typescript configuration file."
-    },
-    "watch": {
-      "type": "boolean",
-      "description": "Run build when files change.",
-      "default": false
-    },
-    "poll": {
-      "type": "number",
-      "description": "Frequency of file watcher in ms."
     },
     "sourceMap": {
       "type": "boolean",

@@ -190,9 +190,6 @@ export function getClientConfig(
       // Makes some environment variables available in index.html.
       // The public URL is available as %ASSETS_URL% in index.html, e.g.:
       // <link rel="shortcut icon" href="%ASSETS_URL%/favicon.ico">
-      // In production, it will be an empty string unless you specify "homepage"
-      // in `package.json`, in which case it will be the pathname of that URL.
-      // In development, this will be an empty string.
       new InterpolateHtmlPlugin(HtmlWebpackPlugin,
         webserverEnvironmentVariables.raw),
       // Generate a manifest file which contains a mapping of all asset filenames

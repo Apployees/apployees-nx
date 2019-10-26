@@ -4,6 +4,7 @@ import {
   getProcessedEnvironmentVariables, loadEnvironmentVariables
 } from "@apployees-nx/common-build-utils";
 import { BuilderContext } from "@angular-devkit/architect";
+import { existsSync, readFileSync } from "fs";
 
 
 // Grab NODE_ENV and CLIENT_ONLY_* environment variables and prepare them to be
@@ -38,7 +39,30 @@ export function getWebserverEnvironmentVariables(
   context: BuilderContext,
   isEnvClient: boolean): ProcessedEnvironmentVariables {
 
-  const envVars = loadEnvironmentVariables(options, context);
+  const envVars: any = loadEnvironmentVariables(options, context);
+
+  if (options.dev) {
+    envVars.HTTPS = options.devHttps;
+    envVars.PORT = options.devAppPort ? options.devAppPort.toString() : "";
+    envVars.HOST = options.devHost ? options.devHost : "localhost";
+
+    if (options.devHttpsSslKey) {
+      if (existsSync(options.devHttpsSslKey)) {
+        envVars.HTTPS_KEY = readFileSync(options.devHttpsSslKey, "utf-8");
+      } else {
+        envVars.HTTPS_KEY = options.devHttpsSslKey;
+      }
+    }
+
+    if (options.devHttpsSslCert) {
+      if (existsSync(options.devHttpsSslCert)) {
+        envVars.HTTPS_CERT = readFileSync(options.devHttpsSslCert, "utf-8");
+      } else {
+        envVars.HTTPS_CERT = options.devHttpsSslCert;
+      }
+    }
+  }
+
   let keys = Object.keys(envVars);
 
   if (isEnvClient) {
@@ -58,12 +82,6 @@ export function getWebserverEnvironmentVariables(
         // whether we are running on client or server
         RENDER_ENV: isEnvClient ? "client" : "server",
 
-        // TODO: Don't know why this is necessary...remove?
-        //  Useful for changing the port that the app server runs on.
-        PORT: options.devAppPort ? options.devAppPort.toString() : "",
-
-
-        // Useful for resolving the correct path to static assets in `public`.
         // For example, <img src={env.ASSETS_URL + '/img/logo.png'} />.
         // This should only be used as an escape hatch. Normally you would put
         // images into the `src` and `import` them in code to get their paths.

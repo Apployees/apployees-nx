@@ -22,15 +22,15 @@ export function loadEnvironmentVariables(options: BuildBuilderOptions,
     `${baseEnvFileAtRootOfProject}.any`
   ].filter(Boolean);
 
+  const retVal: object = {
+    NODE_ENV: nodeEnv
+  };
+
   // Load environment variables from .env* files. Suppress warnings using silent
   // if this file is missing. dotenv will never modify any environment variables
   // that have already been set.  Variable expansion is supported in .env files.
   // https://github.com/motdotla/dotenv
   // https://github.com/motdotla/dotenv-expand
-  const retVal: object = {
-    NODE_ENV: nodeEnv,
-  };
-
   dotEnvFiles.forEach(dotenvFile => {
     if (existsSync(dotenvFile)) {
       const parsed = require("dotenv-expand")(

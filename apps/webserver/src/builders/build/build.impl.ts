@@ -46,7 +46,7 @@ try {
 export default createBuilder<JsonObject & BuildWebserverBuilderOptions>(run);
 
 interface WebpackDevServerReference {
-  server: WebpackDevServer;
+  server: WebpackDevServer & {sockWrite: Function, sockets: any};
 }
 
 function run(
@@ -62,7 +62,7 @@ function run(
   process.env[nodeEnvKey] = nodeEnv;
   process.env[babelEnvKey] = nodeEnv;
 
-  const devServer: WebpackDevServerReference = { server: WebpackDevServer };
+  const devServer: WebpackDevServerReference = { server: null };
   const devSocket = {
     warnings: warnings => {
       devServer.server.sockWrite(devServer.server.sockets, "warnings", warnings);
@@ -103,9 +103,10 @@ function run(
 
                 options.devWebpackPort = webpackPort;
                 process.env.DEV_PORT = webpackPort;
+                const protocol = options.devHttps ? 'https' : 'http';
 
-                options.assetsUrl = `http://${options.devHost}:${webpackPort}/`;
-                options.devUrls_calculated = prepareUrls("http", options.devHost, appPort);
+                options.assetsUrl = `${protocol}://${options.devHost}:${webpackPort}/`;
+                options.devUrls_calculated = prepareUrls(protocol, options.devHost, appPort);
 
                 return options;
               });
@@ -186,7 +187,7 @@ function run(
               logging: stats => {
                 context.logger.info(stats.toString(clientConfig.stats));
               },
-              devServerConfig: createWebpackServerOptions(options, devServer),
+              devServerConfig: createWebpackServerOptions(options, context, devServer),
               webpackFactory: (config: webpack.Configuration) => of(createCompiler({
                 webpack: webpack,
                 config: clientConfig,
@@ -298,8 +299,9 @@ function printHostingInstructions(assetsPath, publicOutputFolder_calculated, bui
 }
 
 function createWebpackServerOptions(options: BuildWebserverBuilderOptions,
+                                    context: BuilderContext,
                                     serverReference: WebpackDevServerReference) {
-  return {
+  const config: WebpackDevServer.Configuration = {
     // this needs to remain disabled because our webpackdevserver runs on a
     // different port than the server app.
     disableHostCheck: true,
@@ -339,8 +341,9 @@ function createWebpackServerOptions(options: BuildWebserverBuilderOptions,
       disableDotRule: true
     },
     public: options.devUrls_calculated.lanUrlForConfig,
+    https: options.devHttps,
     before(app, server) {
-      serverReference.server = server;
+      serverReference.server = server as any;
 
       // This lets us fetch source contents from webpack for the error overlay
       app.use(evalSourceMapMiddleware(server));
@@ -355,6 +358,8 @@ function createWebpackServerOptions(options: BuildWebserverBuilderOptions,
       app.use(noopServiceWorkerMiddleware());
     }
   };
+
+  return config;
 }
 
 function ignoredFiles(appSrc) {

@@ -9,6 +9,8 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   devHost?: string;
   devAppPort?: number;
   devHttps?: boolean;
+  devHttpsSslKey?: string;
+  devHttpsSslCert?: string;
   devWebpackPort?: number;
   devUrls_calculated?: {
     lanUrlForConfig;
