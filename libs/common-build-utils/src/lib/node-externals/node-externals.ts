@@ -1,8 +1,8 @@
 import { readNxJson } from '@nrwl/workspace';
 import { getExternalizedLibraryImports } from './externalized-imports';
-import * as _ from 'lodash';
-import * as nodeExternals from 'webpack-node-externals';
-import * as findup from 'findup-sync';
+import _ from 'lodash';
+import nodeExternals from 'webpack-node-externals';
+import findup from 'findup-sync';
 
 export function getNodeExternals(
   externalLibraries, externalDependencies,

@@ -23,7 +23,6 @@
           },
           "configurations": {
             "production": {
-              "optimization": true,
               "extractLicenses": true,
               "inspect": false,
               "dev": false,
@@ -35,7 +34,6 @@
               ]
             },
             "development": {
-              "optimization": false,
               "extractLicenses": false,
               "watch": true,
               "verbose": true,
@@ -164,7 +162,6 @@
           "configurations": {
             "production": {
               "dev": false,
-              "optimization": true,
               "extractLicenses": true,
               "inspect": false,
               "fileReplacements": [
@@ -176,7 +173,6 @@
             },
             "development": {
               "dev": true,
-              "optimization": false,
               "extractLicenses": false,
               "inspect": true,
               "watch": true,
@@ -236,7 +232,6 @@
           "configurations": {
             "production": {
               "dev": false,
-              "optimization": true,
               "extractLicenses": true,
               "inspect": false,
               "fileReplacements": [
@@ -248,7 +243,6 @@
             },
             "development": {
               "dev": true,
-              "optimization": false,
               "extractLicenses": false
             }
           }
@@ -335,7 +329,6 @@
           },
           "configurations": {
             "production": {
-              "optimization": true,
               "extractLicenses": true,
               "inspect": false,
               "dev": false,
@@ -347,7 +340,6 @@
               ]
             },
             "development": {
-              "optimization": false,
               "extractLicenses": false,
               "watch": true,
               "dev": true

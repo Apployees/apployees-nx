@@ -20,7 +20,6 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   serverMain: string;
   clientMain: string;
   clientOtherEntries?: object;
-  optimization?: boolean;
   sourceMap?: boolean;
   outputHashing?: "none" | "all" | "media" | "bundles";
   imageInlineSizeLimit?: number;

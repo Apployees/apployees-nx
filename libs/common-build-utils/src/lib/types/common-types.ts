@@ -6,11 +6,6 @@ export interface FileReplacement {
   with: string;
 }
 
-export interface OptimizationOptions {
-  scripts: boolean;
-  styles: boolean;
-}
-
 export interface SourceMapOptions {
   scripts: boolean;
   styles: boolean;
@@ -31,7 +26,6 @@ export interface BuildBuilderOptions {
   tsConfig: string;
   watch?: boolean;
   sourceMap?: boolean | SourceMapOptions;
-  optimization?: boolean | OptimizationOptions;
   showCircularDependencies?: boolean;
   poll?: number;
 

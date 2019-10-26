@@ -3,7 +3,7 @@ import {
   nodeExecuteBuilderHandler
 } from './execute.impl';
 import { of, from } from 'rxjs';
-import devkitArchitect from '@angular-devkit/architect';
+import * as devkitArchitect from '@angular-devkit/architect';
 import { MockBuilderContext, getMockContext } from '../../utils/testing';
 import { InspectType } from '@apployees-nx/common-build-utils';
 
@@ -203,7 +203,7 @@ describe('NodeExecuteBuilder', () => {
   it('should warn users who try to use it in production', async () => {
     spyOn(context, 'validateOptions').and.returnValue(
       Promise.resolve({
-        optimization: true
+        dev: false
       })
     );
     spyOn(context.logger, 'warn');

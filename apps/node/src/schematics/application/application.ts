@@ -54,7 +54,6 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
     },
     configurations: {
       production: {
-        optimization: true,
         extractLicenses: true,
         inspect: false,
         watch: false,
@@ -67,7 +66,6 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
         ]
       },
       development: {
-        optimization: false,
         dev: true,
         extractLicenses: false
       }

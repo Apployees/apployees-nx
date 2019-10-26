@@ -31,7 +31,10 @@ export function getClientConfig(
   esm?: boolean,
 ): Configuration {
 
-  const isScriptOptimizeOn = options.optimization;
+  const isEnvDevelopment = options.dev;
+  const isEnvProduction = !options.dev;
+  const isScriptOptimizeOn = isEnvProduction;
+
   const mainFields = [...(esm ? ['es2015'] : []), 'module', 'main'];
   const hashFormat = getOutputHashFormat(options.outputHashing);
   const suffixFormat = esm ? '.esm' : '.es5';
@@ -42,8 +45,6 @@ export function getClientConfig(
     ? `static/js/[name]${hashFormat.chunk}${suffixFormat}.js`
     : 'static/js/[name].js';
 
-  const isEnvDevelopment = options.dev;
-  const isEnvProduction = !options.dev;
   const shouldUseSourceMap = options.sourceMap;
 
   const webserverEnvironmentVariables = getWebserverEnvironmentVariables(options, context, true);

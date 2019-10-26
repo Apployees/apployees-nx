@@ -37,8 +37,8 @@ export function getBaseWebpackPartial(
   const notifierOptions = getNotifierOptions(options);
 
   const isEnvDevelopment = options.dev;
-  const isEnvProduction = !options.dev;
-  const shouldUseSourceMap = !options.sourceMap;
+  const isEnvProduction = !isEnvDevelopment;
+  const shouldUseSourceMap = options.sourceMap;
 
   const webpackConfig: Configuration = {
     entry: _.extend({}, {
@@ -49,7 +49,7 @@ export function getBaseWebpackPartial(
         ? "source-map"
         : false
       : "eval-source-map",
-    mode: !options.optimization || options.dev ? "development" : "production",
+    mode: isEnvDevelopment ? "development" : "production",
     output: {
       path: options.outputPath,
       filename: OUT_FILENAME,

@@ -1,7 +1,7 @@
 import { BuildBuilderOptions } from "../types/common-types";
 import { BuilderContext } from "@angular-devkit/architect";
-import path from "path";
-import fs from "fs";
+import {resolve} from "path";
+import {existsSync} from "fs";
 import { getProjectRoots } from "@nrwl/workspace/src/command-line/shared";
 import _ from "lodash";
 
@@ -9,7 +9,7 @@ export function loadEnvironmentVariables(options: BuildBuilderOptions,
                                          context: BuilderContext): object {
   const nodeEnv: string = options.dev ? "development" : "production";
 
-  const baseEnvFileAtRootOfProject = path.resolve(options.envFolderPath, ".env");
+  const baseEnvFileAtRootOfProject = resolve(options.envFolderPath || "", ".env");
 
   const dotEnvFiles = [
     options.additionalEnvFile,
@@ -32,7 +32,7 @@ export function loadEnvironmentVariables(options: BuildBuilderOptions,
   };
 
   dotEnvFiles.forEach(dotenvFile => {
-    if (fs.existsSync(dotenvFile)) {
+    if (existsSync(dotenvFile)) {
       const parsed = require("dotenv-expand")(
         require("dotenv").config({
           path: dotenvFile
@@ -69,5 +69,6 @@ export function getProcessedEnvironmentVariables(raw, topKey = "process.env"): P
 }
 
 export function getDefaultEnvsFolderForProject(root, context: BuilderContext) {
-  return path.resolve(root, getProjectRoots([context.target.project])[0], "envs");
+  return resolve(root, context.target.project ?
+    getProjectRoots([context.target.project])[0] : context.workspaceRoot, "envs");
 }

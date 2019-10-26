@@ -19,7 +19,8 @@ describe('getBaseWebpackPartial', () => {
       tsConfig: 'tsconfig.json',
       fileReplacements: [],
       root: getSystemPath(normalize('/root')),
-      statsJson: false
+      statsJson: false,
+      dev: true
     };
     (TsConfigPathsPlugin as any).mockImplementation(
       function MockPathsPlugin() {
@@ -45,7 +46,7 @@ describe('getBaseWebpackPartial', () => {
       const result = getBaseWebpackPartial(input);
 
       const typescriptRule = result.module.rules.find(rule =>
-        (rule.test as RegExp).test('app/main.ts')
+        rule.test && (rule.test as RegExp).test('app/main.ts')
       );
       expect(typescriptRule).toBeTruthy();
 
@@ -135,6 +136,9 @@ describe('getBaseWebpackPartial', () => {
       expect(
         result.module.rules.find(rule => rule.loader === 'ts-loader').options
       ).toEqual({
+        compilerOptions: {
+          sourceMap: true
+        },
         configFile: 'tsconfig.json',
         transpileOnly: true,
         experimentalWatchApi: true
@@ -223,26 +227,47 @@ describe('getBaseWebpackPartial', () => {
   });
 
   describe('the source map option', () => {
-    it('should enable source-map devtool', () => {
+    it('should enable source-map devtool when dev=true', () => {
       const result = getBaseWebpackPartial({
         ...input,
-        sourceMap: true
+        dev: true,
       });
 
-      expect(result.devtool).toEqual('source-map');
+      expect(result.devtool).toEqual('eval-source-map');
     });
 
-    it('should disable source-map devtool', () => {
+    it('should enable source-map devtool when dev=true even when sourceMap=false', () => {
       const result = getBaseWebpackPartial({
         ...input,
+        dev: true,
         sourceMap: false
+      });
+
+      expect(result.devtool).toEqual('eval-source-map');
+    });
+
+    it('should disable source-map devtool when dev=false and sourceMap=false', () => {
+      const result = getBaseWebpackPartial({
+        ...input,
+        dev: false,
+        sourceMap: false,
       });
 
       expect(result.devtool).toEqual(false);
     });
+
+    it('should enable source-map devtool when dev=false and sourceMap=true', () => {
+      const result = getBaseWebpackPartial({
+        ...input,
+        dev: false,
+        sourceMap: true,
+      });
+
+      expect(result.devtool).toEqual("source-map");
+    });
   });
 
-  describe('the optimization option', () => {
+  describe('the dev option', () => {
     describe('by default', () => {
       it('should set the mode to development', () => {
         const result = getBaseWebpackPartial(input);
@@ -255,7 +280,7 @@ describe('getBaseWebpackPartial', () => {
       it('should set the mode to production', () => {
         const result = getBaseWebpackPartial({
           ...input,
-          optimization: true
+          dev: false,
         });
 
         expect(result.mode).toEqual('production');

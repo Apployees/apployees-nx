@@ -15,7 +15,7 @@ function getNodePartial(options: BuildNodeBuilderOptions) {
     node: false
   };
 
-  if (options.optimization) {
+  if (!options.dev) {
     webpackConfig.optimization = {
       minimize: false,
       concatenateModules: false

@@ -151,7 +151,7 @@ function startBuild(
     )
   ).pipe(
     tap(options => {
-      if (options.optimization) {
+      if (!options.dev) {
         context.logger.warn(stripIndents`
             ************************************************
             This is a simple process manager for use in

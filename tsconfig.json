@@ -22,9 +22,13 @@
     ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "typeRoots": ["node_modules/@types"],
     "rootDir": ".",
     "baseUrl": ".",
-    "typeRoots": ["node_modules/@types"],
     "paths": {
       "@apployees-nx/examples/library1": ["libs/examples/library1/src/index.ts"],
       "@apployees-nx/examples/library2": ["libs/examples/library2/src/index.ts"],

@@ -39,11 +39,11 @@ describe('getNodePartial', () => {
     });
   });
 
-  describe('the optimization option when true', () => {
+  describe('the dev option when true', () => {
     it('should not minify', () => {
       const result = getNodeWebpackConfig({
         ...input,
-        optimization: true
+        dev: false
       });
 
       expect(result.optimization.minimize).toEqual(false);
@@ -52,7 +52,7 @@ describe('getNodePartial', () => {
     it('should not concatenate modules', () => {
       const result = getNodeWebpackConfig({
         ...input,
-        optimization: true
+        dev: false
       });
 
       expect(result.optimization.concatenateModules).toEqual(false);

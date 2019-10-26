@@ -202,11 +202,6 @@
       "description": "Extract all licenses in a separate file, in the case of production builds only.",
       "default": false
     },
-    "optimization": {
-      "type": "boolean",
-      "description": "Defines the optimization level of the build.",
-      "default": false
-    },
     "showCircularDependencies": {
       "type": "boolean",
       "description": "Show circular dependency warnings on builds.",

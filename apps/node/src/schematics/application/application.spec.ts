@@ -33,7 +33,6 @@ describe('app', () => {
               production: {
                 dev: false,
                 watch: false,
-                optimization: true,
                 extractLicenses: true,
                 inspect: false,
                 fileReplacements: [
@@ -46,7 +45,6 @@ describe('app', () => {
               },
               development: {
                 dev: true,
-                optimization: false,
                 extractLicenses: false
               }
             }

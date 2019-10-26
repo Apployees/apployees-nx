@@ -3,7 +3,6 @@ import { BuildBuilderOptions, ExternalDependencies, FileReplacement } from '@app
 export interface BuildNodeBuilderOptions extends BuildBuilderOptions {
   main: string;
   otherEntries?: object;
-  optimization?: boolean;
   sourceMap?: boolean;
   externalDependencies?: ExternalDependencies;
   externalLibraries?: ExternalDependencies;
