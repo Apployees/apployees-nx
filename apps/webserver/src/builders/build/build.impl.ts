@@ -260,7 +260,7 @@ function run(
       if (!options.dev) {
         writePackageJson(options, context, options.serverExternalDependencies, options.serverExternalLibraries);
 
-        printHostingInstructions(options.assetsUrl, options.publicOutputFolder_calculated, options.outputPath);
+        printHostingInstructions(options);
 
         return clientBuildEventOrDevServerBuildOutput;
       } else {
@@ -271,7 +271,11 @@ function run(
 }
 
 
-function printHostingInstructions(assetsPath, publicOutputFolder_calculated, buildFolder) {
+function printHostingInstructions(options: BuildWebserverBuilderOptions) {
+  const assetsPath = options.assetsUrl;
+  const publicOutputFolder_calculated = options.publicOutputFolder_calculated;
+  const buildFolder = options.outputPath;
+
   console.log(
     `\n\n\n\nThe project was built assuming all static assets are served from the path '${chalk.green(
       assetsPath
@@ -286,7 +290,7 @@ function printHostingInstructions(assetsPath, publicOutputFolder_calculated, bui
     console.log(
       `\nYou can control this with the ${chalk.cyan(
         "ASSETS_URL"
-      )} environment variable and set its value to the CDN URL.`
+      )} environment variable and set its value to the CDN URL for your next build.`
     );
     console.log();
   }

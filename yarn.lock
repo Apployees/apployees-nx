@@ -2697,7 +2697,7 @@
     "@types/source-list-map" "*"
     source-map "^0.6.1"
 
-"@types/webpack@*":
+"@types/webpack@*", "@types/webpack@^4.4.31":
   version "4.39.5"
   resolved "https://registry.yarnpkg.com/@types/webpack/-/webpack-4.39.5.tgz#3671b65928d9e0c6fcd4adff3f8167d48b174681"
   integrity sha512-9twG6D97ao13MBLvigwfBJe6rxtb04UY3TcYHBYkW5sXZjUrNhqIRxLYg74VzK/YAE8xlVhOyd+3Whr7E5RrBA==
@@ -5140,6 +5140,14 @@ clean-stack@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/clean-stack/-/clean-stack-2.2.0.tgz#ee8472dbb129e727b31e8a10a427dee9dfe4008b"
   integrity sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==
+
+clean-webpack-plugin@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/clean-webpack-plugin/-/clean-webpack-plugin-3.0.0.tgz#a99d8ec34c1c628a4541567aa7b457446460c62b"
+  integrity sha512-MciirUH5r+cYLGCOL5JX/ZLzOZbVr1ot3Fw+KcvbhUb6PM+yycqd9ZhIlcigQ5gl+XhppNmw3bEFuaaMNyLj3A==
+  dependencies:
+    "@types/webpack" "^4.4.31"
+    del "^4.1.1"
 
 cli-boxes@^1.0.0:
   version "1.0.0"

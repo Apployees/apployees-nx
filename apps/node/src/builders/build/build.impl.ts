@@ -74,7 +74,9 @@ function run(
       return buildEvent as WebpackBuildEvent;
     }),
     map((buildEvent: WebpackBuildEvent) => {
-      writePackageJson(options, context, options.externalDependencies, options.externalLibraries);
+      if (!options.dev) {
+        writePackageJson(options, context, options.externalDependencies, options.externalLibraries);
+      }
       return buildEvent;
     })
   );

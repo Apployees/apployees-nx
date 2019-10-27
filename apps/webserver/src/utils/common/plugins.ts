@@ -14,7 +14,7 @@ import findup from "findup-sync";
 import { BuilderContext } from "@angular-devkit/architect";
 import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
 import WebpackNotifier from "webpack-notifier";
-import { getNotifierOptions } from "@apployees-nx/common-build-utils";
+import { getCleanPlugin, getNotifierOptions } from "@apployees-nx/common-build-utils";
 
 export function getPlugins(options: BuildWebserverBuilderOptions,
                            context: BuilderContext,
@@ -26,6 +26,8 @@ export function getPlugins(options: BuildWebserverBuilderOptions,
   const notifierOptions = getNotifierOptions(options);
 
   return [
+    getCleanPlugin(options),
+
     isEnvDevelopment && (options.notifier !== false) &&
     new WebpackNotifier({
       title: context.target.project,

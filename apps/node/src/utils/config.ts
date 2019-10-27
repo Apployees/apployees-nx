@@ -8,21 +8,13 @@ import CopyWebpackPlugin from "copy-webpack-plugin";
 import { readTsConfig } from "@nrwl/workspace";
 import _ from "lodash";
 import { BuildNodeBuilderOptions } from "./node-types";
-import {
-  getProcessedEnvironmentVariables,
-  loadEnvironmentVariables,
-  OUT_FILENAME
-} from "@apployees-nx/common-build-utils";
+import { getNotifierOptions, OUT_FILENAME } from "@apployees-nx/common-build-utils";
 import CircularDependencyPlugin from "circular-dependency-plugin";
-import ForkTsCheckerWebpackPlugin from "react-dev-utils/ForkTsCheckerWebpackPlugin";
 import path from "path";
-import resolve from "resolve";
-import findup from "findup-sync";
-import typescriptFormatter from "react-dev-utils/typescriptFormatter";
 import { BuilderContext } from "@angular-devkit/architect";
 import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
 import WebpackNotifier from "webpack-notifier";
-import { getNotifierOptions } from "@apployees-nx/common-build-utils";
+import { getPluginsForNodeWebpack } from "./node-plugins";
 
 export function getBaseWebpackPartial(
   options: BuildNodeBuilderOptions,
@@ -91,15 +83,7 @@ export function getBaseWebpackPartial(
     performance: {
       hints: false
     },
-    plugins: [
-      new webpack.EnvironmentPlugin({
-        NODE_ENV: options.dev ? "development" : "production"
-      }),
-      new webpack.DefinePlugin(getProcessedEnvironmentVariables(
-        loadEnvironmentVariables(options, context), "env"
-      ).stringified),
-      getForkTsCheckerWebpackPlugin(options)
-    ],
+    plugins: getPluginsForNodeWebpack(options, context),
     watch: options.watch,
     watchOptions: {
       poll: options.poll
@@ -183,37 +167,6 @@ function getAliases(options: BuildNodeBuilderOptions): { [key: string]: string }
     }),
     {}
   );
-}
-
-function getForkTsCheckerWebpackPlugin(options: BuildNodeBuilderOptions) {
-  const nodeModulesPath = findup("node_modules");
-  const isEnvDevelopment = options.dev;
-  const rootPath = findup("angular.json") || findup("nx.json") || options.root;
-
-  return new ForkTsCheckerWebpackPlugin({
-    typescript: resolve.sync("typescript", {
-      basedir: nodeModulesPath
-    }),
-    async: isEnvDevelopment,
-    useTypescriptIncrementalApi: true,
-    checkSyntacticErrors: true,
-    resolveModuleNameModule: (process.versions as any).pnp
-      ? `${__dirname}/pnpTs.js`
-      : undefined,
-    resolveTypeReferenceDirectiveModule: (process.versions as any).pnp
-      ? `${__dirname}/pnpTs.js`
-      : undefined,
-    tsconfig: options.tsConfig,
-    reportFiles: [
-      "**",
-      "!**/__tests__/**",
-      "!**/?(*.)(spec|test).*",
-      "!**/src/setupTests.*"
-    ],
-    watch: rootPath,
-    silent: false,
-    formatter: typescriptFormatter
-  });
 }
 
 function getStatsConfig(options: BuildNodeBuilderOptions): Stats.ToStringOptions {
