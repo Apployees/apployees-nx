@@ -322,6 +322,9 @@
             "appHtml": "apps/examples/webserver/src/public/app.html",
             "serverMain": "apps/examples/webserver/src/index.ts",
             "clientMain": "apps/examples/webserver/src/client/index.tsx",
+            "clientOtherEntries": {
+              "anotherClientEntry": "apps/examples/webserver/src/client/anotherClientEntry.ts"
+            },
             "tsConfig": "apps/examples/webserver/tsconfig.app.json",
             "assets": [
               "apps/examples/webserver/src/public"

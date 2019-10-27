@@ -14,7 +14,7 @@
     },
     "otherEntries": {
       "type": "object",
-      "description": "Additional entries that you want to define. The key is the name of the file and the value is the entry. Each of these entries becomes a independently executable bundle."
+      "description": "Additional entries that you want to define. The key is the name of the file and the value is the entry. Each of these entries becomes an independently executable bundle."
     },
     "tsConfig": {
       "type": "string",

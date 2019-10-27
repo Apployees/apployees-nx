@@ -1,49 +1,49 @@
-import webpack from 'webpack';
-import { Configuration, ProgressPlugin } from 'webpack';
-import path from 'path';
-import { dirname } from 'path';
-import { LicenseWebpackPlugin } from 'license-webpack-plugin';
-import CopyWebpackPlugin from 'copy-webpack-plugin';
-import TerserWebpackPlugin from 'terser-webpack-plugin';
-import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
-import { getOutputHashFormat } from '../common/hash-format';
-import { BuildWebserverBuilderOptions } from '../common/webserver-types';
-import _ from 'lodash';
-import { BuilderContext } from '@angular-devkit/architect';
-import { getBaseLoaders } from '../common/common-loaders';
-import { getWebserverEnvironmentVariables, getAssetsUrl } from '../common/env';
-import { getClientLoaders } from './client-loaders';
-import { getPlugins } from '../common/plugins';
-import { extensions, FILENAMES, getAliases, getStatsConfig } from '../common/common-config';
-import CircularDependencyPlugin from 'circular-dependency-plugin';
-import isWsl from 'is-wsl';
-import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
-import safePostCssParser from 'postcss-safe-parser';
-import PnpWebpackPlugin from 'pnp-webpack-plugin';
-import ManifestPlugin from 'webpack-manifest-plugin';
-import InlineChunkHtmlPlugin from 'react-dev-utils/InlineChunkHtmlPlugin';
-import InterpolateHtmlPlugin from 'react-dev-utils/InterpolateHtmlPlugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+import webpack from "webpack";
+import { Configuration, ProgressPlugin } from "webpack";
+import path from "path";
+import { dirname } from "path";
+import { LicenseWebpackPlugin } from "license-webpack-plugin";
+import CopyWebpackPlugin from "copy-webpack-plugin";
+import TerserWebpackPlugin from "terser-webpack-plugin";
+import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import { getOutputHashFormat } from "../common/hash-format";
+import { BuildWebserverBuilderOptions } from "../common/webserver-types";
+import _ from "lodash";
+import { BuilderContext } from "@angular-devkit/architect";
+import { getBaseLoaders } from "../common/common-loaders";
+import { getWebserverEnvironmentVariables, getAssetsUrl } from "../common/env";
+import { getClientLoaders } from "./client-loaders";
+import { getPlugins } from "../common/plugins";
+import { extensions, FILENAMES, getAliases, getStatsConfig } from "../common/common-config";
+import CircularDependencyPlugin from "circular-dependency-plugin";
+import isWsl from "is-wsl";
+import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
+import safePostCssParser from "postcss-safe-parser";
+import PnpWebpackPlugin from "pnp-webpack-plugin";
+import ManifestPlugin from "webpack-manifest-plugin";
+import InlineChunkHtmlPlugin from "react-dev-utils/InlineChunkHtmlPlugin";
+import InterpolateHtmlPlugin from "react-dev-utils/InterpolateHtmlPlugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
 
 export function getClientConfig(
   options: BuildWebserverBuilderOptions,
   context: BuilderContext,
-  esm?: boolean,
+  esm?: boolean
 ): Configuration {
 
   const isEnvDevelopment = options.dev;
   const isEnvProduction = !options.dev;
   const isScriptOptimizeOn = isEnvProduction;
 
-  const mainFields = [...(esm ? ['es2015'] : []), 'module', 'main'];
+  const mainFields = [...(esm ? ["es2015"] : []), "module", "main"];
   const hashFormat = getOutputHashFormat(options.outputHashing);
-  const suffixFormat = esm ? '.esm' : '.es5';
+  const suffixFormat = esm ? ".esm" : ".es5";
   const filename = isScriptOptimizeOn
     ? `static/js/[name]${hashFormat.script}${suffixFormat}.js`
-    : 'static/js/[name].js';
+    : "static/js/[name].js";
   const chunkFilename = isScriptOptimizeOn
     ? `static/js/[name]${hashFormat.chunk}${suffixFormat}.js`
-    : 'static/js/[name].js';
+    : "static/js/[name].js";
 
   const shouldUseSourceMap = options.sourceMap;
 
@@ -51,21 +51,34 @@ export function getClientConfig(
 
   const publicPath = getAssetsUrl(options);
 
+  const otherEntries = options.clientOtherEntries || {};
+  if (otherEntries["main"]) {
+    throw new Error(`clientOtherEntries cannot have an entry with key 'main' (currently set to '${otherEntries["main"]}').`);
+  }
+
+  otherEntries["main"] = options.clientMain;
+
+  const entries = Object.keys(otherEntries).reduce((acc, key) => {
+    acc[key] = [
+      isEnvDevelopment && key === "main" && `react-ssr-dev-utils/webpackHotDevClient?devPort=${options.devWebpackPort}`,
+      otherEntries[key]
+    ].filter(Boolean);
+
+    return acc;
+  }, {});
+
   const webpackConfig: Configuration = {
-    name: 'client',
-    target: 'web',
-    mode: isEnvProduction ? 'production' : 'development',
+    name: "client",
+    target: "web",
+    mode: isEnvProduction ? "production" : "development",
     // Stop compilation early in production
     bail: isEnvProduction,
     devtool: isEnvProduction
       ? shouldUseSourceMap
-        ? 'source-map'
+        ? "source-map"
         : false
-      : 'eval-source-map',
-    entry: [
-      isEnvDevelopment && `react-ssr-dev-utils/webpackHotDevClient?devPort=${options.devWebpackPort}`,
-      options.clientMain
-    ].filter(Boolean),
+      : "eval-source-map",
+    entry: entries,
     // externals: getNodeExternals(
     //   options.clientExternalLibraries,
     //   options.clientExternalDependencies
@@ -86,9 +99,9 @@ export function getClientConfig(
         ? info =>
           path
             .relative(path.resolve(options.root, options.sourceRoot), info.absoluteResourcePath)
-            .replace(/\\/g, '/')
+            .replace(/\\/g, "/")
         : isEnvDevelopment &&
-        (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')),
+        (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")),
       // Prevents conflicts when multiple Webpack runtimes (from different apps)
       // are used on the same page.
       jsonpFunction: `webpackJsonp${context.target.project}`
@@ -103,7 +116,7 @@ export function getClientConfig(
       // https://twitter.com/wSokra/status/969633336732905474
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
       splitChunks: {
-        chunks: 'all',
+        chunks: "all",
         name: false
       },
       runtimeChunk: true,
@@ -213,13 +226,13 @@ export function getClientConfig(
     // Some libraries import Node modules but don't use them in the browser.
     // Tell Webpack to provide empty mocks for them so importing them works.
     node: {
-      module: 'empty',
-      dgram: 'empty',
-      dns: 'mock',
-      fs: 'empty',
-      net: 'empty',
-      tls: 'empty',
-      child_process: 'empty'
+      module: "empty",
+      dgram: "empty",
+      dns: "mock",
+      fs: "empty",
+      net: "empty",
+      tls: "empty",
+      child_process: "empty"
     },
     stats: getStatsConfig(options),
     // Turn off performance processing because we utilize
@@ -249,7 +262,7 @@ export function getClientConfig(
     const copyWebpackPluginPatterns = options.assets.map((asset: any) => {
       return {
         context: asset.input,
-        to: '', // blank because this entire webpack config outputs to public
+        to: "", // blank because this entire webpack config outputs to public
         ignore: asset.ignore,
         from: {
           glob: asset.glob,
@@ -260,7 +273,7 @@ export function getClientConfig(
 
     const copyWebpackPluginOptions = {
       ignore: [
-        '.gitkeep', '**/.DS_Store', '**/Thumbs.db',
+        ".gitkeep", "**/.DS_Store", "**/Thumbs.db",
         // don't overwrite the files we generated ourselves.
         ..._.map(_.values(FILENAMES), filename =>
           path.resolve(options.root, options.sourceRoot, FILENAMES.publicFolder, filename))]

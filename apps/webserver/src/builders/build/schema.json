@@ -48,6 +48,10 @@
       "type": "string",
       "description": "The name of the main entry-point file for the client."
     },
+    "clientOtherEntries": {
+      "type": "object",
+      "description": "Additional entries that you want to define for the CLIENT. The key is the name of the file and the value is the entry. Each of these entries becomes an independent bundle injected into the appHtml file."
+    },
     "tsConfig": {
       "type": "string",
       "description": "The name of the Typescript configuration file."

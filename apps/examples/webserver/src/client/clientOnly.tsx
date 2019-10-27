@@ -1,3 +1,3 @@
 export function clientOnly(): string {
-  return "hello";
+  return "Hello from clientOnly.ts! ";
 }
