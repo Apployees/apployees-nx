@@ -158,38 +158,6 @@
       "description": "Libraries within the mono-repo to keep external to the server bundle. (\"all\" (default), \"none\", or an array of library names.)",
       "default": "none"
     },
-    "clientExternalDependencies": {
-      "oneOf": [
-        {
-          "type": "string",
-          "enum": ["none", "all"]
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      ],
-      "description": "node_module dependencies to keep external to the client bundle. (\"all\" (default), \"none\", or an array of module names)",
-      "default": "all"
-    },
-    "clientExternalLibraries": {
-      "oneOf": [
-        {
-          "type": "string",
-          "enum": ["none", "all"]
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      ],
-      "description": "Libraries within the mono-repo to keep external to the client bundle. (\"all\" (default), \"none\", or an array of library names.)",
-      "default": "none"
-    },
     "statsJson": {
       "type": "boolean",
       "description": "Generates a 'stats.json' file which can be analyzed using tools such as: #webpack-bundle-analyzer' or https: //webpack.github.io/analyse.",

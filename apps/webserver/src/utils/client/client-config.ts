@@ -79,10 +79,6 @@ export function getClientConfig(
         : false
       : "eval-source-map",
     entry: entries,
-    // externals: getNodeExternals(
-    //   options.clientExternalLibraries,
-    //   options.clientExternalDependencies
-    // ),
     output: {
       // The build folder.
       path: options.publicOutputFolder_calculated,

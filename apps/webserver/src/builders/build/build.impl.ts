@@ -254,8 +254,7 @@ function run(
     map(([clientBuildEventOrDevServerBuildOutput, options]:
            [WebpackBuildEvent & DevServerBuildOutput, BuildWebserverBuilderOptions]) => {
       // we only consider server external dependencies and libraries because it is the server
-      // code that is run by node, not the browser code. It is expected that any
-      // clientExternalDependencies and clientExternalLibraries are fetched in the browser separately.
+      // code that is run by node, not the browser code.
 
       if (!options.dev) {
         writePackageJson(options, context, options.serverExternalDependencies, options.serverExternalLibraries);

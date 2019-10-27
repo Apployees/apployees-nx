@@ -30,8 +30,6 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   inlineRuntimeChunk?: boolean;
   serverExternalDependencies?: ExternalDependencies;
   serverExternalLibraries?: ExternalDependencies;
-  clientExternalDependencies?: ExternalDependencies;
-  clientExternalLibraries?: ExternalDependencies;
   serverFileReplacements: FileReplacement[];
   clientFileReplacements: FileReplacement[];
   serverWebpackConfig?: string;
