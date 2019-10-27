@@ -74,9 +74,9 @@ function run(
       return buildEvent as WebpackBuildEvent;
     }),
     map((buildEvent: WebpackBuildEvent) => {
-      if (!options.dev) {
-        writePackageJson(options, context, options.externalDependencies, options.externalLibraries);
-      }
+      // we write the package.json every time, even on dev=true because the user may be developing
+      // an npm bundle that is linked to node_modules.
+      writePackageJson(options, context, options.externalDependencies, options.externalLibraries);
       return buildEvent;
     })
   );

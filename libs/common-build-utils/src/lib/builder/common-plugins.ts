@@ -16,5 +16,7 @@ export function getNotifierOptions(options: BuildBuilderOptions) {
 }
 
 export function getCleanPlugin(options: BuildBuilderOptions) {
-  return new CleanWebpackPlugin();
+  return new CleanWebpackPlugin({
+    cleanStaleWebpackAssets: false
+  });
 }
