@@ -58,66 +58,18 @@ import sassModuleStyles from "./styles/AppSass.module.sass";
  */
 import "./styles/AppSass.sass";
 
-let worker;
-
-function onWebWorkerTestClickFn(setWebWorkerText) {
-  return (event: React.MouseEvent) => {
-    event.preventDefault();
-
-    if (!worker) {
-      /**
-       * There are two ways to load your web worker:
-       * 1. Using https://github.com/GoogleChromeLabs/worker-plugin
-       * 2. Using https://github.com/webpack-contrib/worker-loader
-       *
-       * If using method 1, make sure your file is NOT named *.worker.js
-       *
-       * If using method 2, make sure your file IS named *.worker.js
-       *
-       * Note that method 1 currently DOES NOT work in development mode. See
-       * https://github.com/GoogleChromeLabs/worker-plugin/issues/36
-       */
-
-      // This is method 1:
-      worker = new Worker("./webWorker", { type: "module" });
-
-      // This is method 2:
-      // It uses inline web workers to overcome CORS problems in web workers.
-      // const Worker = require("worker-loader?inline=true!./web.worker.ts");
-      // worker = new Worker();
-
-      // the rest of the code remains the same.
-      worker.onmessage = event => {
-        setWebWorkerText("Test Web Worker: last message received=" + event.data);
-      };
-    }
-
-    worker.postMessage("Current date from main thread is " + new Date());
-  };
-}
-
-function onLoadLibraryClickFn(dynamicLibraryText, initialDynamicLibraryText: string, setDynamicLibraryText) {
-  return (event: React.MouseEvent) => {
-    event.preventDefault();
-    if (dynamicLibraryText === initialDynamicLibraryText) {
-      /**
-       * Example of a lazy-loaded library. This library will be bundled in a
-       * separate chunk and downloaded on-demand when this code executes.
-       */
-      import("@apployees-nx/examples/library1")
-        .then(library1 => {
-          setDynamicLibraryText(library1.library1());
-        });
-    }
-  };
-}
+/**
+ * We'll declare a worker variable that we will use later on to load the
+ * web worker.
+ */
+let webWorker;
 
 /**
  * The App react component.
  *
  * @constructor
  */
-function App() {
+export default function App() {
 
   const initialDynamicLibraryText = "Dynamic library loading...please wait!!";
   const [dynamicLibraryText, setDynamicLibraryText] = useState(initialDynamicLibraryText);
@@ -131,7 +83,7 @@ function App() {
       <header className="app-header">
         <img src={logo} className={lessModuleStyles.AppLogo} alt="logo"/>
         <p>
-          Edit <code className="Path-Name">src/App.js</code> and save to reload!
+          Edit <code className="Path-Name">src/App.js</code> and save to reload!!!!!
         </p>
         <p className={sassModuleStyles.libraryText}>
           {library2()}
@@ -161,5 +113,55 @@ function App() {
     </div>
   );
 }
+function onWebWorkerTestClickFn(setWebWorkerText) {
+  return (event: React.MouseEvent) => {
+    event.preventDefault();
 
-export default App;
+    if (!webWorker) {
+      /**
+       * There are two ways to load your web worker:
+       * 1. Using https://github.com/GoogleChromeLabs/worker-plugin
+       * 2. Using https://github.com/webpack-contrib/worker-loader
+       *
+       * If using method 1, your worker ts file MUST NOT be named *.worker.ts
+       *
+       * If using method 2, your worker ts file MUST be named *.worker.js
+       *
+       * Note that method 1 currently DOES NOT work in development mode. See
+       * https://github.com/GoogleChromeLabs/worker-plugin/issues/36
+       */
+
+      // This is method 1:
+      webWorker = new Worker("./webWorker", { type: "module" });
+
+      // This is method 2:
+      // It uses inline web workers to overcome CORS problems in web workers.
+      // const Worker = require("worker-loader?inline=true!./web.worker.ts");
+      // webWorker = new Worker();
+
+      // the rest of the code remains the same.
+      webWorker.onmessage = event => {
+        setWebWorkerText("Test Web Worker: last message received=" + event.data);
+      };
+    }
+
+    webWorker.postMessage("Current date from main thread is " + new Date());
+  };
+
+}
+function onLoadLibraryClickFn(dynamicLibraryText, initialDynamicLibraryText: string, setDynamicLibraryText) {
+  return (event: React.MouseEvent) => {
+    event.preventDefault();
+    if (dynamicLibraryText === initialDynamicLibraryText) {
+      /**
+       * Example of a lazy-loaded library. This library will be bundled in a
+       * separate chunk and downloaded on-demand when this code executes.
+       */
+      import("@apployees-nx/examples/library1")
+        .then(library1 => {
+          setDynamicLibraryText(library1.library1());
+        });
+    }
+  };
+
+}

@@ -131,7 +131,12 @@
     },
     "assetsUrl": {
       "type": "string",
-      "description": "The \"public path\" at which the app is served -- you can override this with ASSETS_URL environment variable. We need to know it to put the right <script> hrefs into HTML even in single-page apps that may serve index.html for nested URLs like /todos/42. We can't use a relative path in HTML because we don't want to load something like /todos/42/static/js/bundle.7289d.js. We have to know the root.",
+      "description": "The \"public path\" at which the static assets are served -- you can override this with ASSETS_URL environment variable. We need to know this so we can put the right <script> hrefs into HTML even in single-page apps that may serve app.html for nested URLs like /todos/42. We can't use a relative path in HTML because we don't want to load something like /todos/42/static/js/bundle.7289d.js. We have to know the root.",
+      "default": "/"
+    },
+    "publicUrl": {
+      "type": "string",
+      "description": "The \"public path\" at which the app itself is served -- you can override this with PUBLIC_URL environment variable. This will be used for things like start_url in the manifest.json.",
       "default": "/"
     },
     "serverExternalDependencies": {

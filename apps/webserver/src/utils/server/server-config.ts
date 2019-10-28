@@ -9,7 +9,7 @@ import { BuilderContext } from "@angular-devkit/architect";
 import { getBaseLoaders } from "../common/common-loaders";
 import { getAssetsUrl } from "../common/env";
 import { getPlugins } from "../common/plugins";
-import { extensions, getAliases, getStatsConfig } from "../common/common-config";
+import { extensions, FILENAMES, getAliases, getStatsConfig } from "../common/common-config";
 import { getServerLoaders } from "./server-loaders";
 import { getNodeExternals, InspectType } from "@apployees-nx/common-build-utils";
 import { appRootPath } from "@nrwl/workspace/src/utils/app-root";
@@ -188,7 +188,11 @@ export function getServerConfig(
     });
 
     const copyWebpackPluginOptions = {
-      ignore: ['.gitkeep', '**/.DS_Store', '**/Thumbs.db']
+      ignore: [
+        '.gitkeep', '**/.DS_Store', '**/Thumbs.db',
+        // don't overwrite the files we generated ourselves for the client
+        ..._.values(FILENAMES).filter(fileName => fileName !== FILENAMES.publicFolder)
+      ]
     };
 
     const copyWebpackPluginInstance = new CopyWebpackPlugin(

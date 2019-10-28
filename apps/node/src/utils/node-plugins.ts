@@ -1,7 +1,6 @@
 import { BuildNodeBuilderOptions } from "./node-types";
 import { BuilderContext } from "@angular-devkit/architect";
 import {
-  getCleanPlugin,
   getProcessedEnvironmentVariables,
   loadEnvironmentVariables
 } from "@apployees-nx/common-build-utils";
@@ -13,8 +12,6 @@ import typescriptFormatter from "react-dev-utils/typescriptFormatter";
 
 export function getPluginsForNodeWebpack(options: BuildNodeBuilderOptions, context: BuilderContext) {
   return [
-
-    getCleanPlugin(options),
 
     new webpack.EnvironmentPlugin({
       NODE_ENV: options.dev ? "development" : "production"

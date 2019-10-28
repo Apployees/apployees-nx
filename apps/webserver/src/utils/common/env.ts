@@ -28,9 +28,16 @@ export function getAssetsUrl(
   withSlash: boolean = true) {
 
   return ensureSlash(
-    options.dev ?
-      options.assetsUrl :
       process.env.ASSETS_URL || options.assetsUrl,
+    withSlash);
+}
+
+export function getPublicUrl(
+  options: BuildWebserverBuilderOptions,
+  withSlash: boolean = true) {
+
+  return ensureSlash(
+      process.env.PUBLIC_URL || options.publicUrl || process.env.ASSETS_URL || options.assetsUrl,
     withSlash);
 }
 
@@ -82,10 +89,15 @@ export function getWebserverEnvironmentVariables(
         // whether we are running on client or server
         RENDER_ENV: isEnvClient ? "client" : "server",
 
-        // For example, <img src={env.ASSETS_URL + '/img/logo.png'} />.
+        // For example, <img src={env.ASSETS_URL + 'img/logo.png'} />.
         // This should only be used as an escape hatch. Normally you would put
         // images into the `src` and `import` them in code to get their paths.
-        ASSETS_URL: getAssetsUrl(options, false)
+        ASSETS_URL: getAssetsUrl(options, true),
+
+        // The URL at which the server can be reached.
+        // Also used to set the start_url in the manifest.json. Clients can also use this
+        // to make API calls on the server.
+        PUBLIC_URL: getPublicUrl(options, true)
       }
     );
 

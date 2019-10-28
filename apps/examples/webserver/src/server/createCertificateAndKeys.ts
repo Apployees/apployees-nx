@@ -1,8 +1,9 @@
 import selfsigned from "selfsigned";
+import getServerEnvironmentVariable from "./serverEnvs";
 
 export default function createCertificateAndKeys() {
 
-  let hostName = env.HOST || process.env.HOST || "localhost";
+  let hostName = getServerEnvironmentVariable("HOST");
   if (hostName !== "localhost") {
     // convert to a wildcard certificate in case dev needs it.
     hostName = "*." + hostName;

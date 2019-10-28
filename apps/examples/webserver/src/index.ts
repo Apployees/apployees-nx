@@ -2,6 +2,7 @@ import express from "express";
 import https from "https";
 import { readFileSync } from "fs";
 import getKeyAndCertificate from "./server/getCertificate";
+import getServerEnvironmentVariable from "./server/serverEnvs";
 
 let app = require("./server").default;
 
@@ -28,8 +29,8 @@ if (process.env.NODE_ENV !== "production") {
 // The port and SSL settings come from your configuration or from the
 // various .env files.
 
-const port = parseInt(process.env.PORT, 10) || 3000;
-const host = process.env.HOST || "localhost";
+const port = parseInt(getServerEnvironmentVariable("PORT", "3000"), 10);
+const host = getServerEnvironmentVariable("HOST", "localhost")
 const handler = express();
 handler.use((req, res, next) => app.handle(req, res, next));
 const keyAndCertificate = getKeyAndCertificate();

@@ -26,6 +26,7 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   outputHashing?: "none" | "all" | "media" | "bundles";
   imageInlineSizeLimit?: number;
   assetsUrl?: string;
+  publicUrl?: string;
   favicon?: string;
   manifestJson?: string;
   publicOutputFolder_calculated?: string;

@@ -46,7 +46,7 @@ try {
 export default createBuilder<JsonObject & BuildWebserverBuilderOptions>(run);
 
 interface WebpackDevServerReference {
-  server: WebpackDevServer & {sockWrite: Function, sockets: any};
+  server: WebpackDevServer & { sockWrite: Function, sockets: any };
 }
 
 function run(
@@ -103,7 +103,7 @@ function run(
 
                 options.devWebpackPort = webpackPort;
                 process.env.DEV_PORT = webpackPort;
-                const protocol = options.devHttps ? 'https' : 'http';
+                const protocol = options.devHttps ? "https" : "http";
 
                 options.assetsUrl = `${protocol}://${options.devHost}:${webpackPort}/`;
                 options.devUrls_calculated = prepareUrls(protocol, options.devHost, appPort);
@@ -115,18 +115,6 @@ function run(
         return Promise.resolve(options);
       }
     }),
-    map((options: BuildWebserverBuilderOptions) => {
-
-      // Remove all content but keep the directory so that
-      // if you're in it, you don't end up in Trash
-      // only do this for development because in production we will use the
-      // previous build output to measure the delta.
-      if (options.dev) {
-        fs.emptyDirSync(options.outputPath);
-      }
-
-      return options;
-    }),
     switchMap((options: BuildWebserverBuilderOptions) => {
       if (!options.dev) {
         return measureFileSizesBeforeBuild(options.publicOutputFolder_calculated)
@@ -135,6 +123,14 @@ function run(
       } else {
         return Promise.resolve([options, null]);
       }
+    }),
+    map(([options, previousFileSizesForPublicFolder]) => {
+
+      // Remove all content but keep the directory so that
+      // if you're in it, you don't end up in Trash
+      fs.emptyDirSync(options.outputPath);
+
+      return [options, previousFileSizesForPublicFolder];
     }),
     map(([options, previousFileSizesForPublicFolder]) => {
 
@@ -160,12 +156,20 @@ function run(
         });
       }
 
+      // remove the output directory before we go further
+
+
       return [options, serverConfig, clientConfig, previousFileSizesForPublicFolder];
     }),
     concatMap(([options, serverConfig, clientConfig, previousFileSizesForPublicFolder]:
                  [BuildWebserverBuilderOptions, Configuration, Configuration, object]) => {
 
         if (options.dev) {
+
+          /**
+           * Run the webpack for server and webpack dev server for client.
+           */
+
           return forkJoin(
             runWebpack(serverConfig, context, {
               logging: stats => {
@@ -208,6 +212,11 @@ function run(
             of(options)
           );
         } else {
+
+          /**
+           * Run the webpack for server and webpack for client.
+           */
+
           return forkJoin(
             runWebpack(serverConfig, context, {
               logging: stats => {

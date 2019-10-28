@@ -28,7 +28,9 @@ import FaviconsWebpackPlugin from "favicons-webpack-plugin-ex";
 import HtmlWebpackInjector from "html-webpack-injector";
 import { readJsonFile } from "@nrwl/workspace";
 import WorkerPlugin from "worker-plugin";
+import WorkboxWebpackPlugin from "workbox-webpack-plugin";
 import "worker-loader";
+import { ProcessedEnvironmentVariables } from "@apployees-nx/common-build-utils";
 
 export function getClientConfig(
   options: BuildWebserverBuilderOptions,
@@ -218,13 +220,33 @@ export function getClientConfig(
       new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
       // Makes some environment variables available in index.html.
       // The public URL is available as %ASSETS_URL% in index.html, e.g.:
-      // <link rel="shortcut icon" href="%ASSETS_URL%/favicon.ico">
+      // <link rel="shortcut icon" href="%ASSETS_URL%favicon.ico">
       new InterpolateHtmlPlugin(HtmlWebpackPlugin,
         webserverEnvironmentVariables.raw),
 
       // add support for web workers.
       new WorkerPlugin({
         globalObject: "self"
+      }),
+
+      // add support for service workers
+      // Generate a service worker script that will precache, and keep up to date,
+      // the HTML & assets that are part of the Webpack build.
+      isEnvProduction &&
+      new WorkboxWebpackPlugin.GenerateSW({
+        clientsClaim: true,
+        exclude: [/\.map$/, /asset-manifest\.json$/],
+        importWorkboxFrom: "cdn",
+        navigateFallback: publicPath + FILENAMES.appHtml,
+        navigateFallbackBlacklist: [
+          // Exclude URLs starting with /_, as they're likely an API call
+          new RegExp("^/_"),
+          // Exclude any URLs whose last part seems to be a file extension
+          // as they're likely a resource and not a SPA route.
+          // URLs containing a "?" character won't be blacklisted as they're likely
+          // a route with query params (e.g. auth callbacks).
+          new RegExp("/[^/?]+\\.[^/]+$")
+        ]
       }),
 
       // Generate a manifest file which contains a mapping of all asset filenames
@@ -235,7 +257,8 @@ export function getClientConfig(
         publicPath: publicPath,
         generate: (seed, files) => {
 
-          return generateManifestContents(publicPath, files, seed, options);
+          return generateManifestContents(publicPath, files,
+            seed, options, webserverEnvironmentVariables);
         }
       })
     ].filter(Boolean),
@@ -271,35 +294,6 @@ export function getClientConfig(
         outputFilename: FILENAMES.thirdPartyLicenses
       })
     );
-  }
-
-  // process asset entries
-  if (options.assets) {
-    const copyWebpackPluginPatterns = options.assets.map((asset: any) => {
-      return {
-        context: asset.input,
-        to: "", // blank because this entire webpack config outputs to public
-        ignore: asset.ignore,
-        from: {
-          glob: asset.glob,
-          dot: true
-        }
-      };
-    });
-
-    const copyWebpackPluginOptions = {
-      ignore: [
-        ".gitkeep", "**/.DS_Store", "**/Thumbs.db",
-        // don't overwrite the files we generated ourselves.
-        ..._.map(_.values(FILENAMES), filename =>
-          path.resolve(options.root, options.sourceRoot, FILENAMES.publicFolder, filename))]
-    };
-
-    const copyWebpackPluginInstance = new CopyWebpackPlugin(
-      copyWebpackPluginPatterns,
-      copyWebpackPluginOptions
-    );
-    extraPlugins.push(copyWebpackPluginInstance);
   }
 
   if (options.showCircularDependencies) {
@@ -394,7 +388,9 @@ export function createTerserPlugin(shouldUseSourceMap: boolean) {
  * @param seed
  * @param options
  */
-function generateManifestContents(publicPath, files, seed, options: BuildWebserverBuilderOptions) {
+function generateManifestContents(publicPath, files, seed,
+                                  options: BuildWebserverBuilderOptions,
+                                  envVars: ProcessedEnvironmentVariables) {
 
   const icons: any = [];
   const iconToSearch = publicPath + "static/favicons/android-chrome";
@@ -422,6 +418,10 @@ function generateManifestContents(publicPath, files, seed, options: BuildWebserv
   let suppliedManifest: any = { icons: icons };
   if (options.manifestJson) {
     suppliedManifest = _.merge(suppliedManifest, readJsonFile(options.manifestJson));
+  }
+
+  if (!suppliedManifest.start_url && envVars.raw["PUBLIC_URL"]) {
+    suppliedManifest.start_url = envVars.raw["PUBLIC_URL"];
   }
 
   return _.merge(suppliedManifest, {
