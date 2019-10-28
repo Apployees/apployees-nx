@@ -27,6 +27,8 @@ export function normalizeBuildOptions<T extends BuildWebserverBuilderOptions>(
     outputPath: outputPath,
     tsConfig: resolve(root, options.tsConfig),
     assets: normalizeAssets(options.assets, root, sourceRoot),
+    favicon: resolve(root, options.favicon),
+    manifestJson: resolve(root, options.manifestJson),
     envFolderPath: options.envFolderPath ?
       resolve(root, options.envFolderPath) : getDefaultEnvsFolderForProject(root, context),
     additionalEnvFile: options.additionalEnvFile ?

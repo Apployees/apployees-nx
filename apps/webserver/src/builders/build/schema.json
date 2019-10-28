@@ -50,7 +50,7 @@
     },
     "clientOtherEntries": {
       "type": "object",
-      "description": "Additional entries that you want to define for the CLIENT. The key is the name of the file and the value is the entry. Each of these entries becomes an independent bundle injected into the appHtml file."
+      "description": "Additional entries that you want to define for the CLIENT. The key is the name of the file and the value is the entry. Each of these entries becomes an independent bundle injected into the appHtml file. If you suffix the key with '_head' the bundle will get injected in the <head> portion of the appHtml file (this technique is useful for polyfills)."
     },
     "tsConfig": {
       "type": "string",
@@ -107,6 +107,14 @@
       "items": {
         "$ref": "#/definitions/assetPattern"
       }
+    },
+    "favicon": {
+      "type": "string",
+      "description": "The path to the png, svg, or other image from which favicons will be generated for various devices. Note: this is only for when dev=false (i.e. for production)."
+    },
+    "manifestJson": {
+      "type": "string",
+      "description": "Provide a manifest.json file which will be used as the base for the generated manifest.json file."
     },
     "envFolderPath": {
       "type": "string",

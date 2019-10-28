@@ -322,8 +322,10 @@
             "appHtml": "apps/examples/webserver/src/public/app.html",
             "serverMain": "apps/examples/webserver/src/index.ts",
             "clientMain": "apps/examples/webserver/src/client/index.tsx",
+            "favicon": "apps/examples/webserver/src/public/logo512.png",
+            "manifestJson": "apps/examples/webserver/src/public/manifest.json",
             "clientOtherEntries": {
-              "anotherClientEntry": "apps/examples/webserver/src/client/anotherClientEntry.ts"
+              "anotherClientEntry_head": "apps/examples/webserver/src/client/anotherClientEntry.ts"
             },
             "tsConfig": "apps/examples/webserver/tsconfig.app.json",
             "assets": [
