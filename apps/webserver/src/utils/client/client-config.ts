@@ -27,6 +27,8 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import FaviconsWebpackPlugin from "favicons-webpack-plugin-ex";
 import HtmlWebpackInjector from "html-webpack-injector";
 import { readJsonFile } from "@nrwl/workspace";
+import WorkerPlugin from "worker-plugin";
+import "worker-loader";
 
 export function getClientConfig(
   options: BuildWebserverBuilderOptions,
@@ -157,6 +159,10 @@ export function getClientConfig(
           false // isEnvServer
         ),
         {
+          test: /\.worker\.js$/,
+          use: { loader: 'worker-loader' }
+        },
+        {
           // "oneOf" will traverse all following loaders until one will
           // match the requirements. When no loader matches it will fall
           // back to the "file" loader at the end of the loader list.
@@ -215,6 +221,11 @@ export function getClientConfig(
       // <link rel="shortcut icon" href="%ASSETS_URL%/favicon.ico">
       new InterpolateHtmlPlugin(HtmlWebpackPlugin,
         webserverEnvironmentVariables.raw),
+
+      // add support for web workers.
+      new WorkerPlugin({
+        globalObject: "self"
+      }),
 
       // Generate a manifest file which contains a mapping of all asset filenames
       // to their corresponding output file so that tools can pick it up without

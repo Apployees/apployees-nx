@@ -16,6 +16,7 @@ import { appRootPath } from "@nrwl/workspace/src/utils/app-root";
 import CircularDependencyPlugin from "circular-dependency-plugin";
 import PnpWebpackPlugin from "pnp-webpack-plugin";
 import StartServerPlugin from "start-server-webpack-plugin";
+import WorkerPlugin from "worker-plugin";
 
 export function getServerConfig(
   options: BuildWebserverBuilderOptions,
@@ -135,7 +136,9 @@ export function getServerConfig(
         name: 'index.js',
         nodeArgs
       }),
-      isEnvDevelopment && new webpack.WatchIgnorePlugin([options.publicOutputFolder_calculated])
+      isEnvDevelopment && new webpack.WatchIgnorePlugin([options.publicOutputFolder_calculated]),
+      // add support for web workers.
+      new WorkerPlugin(),
     ].filter(Boolean),
     node: {
       __console: false,

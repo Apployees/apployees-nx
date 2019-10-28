@@ -335,7 +335,9 @@ function createWebpackServerOptions(options: BuildWebserverBuilderOptions,
     host: options.devHost,
     port: options.devWebpackPort,
     headers: {
-      "Access-Control-Allow-Origin": "*"
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+      "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
     },
     overlay: false,
     historyApiFallback: {

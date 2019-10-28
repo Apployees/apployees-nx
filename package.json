@@ -253,6 +253,8 @@
     "webpack-node-externals": "^1.7.2",
     "webpack-notifier": "^1.8.0",
     "workbox-webpack-plugin": "4.3.1",
+    "worker-loader": "^2.0.0",
+    "worker-plugin": "^3.2.0",
     "write-file-webpack-plugin": "^4.5.1",
     "yargs": "^11.0.0",
     "yargs-parser": "10.0.0",
