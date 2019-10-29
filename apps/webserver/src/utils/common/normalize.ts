@@ -8,17 +8,21 @@ import {
 import { BuildWebserverBuilderOptions } from "./webserver-types";
 import { FILENAMES } from "./common-config";
 import { BuilderContext } from "@angular-devkit/architect";
+import lessVariablesToJs from "less-vars-to-js";
+import { existsSync, readFileSync } from "fs";
 
-
-export function normalizeBuildOptions<T extends BuildWebserverBuilderOptions>(
-  options: T,
+export function normalizeBuildOptions(
+  options: BuildWebserverBuilderOptions,
   context: BuilderContext,
   sourceRoot: string
-): T {
+): BuildWebserverBuilderOptions {
 
   const root = context.workspaceRoot;
 
   const outputPath = resolve(root, options.outputPath);
+
+  const lessVariablesFile = options.lessStyleVariables ?
+    resolve(root, options.lessStyleVariables) : options.lessStyleVariables;
 
   return {
     ...options,
@@ -38,6 +42,8 @@ export function normalizeBuildOptions<T extends BuildWebserverBuilderOptions>(
 
     serverMain: resolve(root, options.serverMain),
     serverFileReplacements: normalizeFileReplacements(root, options.serverFileReplacements),
+    lessStyleVariables: lessVariablesFile,
+    lessStyleVariables_calculated: calculateLessVariables(options, lessVariablesFile),
     serverWebpackConfig: options.serverWebpackConfig
       ? resolve(root, options.serverWebpackConfig)
       : options.serverWebpackConfig,
@@ -48,5 +54,18 @@ export function normalizeBuildOptions<T extends BuildWebserverBuilderOptions>(
     clientWebpackConfig: options.clientWebpackConfig
       ? resolve(root, options.clientWebpackConfig)
       : options.clientWebpackConfig
-  } as T;
+  } as BuildWebserverBuilderOptions;
+}
+
+function calculateLessVariables(options: BuildWebserverBuilderOptions,
+                                normalizedLessVariablesFile: string): object {
+  let variables: object;
+
+  if (existsSync(normalizedLessVariablesFile)) {
+    variables = lessVariablesToJs(readFileSync(normalizedLessVariablesFile, "utf-8"));
+  } else {
+    variables = {};
+  }
+
+  return variables;
 }

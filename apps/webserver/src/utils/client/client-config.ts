@@ -1,9 +1,6 @@
-import webpack from "webpack";
-import { Configuration, ProgressPlugin } from "webpack";
-import path, { resolve } from "path";
-import { dirname } from "path";
+import webpack, { Configuration } from "webpack";
+import path, { dirname } from "path";
 import { LicenseWebpackPlugin } from "license-webpack-plugin";
-import CopyWebpackPlugin from "copy-webpack-plugin";
 import TerserWebpackPlugin from "terser-webpack-plugin";
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import { getOutputHashFormat } from "../common/hash-format";
@@ -11,7 +8,7 @@ import { BuildWebserverBuilderOptions } from "../common/webserver-types";
 import _ from "lodash";
 import { BuilderContext } from "@angular-devkit/architect";
 import { getBaseLoaders } from "../common/common-loaders";
-import { getWebserverEnvironmentVariables, getAssetsUrl } from "../common/env";
+import { getAssetsUrl, getWebserverEnvironmentVariables } from "../common/env";
 import { getClientLoaders } from "./client-loaders";
 import { getPlugins } from "../common/plugins";
 import { extensions, FILENAMES, getAliases, getStatsConfig } from "../common/common-config";
@@ -31,6 +28,8 @@ import WorkerPlugin from "worker-plugin";
 import WorkboxWebpackPlugin from "workbox-webpack-plugin";
 import "worker-loader";
 import { ProcessedEnvironmentVariables } from "@apployees-nx/common-build-utils";
+import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
+import WebpackBar from "webpackbar";
 
 export function getClientConfig(
   options: BuildWebserverBuilderOptions,
@@ -162,7 +161,7 @@ export function getClientConfig(
         ),
         {
           test: /\.worker\.js$/,
-          use: { loader: 'worker-loader' }
+          use: { loader: "worker-loader" }
         },
         {
           // "oneOf" will traverse all following loaders until one will
@@ -281,8 +280,12 @@ export function getClientConfig(
 
   const extraPlugins: webpack.Plugin[] = [];
 
-  if (options.progress && isEnvDevelopment) {
-    extraPlugins.push(new ProgressPlugin());
+  if (options.progress) {
+    extraPlugins.push(new WebpackBar({
+      name: "client",
+      fancy: isEnvDevelopment,
+      basic: !isEnvDevelopment
+    }));
   }
 
   if (options.extractLicenses) {
@@ -301,6 +304,12 @@ export function getClientConfig(
       new CircularDependencyPlugin({
         exclude: /[\\\/]node_modules[\\\/]/
       })
+    );
+  }
+
+  if (isEnvDevelopment && options.devClientBundleAnalyzer) {
+    extraPlugins.push(
+      new BundleAnalyzerPlugin()
     );
   }
 

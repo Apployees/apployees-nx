@@ -139,7 +139,9 @@ export function getServerLoaders(
         {
           loader: require.resolve("less-loader"),
           options: {
-            sourceMap: true
+            sourceMap: true,
+            javascriptEnabled: true,
+            modifyVars: options.lessStyleVariables_calculated
           }
         }
       ),
@@ -161,7 +163,9 @@ export function getServerLoaders(
         {
           loader: require.resolve("less-loader"),
           options: {
-            sourceMap: true
+            sourceMap: true,
+            javascriptEnabled: true,
+            modifyVars: options.lessStyleVariables_calculated
           }
         }
       )

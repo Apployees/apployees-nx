@@ -142,7 +142,7 @@ function run(
 
       let serverConfig = getServerConfig(options, context, true);
       if (options.serverWebpackConfig) {
-        serverConfig = require(options.serverWebpackConfig)(serverConfig, {
+        serverConfig = __non_webpack_require__(options.serverWebpackConfig)(serverConfig, {
           options,
           configuration: context.target.configuration
         });
@@ -150,7 +150,7 @@ function run(
 
       let clientConfig = getClientConfig(options, context, false);
       if (options.clientWebpackConfig) {
-        clientConfig = require(options.clientWebpackConfig)(clientConfig, {
+        clientConfig = __non_webpack_require__(options.clientWebpackConfig)(clientConfig, {
           options,
           configuration: context.target.configuration
         });
@@ -384,3 +384,6 @@ function ignoredFiles(appSrc) {
     "g"
   );
 }
+
+// eslint-disable-next-line @typescript-eslint/camelcase
+declare function __non_webpack_require__(string): any;

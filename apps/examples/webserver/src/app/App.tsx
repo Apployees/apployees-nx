@@ -58,6 +58,8 @@ import sassModuleStyles from "./styles/AppSass.module.sass";
  */
 import "./styles/AppSass.sass";
 
+import {Button} from "antd";
+
 /**
  * We'll declare a worker variable that we will use later on to load the
  * web worker.
@@ -102,13 +104,14 @@ export default function App() {
         >
           Learn React
         </a>
-        <button onClick={onLoadLibraryClick} style={{ marginTop: 50, padding: 10, border: "1px solid #ccc" }}
+        <Button onClick={onLoadLibraryClick} style={{ margin: 50 }}
+                type="primary"
                 disabled={dynamicLibraryText !== initialDynamicLibraryText}>
           Load a dynamic library.
-        </button>
-        <button onClick={onWebWorkerTestClick} style={{ marginTop: 50, padding: 10, border: "1px solid #ccc" }}>
+        </Button>
+        <Button onClick={onWebWorkerTestClick} style={{ margin: 50 }}>
           {webWorkerText}
-        </button>
+        </Button>
       </header>
     </div>
   );

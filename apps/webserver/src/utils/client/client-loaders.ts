@@ -171,6 +171,8 @@ export function getClientLoaders(
         loader: require.resolve('less-loader'),
         options: {
           sourceMap: isEnvProduction && shouldUseSourceMap,
+          javascriptEnabled: true,
+          modifyVars: options.lessStyleVariables_calculated
         },
       }),
       // Don't consider CSS imports dead code even if the
@@ -191,6 +193,8 @@ export function getClientLoaders(
         loader: require.resolve('less-loader'),
         options: {
           sourceMap: isEnvProduction && shouldUseSourceMap,
+          javascriptEnabled: true,
+          modifyVars: options.lessStyleVariables_calculated
         },
       }),
     },

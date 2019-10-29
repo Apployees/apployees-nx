@@ -1,4 +1,4 @@
-import webpack, { Configuration, ProgressPlugin } from "webpack";
+import webpack, { Configuration } from "webpack";
 import path, { dirname } from "path";
 import { LicenseWebpackPlugin } from "license-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
@@ -17,6 +17,7 @@ import CircularDependencyPlugin from "circular-dependency-plugin";
 import PnpWebpackPlugin from "pnp-webpack-plugin";
 import StartServerPlugin from "start-server-webpack-plugin";
 import WorkerPlugin from "worker-plugin";
+import WebpackBar from "webpackbar";
 
 export function getServerConfig(
   options: BuildWebserverBuilderOptions,
@@ -24,12 +25,12 @@ export function getServerConfig(
   esm?: boolean
 ): Configuration {
 
-  const mainFields = [...(esm ? ['es2015'] : []), 'module', 'main'];
+  const mainFields = [...(esm ? ["es2015"] : []), "module", "main"];
   const isEnvDevelopment = options.dev;
   const isEnvProduction = !options.dev;
   const shouldUseSourceMap = options.sourceMap;
   const publicPath = getAssetsUrl(options);
-  const nodeArgs = ['-r', 'source-map-support/register'];
+  const nodeArgs = ["-r", "source-map-support/register"];
 
   if (options.inspect === true) {
     options.inspect = InspectType.Inspect;
@@ -39,26 +40,26 @@ export function getServerConfig(
   }
 
   const webpackConfig: Configuration = {
-    name: 'server',
-    target: 'node',
+    name: "server",
+    target: "node",
     watch: isEnvDevelopment,
-    mode: isEnvProduction ? 'production' : 'development',
+    mode: isEnvProduction ? "production" : "development",
     // Stop compilation early in production
     bail: isEnvProduction,
     devtool: isEnvProduction
       ? shouldUseSourceMap
-        ? 'source-map'
+        ? "source-map"
         : false
-      : 'eval-source-map',
+      : "eval-source-map",
     entry: [
-      isEnvDevelopment && 'webpack/hot/poll?100',
+      isEnvDevelopment && "webpack/hot/poll?100",
       options.serverMain
     ].filter(Boolean),
     externals: getNodeExternals(
       options.serverExternalLibraries,
       options.serverExternalDependencies,
       [
-        isEnvDevelopment && 'webpack/hot/poll?100',
+        isEnvDevelopment && "webpack/hot/poll?100",
         /\.(eot|woff|woff2|ttf|otf)$/,
         /\.(svg|png|jpg|jpeg|gif|ico)$/,
         /\.(mp4|mp3|ogg|swf|webp)$/,
@@ -68,26 +69,26 @@ export function getServerConfig(
     output: {
       path: options.outputPath,
       publicPath: publicPath,
-      filename: 'index.js',
-      libraryTarget: 'commonjs2',
+      filename: "index.js",
+      libraryTarget: "commonjs2",
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: isEnvProduction
         ? info =>
           path
             .relative(path.resolve(options.root, options.sourceRoot), info.absoluteResourcePath)
-            .replace(/\\/g, '/')
+            .replace(/\\/g, "/")
         : isEnvDevelopment &&
-        (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/'))
+        (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/"))
     },
     resolve: {
-      modules: ['node_modules', `${appRootPath}/node_modules`],
+      modules: ["node_modules", `${appRootPath}/node_modules`],
       extensions,
       alias: _.extend({},
         {
-          '@': path.resolve(__dirname),
-          '~': path.resolve(__dirname),
+          "@": path.resolve(__dirname),
+          "~": path.resolve(__dirname),
           // This is required so symlinks work during development.
-          'webpack/hot/poll': require.resolve(`webpack/hot/poll`)
+          "webpack/hot/poll": require.resolve(`webpack/hot/poll`)
         },
         getAliases(options.serverFileReplacements)
       ),
@@ -133,12 +134,12 @@ export function getServerConfig(
       ...getPlugins(options, context, false),
       isEnvDevelopment &&
       new StartServerPlugin({
-        name: 'index.js',
+        name: "index.js",
         nodeArgs
       }),
       isEnvDevelopment && new webpack.WatchIgnorePlugin([options.publicOutputFolder_calculated]),
       // add support for web workers.
-      new WorkerPlugin(),
+      new WorkerPlugin()
     ].filter(Boolean),
     node: {
       __console: false,
@@ -157,8 +158,12 @@ export function getServerConfig(
 
   const extraPlugins: webpack.Plugin[] = [];
 
-  if (options.progress && isEnvDevelopment) {
-    extraPlugins.push(new ProgressPlugin());
+  if (options.progress) {
+    extraPlugins.push(new WebpackBar({
+      name: "server",
+      fancy: isEnvDevelopment,
+      basic: !isEnvDevelopment
+    }));
   }
 
   if (options.extractLicenses) {
@@ -189,7 +194,7 @@ export function getServerConfig(
 
     const copyWebpackPluginOptions = {
       ignore: [
-        '.gitkeep', '**/.DS_Store', '**/Thumbs.db',
+        ".gitkeep", "**/.DS_Store", "**/Thumbs.db",
         // don't overwrite the files we generated ourselves for the client
         ..._.values(FILENAMES).filter(fileName => fileName !== FILENAMES.publicFolder)
       ]

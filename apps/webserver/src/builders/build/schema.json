@@ -181,6 +181,11 @@
       "description": "Emits verbose output",
       "default": false
     },
+    "devClientBundleAnalyzer": {
+      "type": "boolean",
+      "description": "Start bundle analyzer for the client bundles after webpack build. Only if dev=true.",
+      "default": false
+    },
     "extractLicenses": {
       "type": "boolean",
       "description": "Extract all licenses in a separate file, in the case of production builds only.",
@@ -237,6 +242,10 @@
         "required": ["replace", "with"]
       },
       "default": []
+    },
+    "lessStyleVariables": {
+      "type": "string",
+      "description": "Path to a .less file that defines variables that will be loaded by less-loader. Use this to customize the theme for various frameworks like AntD."
     },
     "serverWebpackConfig": {
       "type": "string",

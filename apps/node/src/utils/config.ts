@@ -15,6 +15,7 @@ import { BuilderContext } from "@angular-devkit/architect";
 import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
 import WebpackNotifier from "webpack-notifier";
 import { getPluginsForNodeWebpack } from "./node-plugins";
+import WebpackBar from "webpackbar";
 
 export function getBaseWebpackPartial(
   options: BuildNodeBuilderOptions,
@@ -93,8 +94,12 @@ export function getBaseWebpackPartial(
 
   const extraPlugins: webpack.Plugin[] = [];
 
-  if (options.progress && isEnvDevelopment) {
-    extraPlugins.push(new ProgressPlugin());
+  if (options.progress) {
+    extraPlugins.push(new WebpackBar({
+      name: "client",
+      fancy: isEnvDevelopment,
+      basic: !isEnvDevelopment
+    }));
   }
 
   if (isEnvDevelopment && (options.notifier !== false)) {

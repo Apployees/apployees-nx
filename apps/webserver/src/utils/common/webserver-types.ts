@@ -35,9 +35,12 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   serverExternalLibraries?: ExternalDependencies;
   serverFileReplacements: FileReplacement[];
   clientFileReplacements: FileReplacement[];
+  lessStyleVariables?: string;
+  lessStyleVariables_calculated?: object;
   serverWebpackConfig?: string;
   clientWebpackConfig?: string;
   inspect?: boolean | InspectType;
   inspectHost?: string;
   inspectPort?: number;
+  devClientBundleAnalyzer?: boolean;
 }

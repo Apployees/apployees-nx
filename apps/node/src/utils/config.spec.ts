@@ -7,7 +7,7 @@ import CircularDependencyPlugin from 'circular-dependency-plugin';
 import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
 jest.mock('tsconfig-paths-webpack-plugin');
 import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
-import { ProgressPlugin } from 'webpack';
+import WebpackBar from "webpackbar";
 import { BuildNodeBuilderOptions } from './node-types';
 
 describe('getBaseWebpackPartial', () => {
@@ -372,7 +372,7 @@ describe('getBaseWebpackPartial', () => {
       });
 
       expect(
-        result.plugins.find(plugin => plugin instanceof ProgressPlugin)
+        result.plugins.find(plugin => plugin instanceof WebpackBar)
       ).toBeTruthy();
     });
   });

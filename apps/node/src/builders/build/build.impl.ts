@@ -2,21 +2,18 @@ import { BuilderContext, createBuilder } from "@angular-devkit/architect";
 import { JsonObject } from "@angular-devkit/core";
 import { BuildResult, runWebpack } from "@angular-devkit/build-webpack";
 
-import { from, Observable, of } from "rxjs";
+import { from, Observable } from "rxjs";
 import path, { resolve } from "path";
 import { concatMap, map } from "rxjs/operators";
 import { getNodeWebpackConfig } from "../../utils/node.config";
 import { getSourceRoot, OUT_FILENAME, WebpackBuildEvent, writePackageJson } from "@apployees-nx/common-build-utils";
 import { normalizeBuildOptions } from "../../utils/normalize";
 import { BuildNodeBuilderOptions } from "../../utils/node-types";
-import webpack, { Configuration } from "webpack";
-import { createCompiler } from "react-dev-utils/WebpackDevServerUtils";
 import fs from "fs-extra";
 
 try {
   require('dotenv').config();
 } catch (e) {}
-
 
 export default createBuilder<JsonObject & BuildNodeBuilderOptions>(run);
 
@@ -43,7 +40,7 @@ function run(
       yarnExists = fs.existsSync(path.resolve(options.root, "yarn.lock"));
       let config = getNodeWebpackConfig(options, context);
       if (options.webpackConfig) {
-        config = require(options.webpackConfig)(config, {
+        config = __non_webpack_require__(options.webpackConfig)(config, {
           options,
           configuration: context.target.configuration
         });
@@ -61,15 +58,7 @@ function run(
       runWebpack(config, context, {
         logging: stats => {
           context.logger.info(stats.toString(config.stats));
-        },
-        webpackFactory: (config: Configuration) => of(createCompiler({
-          webpack: webpack,
-          config: config,
-          appName: context.target.project,
-          useYarn: yarnExists,
-          tscCompileOnError: true,
-          useTypeScript: true,
-        }))
+        }
       })
     ),
     map((buildEvent: BuildResult) => {
@@ -88,3 +77,6 @@ function run(
     })
   );
 }
+
+// eslint-disable-next-line @typescript-eslint/camelcase
+declare function __non_webpack_require__(string): any;
