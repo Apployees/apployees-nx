@@ -10,6 +10,7 @@ import {
   sassModuleRegex,
   sassRegex
 } from '../common/common-loaders';
+import _ from "lodash";
 
 export function getClientLoaders(
   options: BuildWebserverBuilderOptions) {
@@ -37,7 +38,8 @@ export function getClientLoaders(
       } : cssOptions;
 
     return [
-      isEnvDevelopment && require.resolve('style-loader'),
+      isEnvDevelopment && _.isString(require.resolve("style-loader")) ?
+        require.resolve("style-loader") : "style-loader",
       isEnvProduction && {
         loader: MiniCssExtractPlugin.loader,
         options: Object.assign(
@@ -46,7 +48,8 @@ export function getClientLoaders(
         ),
       },
       {
-        loader: require.resolve('css-loader'),
+        loader: _.isString(require.resolve('css-loader')) ?
+          require.resolve('css-loader') : 'css-loader',
         options: {
           ...cssOptions,
           sourceMap: isEnvProduction && shouldUseSourceMap,
@@ -56,7 +59,8 @@ export function getClientLoaders(
         // Options for PostCSS as we reference these options twice
         // Adds vendor prefixing based on your specified browser support in
         // package.json
-        loader: require.resolve('postcss-loader'),
+        loader: _.isString(require.resolve('postcss-loader')) ?
+          require.resolve('postcss-loader') : 'postcss-loader',
         options: {
           // Necessary for external CSS imports to work
           // https://github.com/facebook/create-react-app/issues/2677
@@ -86,7 +90,8 @@ export function getClientLoaders(
     // A missing `test` is equivalent to a match.
     {
       test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-      loader: require.resolve('url-loader'),
+      loader: _.isString(require.resolve('url-loader')) ?
+        require.resolve('url-loader') : 'url-loader',
       options: {
         limit: options.imageInlineSizeLimit,
         name: 'static/media/[name].[hash:8].[ext]',
@@ -131,7 +136,8 @@ export function getClientLoaders(
           importLoaders: 2
         },
       ).concat({
-        loader: require.resolve('sass-loader'),
+        loader: _.isString(require.resolve('sass-loader')) ?
+          require.resolve('sass-loader') : 'sass-loader',
         options: {
           sourceMap: isEnvProduction && shouldUseSourceMap,
         },
@@ -151,7 +157,8 @@ export function getClientLoaders(
           importLoaders: 2,
         },
       ).concat({
-        loader: require.resolve('sass-loader'),
+        loader: _.isString(require.resolve('sass-loader')) ?
+          require.resolve('sass-loader') : 'sass-loader',
         options: {
           sourceMap: isEnvProduction && shouldUseSourceMap,
         },
@@ -168,7 +175,8 @@ export function getClientLoaders(
           importLoaders: 2,
         },
       ).concat({
-        loader: require.resolve('less-loader'),
+        loader: _.isString(require.resolve('less-loader')) ?
+          require.resolve('less-loader') : 'less-loader',
         options: {
           sourceMap: isEnvProduction && shouldUseSourceMap,
           javascriptEnabled: true,
@@ -190,7 +198,8 @@ export function getClientLoaders(
           importLoaders: 2,
         }
       ).concat({
-        loader: require.resolve('less-loader'),
+        loader: _.isString(require.resolve('less-loader')) ?
+          require.resolve('less-loader') : 'less-loader',
         options: {
           sourceMap: isEnvProduction && shouldUseSourceMap,
           javascriptEnabled: true,
@@ -204,7 +213,8 @@ export function getClientLoaders(
     // This loader doesn't use a "test" so it will catch all modules
     // that fall through the other loaders.
     {
-      loader: require.resolve('file-loader'),
+      loader: _.isString(require.resolve('file-loader')) ?
+        require.resolve('file-loader') : 'file-loader',
       // Exclude `js` files to keep "css" loader working as it injects
       // its runtime that would otherwise be processed through "file" loader.
       // Also exclude `html` and `json` extensions so they get processed

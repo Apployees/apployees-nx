@@ -14,7 +14,9 @@
             "outputPath": "dist/apps/webserver",
             "main": "apps/webserver/src/main.ts",
             "otherEntries": {
-              "builder-build": "apps/webserver/src/builders/build/build.impl.ts"
+              "builder-build": "apps/webserver/src/builders/build/build.impl.ts",
+              "schematic-init": "apps/webserver/src/schematics/init/init.ts",
+              "schematic-application": "apps/webserver/src/schematics/application/application.ts"
             },
             "tsConfig": "apps/webserver/tsconfig.app.json",
             "assets": [
@@ -23,20 +25,15 @@
           },
           "configurations": {
             "production": {
-              "extractLicenses": true,
-              "inspect": false,
               "dev": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/webserver/src/environments/environment.ts",
-                  "with": "apps/webserver/src/environments/environment.prod.ts"
-                }
-              ]
+              "extractLicenses": true,
+              "inspect": false
             },
             "development": {
+              "dev": true,
               "extractLicenses": false,
+              "inspect": true,
               "watch": true,
-              "verbose": true,
               "notifier": {
                 "excludeWarnings": true
               }
@@ -46,8 +43,7 @@
         "serve": {
           "builder": "@apployees-nx/node:execute",
           "options": {
-            "buildTarget": "webserver:build:development",
-            "inspect": true
+            "buildTarget": "webserver:build:development"
           }
         },
         "lint": {
@@ -144,8 +140,6 @@
         "build": {
           "builder": "@apployees-nx/node:build",
           "options": {
-            "verbose": true,
-            "externalDependencies": "all",
             "outputPath": "dist/apps/node",
             "main": "apps/node/src/main.ts",
             "otherEntries": {
@@ -163,13 +157,7 @@
             "production": {
               "dev": false,
               "extractLicenses": true,
-              "inspect": false,
-              "fileReplacements": [
-                {
-                  "replace": "apps/node/src/environments/environment.ts",
-                  "with": "apps/node/src/environments/environment.prod.ts"
-                }
-              ]
+              "inspect": false
             },
             "development": {
               "dev": true,

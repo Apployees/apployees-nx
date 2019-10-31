@@ -4,8 +4,7 @@ import {
 } from './execute.impl';
 import { of, from } from 'rxjs';
 import * as devkitArchitect from '@angular-devkit/architect';
-import { MockBuilderContext, getMockContext } from '../../utils/testing';
-import { InspectType } from '@apployees-nx/common-build-utils';
+import { getMockContext, InspectType, MockBuilderContext } from "@apployees-nx/common-build-utils";
 
 jest.mock('child_process');
 const { fork } = require('child_process');

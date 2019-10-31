@@ -7,7 +7,7 @@ import {
   formatFiles
 } from '@nrwl/workspace';
 import { Schema } from './schema';
-import { nxVersion } from '../../utils/versions';
+import { nxVersion } from "@apployees-nx/common-build-utils";
 import { JsonObject } from '@angular-devkit/core';
 
 function addDependencies(): Rule {

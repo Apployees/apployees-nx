@@ -1,4 +1,5 @@
 import { BuildWebserverBuilderOptions } from "./webserver-types";
+import _ from "lodash";
 
 // style files regexes
 export const cssRegex = /\.css$/;
@@ -27,7 +28,8 @@ export function getBaseLoaders(
       options: {
         presets: [
           [
-            require.resolve('@babel/preset-env'),
+            _.isString(require.resolve('@babel/preset-env')) ?
+              require.resolve('@babel/preset-env') : '@babel/preset-env',
             {
               // Allows browserlist file from project to be used.
               configPath: context,
@@ -45,27 +47,36 @@ export function getBaseLoaders(
             }
           ],
           [
-            require.resolve('@babel/preset-react'),
+            _.isString(require.resolve('@babel/preset-react')) ?
+              require.resolve('@babel/preset-react') : '@babel/preset-react',
             {
               useBuiltIns: true
             }
           ],
-          [require.resolve('@babel/preset-typescript')]
+          [_.isString(require.resolve('@babel/preset-typescript')) ?
+            require.resolve('@babel/preset-typescript') : '@babel/preset-typescript']
         ],
         plugins: [
-          require.resolve('babel-plugin-macros'),
+          _.isString(require.resolve('babel-plugin-macros')) ?
+            require.resolve('babel-plugin-macros') : 'babel-plugin-macros',
           // Must use legacy decorators to remain compatible with TypeScript.
-          [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true }],
+          [_.isString(require.resolve('@babel/plugin-proposal-decorators')) ?
+            require.resolve('@babel/plugin-proposal-decorators') : '@babel/plugin-proposal-decorators',
+            { legacy: true }],
           [
-            require.resolve('@babel/plugin-proposal-class-properties'),
+            _.isString(require.resolve('@babel/plugin-proposal-class-properties')) ?
+              require.resolve('@babel/plugin-proposal-class-properties') : '@babel/plugin-proposal-class-properties',
             { loose: true }
           ],
           // Add support for styled-components ssr
-          require.resolve('babel-plugin-styled-components'),
+          _.isString(require.resolve('babel-plugin-styled-components')) ?
+            require.resolve('babel-plugin-styled-components') : 'babel-plugin-styled-components',
           // Transform dynamic import to require for server
-          isEnvServer && require.resolve('babel-plugin-dynamic-import-node'),
+          isEnvServer && _.isString(require.resolve('babel-plugin-dynamic-import-node')) ?
+            require.resolve('babel-plugin-dynamic-import-node') : 'babel-plugin-dynamic-import-node',
           [
-            require.resolve('babel-plugin-named-asset-import'),
+            _.isString(require.resolve('babel-plugin-named-asset-import')) ?
+              require.resolve('babel-plugin-named-asset-import') : 'babel-plugin-named-asset-import',
             {
               loaderMap: {
                 svg: {

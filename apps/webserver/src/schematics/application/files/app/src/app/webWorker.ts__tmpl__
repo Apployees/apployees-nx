@@ -1,0 +1,4 @@
+// This webworker is loaded using https://github.com/GoogleChromeLabs/worker-plugin
+import webWorkerProcessor from "./webWorkerProcessor";
+
+addEventListener('message', webWorkerProcessor);

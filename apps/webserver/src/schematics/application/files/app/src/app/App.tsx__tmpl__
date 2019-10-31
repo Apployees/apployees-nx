@@ -1,0 +1,219 @@
+import React from "react";
+import { useState } from "react";
+
+// UNCOMMENT CODE IF YOU WANT TO TEST WITH A LIBRARY IN YOUR MONO-REPO
+// -------------------------------------------------------------------
+// /**
+//  * Example of importing a library directly. This library will be bundled with
+//  * the app main module.
+//  */
+// import { library1 } from "@<%= npmScope %>/library1";
+
+/**
+ * You can import an image and it will either be inlined (if it's small enough)
+ * or will be exported into the public folder. The javascript reference you
+ * receive will either be the data URL (if inlined) or the path to the image in
+ * the public folder. Note that the public folder will be prefixed with the
+ * ASSETS_URL (so CDN will work).
+ */
+import logo from "./logo.svg";
+
+/**
+ * You can import CSS modules. All styles in a *.module.css file will be scoped
+ * to that file only so you can use that style knowing that it's not global
+ *
+ * The javascript reference will give you a name that is unique to that style
+ * in that css module file.
+ *
+ * Note also that all names in the file that have dashes will be converted to
+ * camelCase. The case of the first character of the style name is preserved.
+ */
+import cssModuleStyles from "./styles/AppCss.module.css";
+
+/**
+ * When not using CSS modules, all styles will be global. There will be no
+ * scoping and no conversion of names to camelcase.
+ *
+ * When you import a non-module style, you get an empty Javascript object because
+ * nothing is scoped. Hence, there is no point in assigning it -- just import
+ * the file and use the style names as strings (see component below).
+ */
+import "./styles/AppCss.css";
+
+/**
+ * Similar to CSS modules but using LESS modules instead.
+ */
+import lessModuleStyles from "./styles/AppLess.module.less";
+
+/**
+ * Non-module import of LESS. All styles will be global.
+ */
+import "./styles/AppLess.less";
+
+/**
+ * Similar to CSS modules but using Sass modules instead.
+ */
+import sassModuleStyles from "./styles/AppSass.module.sass";
+
+/**
+ * Non-module import of Sass. All styles will be global.
+ */
+import "./styles/AppSass.sass";
+
+import {Button} from "antd";
+
+/**
+ * We'll declare a worker variable that we will use later on to load the
+ * web worker.
+ */
+let webWorker;
+
+/**
+ * The App react component.
+ *
+ * @constructor
+ */
+export default function App() {
+  let libraryTest, libraryLoadButton, webWorkerButton;
+
+  // UNCOMMENT CODE IF YOU WANT TO TEST WITH A LIBRARY IN YOUR MONO-REPO
+  // -------------------------------------------------------------------
+  // const initialDynamicLibraryText = "Dynamic library loading...please wait!";
+  // const [dynamicLibraryText, setDynamicLibraryText] = useState(initialDynamicLibraryText);
+  // const onLoadLibraryClick = onLoadLibraryClickFn(dynamicLibraryText, initialDynamicLibraryText, setDynamicLibraryText);
+  //
+  // libraryTest = (
+  //   <div>
+  //     <p className={sassModuleStyles.libraryText}>
+  //       {library1()}
+  //     </p>
+  //     {dynamicLibraryText !== initialDynamicLibraryText &&
+  //     <p className={sassModuleStyles.libraryText}>
+  //       {dynamicLibraryText}
+  //     </p>
+  //     }
+  //   </div>
+  // );
+  // libraryLoadButton = (
+  //   <Button onClick={onLoadLibraryClick} style={{ margin: 50 }}
+  //           type="primary"
+  //           disabled={dynamicLibraryText !== initialDynamicLibraryText}>
+  //     Load a dynamic library.
+  //   </Button>
+  // );
+
+
+  // UNCOMMENT CODE IF YOU WANT TO TEST WEB WORKERS
+  // ----------------------------------------------
+  // const [webWorkerText, setWebWorkerText] = useState("Test Web Worker");
+  // const onWebWorkerTestClick = onWebWorkerTestClickFn(setWebWorkerText);
+  // webWorkerButton = (
+  //   <Button onClick={onWebWorkerTestClick} style={{ margin: 50 }}>
+  //     {webWorkerText}
+  //   </Button>
+  // );
+
+  /**
+   * The various ways to import a style are shown below.
+   */
+
+  return (
+    <div className={cssModuleStyles.app}>
+      <header className="app-header">
+        <img src={logo} className={lessModuleStyles.AppLogo} alt="logo"/>
+        <p>
+          Edit <code className="Path-Name">src/App.js</code> and save to reload!
+        </p>
+        {libraryTest}
+
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+
+        {libraryLoadButton}
+
+        {webWorkerButton}
+
+      </header>
+    </div>
+  );
+}
+
+
+// UNCOMMENT CODE IF YOU WANT TO TEST WEB WORKERS
+// ----------------------------------------------
+// function onWebWorkerTestClickFn(setWebWorkerText) {
+//   return (event: React.MouseEvent) => {
+//     event.preventDefault();
+//
+//     /**
+//      * We load the webWorker lazily because we don't want the webWorker to be loaded
+//      * by SSR on the server.
+//      *
+//      * On the client, there are two ways to load your web worker (see code below):
+//      * 1. Using https://github.com/GoogleChromeLabs/worker-plugin
+//      * 2. Using https://github.com/webpack-contrib/worker-loader
+//      */
+//     if (!webWorker) {
+//
+//       /**
+//        * This is method 1:
+//        *
+//        * It will not work in dev mode because all javascript files are loaded
+//        * from a hot-reload server running on a different port (3030) than the
+//        * server that served the app.html file (3000).
+//        *
+//        * See https://github.com/GoogleChromeLabs/worker-plugin/issues/36
+//        *
+//        * If using method 1, your worker ts file MUST NOT be named *.worker.ts
+//        */
+//       if (process.env.NODE_ENV !== "development") {
+//         webWorker = new Worker("./webWorker", { type: "module" });
+//       }
+//
+//       /**
+//        * This is method 2:
+//        *
+//        * It uses inline web workers to overcome CORS problems in web workers.
+//        *
+//        * If using method 2, your worker ts file MUST be named *.worker.js
+//        */
+//       if (process.env.NODE_ENV === "development") {
+//         const Worker = require("worker-loader?inline=true!./web.worker.ts");
+//         webWorker = new Worker();
+//       }
+//
+//       // the rest of the code remains the same.
+//       webWorker.onmessage = event => {
+//         setWebWorkerText("Test Web Worker: last message received=" + event.data);
+//       };
+//     }
+//
+//     webWorker.postMessage("Current date from main thread is " + new Date());
+//   };
+// }
+
+
+// UNCOMMENT CODE IF YOU WANT TO TEST WITH A LIBRARY IN YOUR MONO-REPO
+// -------------------------------------------------------------------
+// function onLoadLibraryClickFn(dynamicLibraryText, initialDynamicLibraryText: string, setDynamicLibraryText) {
+//   return (event: React.MouseEvent) => {
+//     event.preventDefault();
+//     if (dynamicLibraryText === initialDynamicLibraryText) {
+//
+//       /**
+//        * Example of a lazy-loaded library. This library will be bundled in a
+//        * separate chunk and downloaded on-demand when this code executes.
+//        */
+//       import("@<%= npmScope %>/library2")
+//         .then(library2 => {
+//           setDynamicLibraryText(library2.library2());
+//         });
+//     }
+//   };
+// }

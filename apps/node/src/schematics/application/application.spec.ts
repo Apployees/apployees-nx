@@ -1,9 +1,9 @@
 import { Tree } from '@angular-devkit/schematics';
 import stripJsonComments from 'strip-json-comments';
 import { createEmptyWorkspace, getFileContent } from '@nrwl/workspace/testing';
-import { runSchematic } from '../../utils/testing';
+import { nodeTestRunner } from "../../utils/node-test-runner";
 import { NxJson, readJsonInTree } from '@nrwl/workspace';
-import { createApp } from '@nrwl/angular/src/utils/testing';
+import { createApp, runSchematic } from "@apployees-nx/common-build-utils";
 
 describe('app', () => {
   let appTree: Tree;
@@ -15,7 +15,8 @@ describe('app', () => {
 
   describe('not nested', () => {
     it('should update workspace.json', async () => {
-      const tree = await runSchematic('app', { name: 'myNodeApp' }, appTree);
+      const tree = await runSchematic(
+        nodeTestRunner,'app', { name: 'myNodeApp' }, appTree);
       const workspaceJson = readJsonInTree(tree, '/workspace.json');
       const project = workspaceJson.projects['my-node-app'];
       expect(project.root).toEqual('apps/my-node-app');
@@ -76,6 +77,7 @@ describe('app', () => {
 
     it('should update nx.json', async () => {
       const tree = await runSchematic(
+        nodeTestRunner,
         'app',
         { name: 'myNodeApp', tags: 'one,two' },
         appTree
@@ -92,7 +94,8 @@ describe('app', () => {
     });
 
     it('should generate files', async () => {
-      const tree = await runSchematic('app', { name: 'myNodeApp' }, appTree);
+      const tree = await runSchematic(
+        nodeTestRunner,'app', { name: 'myNodeApp' }, appTree);
       expect(tree.exists(`apps/my-node-app/jest.config.js`)).toBeTruthy();
       expect(tree.exists('apps/my-node-app/src/main.ts')).toBeTruthy();
 
@@ -119,6 +122,7 @@ describe('app', () => {
   describe('nested', () => {
     it('should update workspace.json', async () => {
       const tree = await runSchematic(
+        nodeTestRunner,
         'app',
         { name: 'myNodeApp', directory: 'myDir' },
         appTree
@@ -150,6 +154,7 @@ describe('app', () => {
 
     it('should update nx.json', async () => {
       const tree = await runSchematic(
+        nodeTestRunner,
         'app',
         { name: 'myNodeApp', directory: 'myDir', tags: 'one,two' },
         appTree
@@ -173,6 +178,7 @@ describe('app', () => {
         expect(lookupFn(config)).toEqual(expectedValue);
       };
       const tree = await runSchematic(
+        nodeTestRunner,
         'app',
         { name: 'myNodeApp', directory: 'myDir' },
         appTree
@@ -215,6 +221,7 @@ describe('app', () => {
   describe('--unit-test-runner none', () => {
     it('should not generate test configuration', async () => {
       const tree = await runSchematic(
+        nodeTestRunner,
         'app',
         { name: 'myNodeApp', unitTestRunner: 'none' },
         appTree
@@ -238,6 +245,7 @@ describe('app', () => {
       appTree = createApp(appTree, 'my-frontend');
 
       const tree = await runSchematic(
+        nodeTestRunner,
         'app',
         { name: 'myNodeApp', frontendProject: 'my-frontend' },
         appTree
@@ -256,6 +264,7 @@ describe('app', () => {
       appTree = createApp(appTree, 'myFrontend');
 
       const tree = await runSchematic(
+        nodeTestRunner,
         'app',
         { name: 'myNodeApp', frontendProject: 'myFrontend' },
         appTree

@@ -26,6 +26,9 @@ function run(
   // do this otherwise our bootstrapped @apployees-nx/node actually replaces this
   // to "development" or "production" at build time.
   const nodeEnvKey = "NODE_ENV";
+
+  // we don't actually need this since we don't use babel for @apployees-nx/node. But keeping it around anyway in case
+  // we add Babel in the future.
   const babelEnvKey = "BABEL_ENV";
   process.env[nodeEnvKey] = nodeEnv;
   process.env[babelEnvKey] = nodeEnv;

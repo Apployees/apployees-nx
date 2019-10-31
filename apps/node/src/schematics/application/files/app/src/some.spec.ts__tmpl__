@@ -1,0 +1,9 @@
+
+describe("something", () => {
+  it("should pass", () => {
+    const because = "why-not";
+    expect(because).toEqual("why-not");
+  })
+});
+
+export const noop = 0;

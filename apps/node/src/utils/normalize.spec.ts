@@ -3,8 +3,8 @@ import { Path, normalize, workspaces } from "@angular-devkit/core";
 
 import fs from 'fs';
 import { BuildNodeBuilderOptions } from './node-types';
-import { getMockContext, MockBuilderContext } from "./testing";
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import { getMockContext, MockBuilderContext } from "@apployees-nx/common-build-utils";
 
 jest.mock('tsconfig-paths-webpack-plugin');
 

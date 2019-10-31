@@ -4,8 +4,8 @@ import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import { of } from "rxjs";
 import buildWebpack from "@angular-devkit/build-webpack";
 import { Architect } from "@angular-devkit/architect";
-import { getTestArchitect } from "../../utils/testing";
 import { BuildNodeBuilderOptions } from "../../utils/node-types";
+import { getTestArchitect } from "@apployees-nx/common-build-utils";
 
 jest.mock('tsconfig-paths-webpack-plugin');
 

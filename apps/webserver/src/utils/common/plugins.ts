@@ -15,6 +15,7 @@ import { BuilderContext } from "@angular-devkit/architect";
 import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
 import WebpackNotifier from "webpack-notifier";
 import { getNotifierOptions } from "@apployees-nx/common-build-utils";
+import _ from "lodash";
 
 export function getPlugins(options: BuildWebserverBuilderOptions,
                            context: BuilderContext,
@@ -24,6 +25,9 @@ export function getPlugins(options: BuildWebserverBuilderOptions,
   const nodeModulesPath = findup("node_modules");
   const rootPath = findup("angular.json") || findup("nx.json") || options.root;
   const notifierOptions = getNotifierOptions(options);
+
+  const tsPnp = _.isString(require.resolve("pnp-webpack-plugin/ts")) ?
+    require.resolve("pnp-webpack-plugin/ts") : "pnp-webpack-plugin/ts";
 
   return [
 
@@ -104,10 +108,10 @@ export function getPlugins(options: BuildWebserverBuilderOptions,
       useTypescriptIncrementalApi: true,
       checkSyntacticErrors: true,
       resolveModuleNameModule: (process.versions as any).pnp
-        ? `${__dirname}/pnpTs.js`
+        ? tsPnp
         : undefined,
       resolveTypeReferenceDirectiveModule: (process.versions as any).pnp
-        ? `${__dirname}/pnpTs.js`
+        ? tsPnp
         : undefined,
       tsconfig: options.tsConfig,
       reportFiles: [

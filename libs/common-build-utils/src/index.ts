@@ -9,3 +9,6 @@ export * from "./lib/node-externals/externalized-imports";
 export * from "./lib/node-externals/node-externals";
 
 export * from "./lib/types/common-types";
+
+export * from "./lib/schematics/compatible-nx-version";
+export * from "./lib/schematics/schematic-test-utils";

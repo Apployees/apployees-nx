@@ -2,20 +2,15 @@ import webpack, { Configuration, ProgressPlugin, Stats } from "webpack";
 
 import ts from "typescript";
 
-import { LicenseWebpackPlugin } from "license-webpack-plugin";
-import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
-import CopyWebpackPlugin from "copy-webpack-plugin";
 import { readTsConfig } from "@nrwl/workspace";
 import _ from "lodash";
 import { BuildNodeBuilderOptions } from "./node-types";
 import { getNotifierOptions, OUT_FILENAME } from "@apployees-nx/common-build-utils";
-import CircularDependencyPlugin from "circular-dependency-plugin";
 import path from "path";
 import { BuilderContext } from "@angular-devkit/architect";
-import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
-import WebpackNotifier from "webpack-notifier";
 import { getPluginsForNodeWebpack } from "./node-plugins";
-import WebpackBar from "webpackbar";
+import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import PnpWebpackPlugin from "pnp-webpack-plugin";
 
 export function getBaseWebpackPartial(
   options: BuildNodeBuilderOptions,
@@ -27,7 +22,6 @@ export function getBaseWebpackPartial(
     compilerOptions.target !== ts.ScriptTarget.ES5;
   const mainFields = [...(supportsEs2015 ? ["es2015"] : []), "module", "main"];
   const extensions = [".ts", ".tsx", ".mjs", ".js", ".jsx"];
-  const notifierOptions = getNotifierOptions(options);
 
   const isEnvDevelopment = options.dev;
   const isEnvProduction = !isEnvDevelopment;
@@ -77,9 +71,19 @@ export function getBaseWebpackPartial(
           configFile: options.tsConfig,
           extensions,
           mainFields
-        })
+        }),
+        // Adds support for installing with Plug'n'Play, leading to faster installs and adding
+        // guards against forgotten dependencies and such.
+        PnpWebpackPlugin
       ],
       mainFields
+    },
+    resolveLoader: {
+      plugins: [
+        // Also related to Plug'n'Play, but this time it tells Webpack to load its loaders
+        // from the current package.
+        PnpWebpackPlugin.moduleLoader(module)
+      ]
     },
     performance: {
       hints: false
@@ -91,75 +95,6 @@ export function getBaseWebpackPartial(
     },
     stats: getStatsConfig(options)
   };
-
-  const extraPlugins: webpack.Plugin[] = [];
-
-  if (options.progress) {
-    extraPlugins.push(new WebpackBar({
-      name: "client",
-      fancy: isEnvDevelopment,
-      basic: !isEnvDevelopment
-    }));
-  }
-
-  if (isEnvDevelopment && (options.notifier !== false)) {
-    extraPlugins.push(new WebpackNotifier({
-      title: context ? context.target.project : options.main,
-      ...notifierOptions
-    }));
-    extraPlugins.push(new ForkTsNotifier({
-      title: context ? context.target.project : options.main,
-      ...notifierOptions,
-      skipSuccessful: true // always skip successful for fork otherwise we get duplicate notifications
-    }));
-  }
-
-  if (options.extractLicenses) {
-    extraPlugins.push(
-      new LicenseWebpackPlugin({
-        pattern: /.*/,
-        suppressErrors: true,
-        perChunkOutput: false,
-        outputFilename: `3rdpartylicenses.txt`
-      })
-    );
-  }
-
-  // process asset entries
-  if (options.assets) {
-    const copyWebpackPluginPatterns = options.assets.map((asset: any) => {
-      return {
-        context: asset.input,
-        // Now we remove starting slash to make Webpack place it from the output root.
-        to: asset.output,
-        ignore: asset.ignore,
-        from: {
-          glob: asset.glob,
-          dot: true
-        }
-      };
-    });
-
-    const copyWebpackPluginOptions = {
-      ignore: ["**/.DS_Store", "**/Thumbs.db"]
-    };
-
-    const copyWebpackPluginInstance = new CopyWebpackPlugin(
-      copyWebpackPluginPatterns,
-      copyWebpackPluginOptions
-    );
-    extraPlugins.push(copyWebpackPluginInstance);
-  }
-
-  if (options.showCircularDependencies) {
-    extraPlugins.push(
-      new CircularDependencyPlugin({
-        exclude: /[\\\/]node_modules[\\\/]/
-      })
-    );
-  }
-
-  webpackConfig.plugins = [...webpackConfig.plugins, ...extraPlugins];
 
   return webpackConfig;
 }

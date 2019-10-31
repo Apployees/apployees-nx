@@ -88,7 +88,8 @@ export function getServerConfig(
           "@": path.resolve(__dirname),
           "~": path.resolve(__dirname),
           // This is required so symlinks work during development.
-          "webpack/hot/poll": require.resolve(`webpack/hot/poll`)
+          "webpack/hot/poll": _.isString(require.resolve(`webpack/hot/poll`)) ?
+            require.resolve(`webpack/hot/poll`) : `webpack/hot/poll`
         },
         getAliases(options.serverFileReplacements)
       ),

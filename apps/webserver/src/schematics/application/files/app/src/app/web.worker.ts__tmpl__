@@ -1,0 +1,4 @@
+// This webworker is loaded using https://github.com/webpack-contrib/worker-loader
+import webWorkerProcessor from "./webWorkerProcessor";
+
+addEventListener('message', webWorkerProcessor);

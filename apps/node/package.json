@@ -1,11 +1,6 @@
 {
   "name": "@apployees-nx/node",
-  "version": "0.0.1",
   "description": "An enhanced Node Plugin for Nx",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/apployees/apployees-nx.git"
-  },
   "keywords": [
     "Monorepo",
     "Node",
@@ -14,18 +9,16 @@
     "Cypress",
     "CLI"
   ],
-  "main": "index.js",
-  "types": "index.d.ts",
-  "author": "Atif Ali",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/apployees/apployees-nx/issues"
-  },
-  "homepage": "https://github.com/apployees/apployees-nx",
   "schematics": "./collection.json",
   "builders": "./builders.json",
   "ng-update": {
     "requirements": {},
     "migrations": "./migrations.json"
+  },
+  "dependencies": {
+    "ts-loader": "^5.3.1",
+    "@nrwl/jest": "^8.6.0",
+    "webpack-dev-server": "^3.2.1",
+    "fork-ts-checker-webpack-plugin": "^1.5.0"
   }
 }

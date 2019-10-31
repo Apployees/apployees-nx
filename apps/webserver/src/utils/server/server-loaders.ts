@@ -8,6 +8,7 @@ import {
   sassModuleRegex,
   sassRegex
 } from "../common/common-loaders";
+import _ from "lodash";
 
 export function getServerLoaders(
   options: BuildWebserverBuilderOptions
@@ -34,14 +35,16 @@ export function getServerLoaders(
 
     return [
       {
-        loader: require.resolve("css-loader"),
+        loader: _.isString(require.resolve("css-loader")) ?
+          require.resolve("css-loader") : "css-loader",
         options: {
           ...cssOptions,
           onlyLocals: true
         }
       },
       {
-        loader: require.resolve("postcss-loader"),
+        loader: _.isString(require.resolve("postcss-loader")) ?
+          require.resolve("postcss-loader") : "postcss-loader",
         options: {
           ident: "postcss",
           plugins: () => [
@@ -61,7 +64,8 @@ export function getServerLoaders(
   return [
     {
       test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-      loader: require.resolve("url-loader"),
+      loader: _.isString(require.resolve("url-loader")) ?
+        require.resolve("url-loader") : "url-loader",
       options: {
         limit: options.imageInlineSizeLimit,
         name: "static/media/[name].[hash:8].[ext]"
@@ -70,7 +74,8 @@ export function getServerLoaders(
     {
       test: cssRegex,
       exclude: cssModuleRegex,
-      loader: require.resolve("css-loader")
+      loader: _.isString(require.resolve("css-loader")) ?
+        require.resolve("css-loader") : "css-loader"
     },
     {
       test: cssModuleRegex,
@@ -87,13 +92,15 @@ export function getServerLoaders(
         }
       ).concat(
         {
-          loader: require.resolve("resolve-url-loader"),
+          loader: _.isString(require.resolve("resolve-url-loader")) ?
+            require.resolve("resolve-url-loader") : "resolve-url-loader",
           options: {
             sourceMap: isEnvProduction && shouldUseSourceMap
           }
         },
         {
-          loader: require.resolve("sass-loader"),
+          loader: _.isString(require.resolve("sass-loader")) ?
+            require.resolve("sass-loader") : "sass-loader",
           options: {
             sourceMap: true
           }
@@ -109,13 +116,15 @@ export function getServerLoaders(
         }
       ).concat(
         {
-          loader: require.resolve("resolve-url-loader"),
+          loader: _.isString(require.resolve("resolve-url-loader")) ?
+            require.resolve("resolve-url-loader") : "resolve-url-loader",
           options: {
             sourceMap: isEnvProduction && shouldUseSourceMap
           }
         },
         {
-          loader: require.resolve("sass-loader"),
+          loader: _.isString(require.resolve("sass-loader")) ?
+            require.resolve("sass-loader") : "sass-loader",
           options: {
             sourceMap: true
           }
@@ -131,13 +140,15 @@ export function getServerLoaders(
         }
       ).concat(
         {
-          loader: require.resolve("resolve-url-loader"),
+          loader: _.isString(require.resolve("resolve-url-loader")) ?
+            require.resolve("resolve-url-loader") : "resolve-url-loader",
           options: {
             sourceMap: isEnvProduction && shouldUseSourceMap
           }
         },
         {
-          loader: require.resolve("less-loader"),
+          loader: _.isString(require.resolve("less-loader")) ?
+            require.resolve("less-loader") : "less-loader",
           options: {
             sourceMap: true,
             javascriptEnabled: true,
@@ -155,13 +166,15 @@ export function getServerLoaders(
         }
       ).concat(
         {
-          loader: require.resolve("resolve-url-loader"),
+          loader: _.isString(require.resolve("resolve-url-loader")) ?
+            require.resolve("resolve-url-loader") : "resolve-url-loader",
           options: {
             sourceMap: isEnvProduction && shouldUseSourceMap
           }
         },
         {
-          loader: require.resolve("less-loader"),
+          loader: _.isString(require.resolve("less-loader")) ?
+            require.resolve("less-loader") : "less-loader",
           options: {
             sourceMap: true,
             javascriptEnabled: true,
@@ -171,7 +184,8 @@ export function getServerLoaders(
       )
     },
     {
-      loader: require.resolve("file-loader"),
+      loader: _.isString(require.resolve("file-loader")) ?
+        require.resolve("file-loader") : "file-loader",
       exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
       options: {
         name: "static/media/[name].[hash:8].[ext]",

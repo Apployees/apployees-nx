@@ -1,0 +1,7 @@
+{
+  "short_name": "<%= name %>",
+  "name": "<%= name %>",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

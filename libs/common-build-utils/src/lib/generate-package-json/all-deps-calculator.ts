@@ -241,7 +241,7 @@ class DepsCalculator {
 
         break;
       }
-      case ts.SyntaxKind.CallExpression: {// require("z"); or require.ensure(["a", "b"], ...)
+      case ts.SyntaxKind.CallExpression: {// require("z"); or require.resolve("z"); or require.ensure(["a", "b"], ...)
         const callExpression: ts.CallExpression = (node as ts.CallExpression);
         if (callExpression) {
           const expression = callExpression.expression;
@@ -251,7 +251,7 @@ class DepsCalculator {
             }
 
             const callName: string = expression.getText(sourceFile);
-            if (callName === 'require' || callName === 'import') {
+            if (callName === 'require' || callName === 'require.resolve' || callName === 'import') {
               const argument = callExpression.arguments[0];
               if (argument) {
                 if (!argument.parent) {
@@ -328,12 +328,8 @@ class DepsCalculator {
       this.projectPackageJson.license = this.rootPackageJson.license || 'UNLICENSED';
     }
 
-    if (_.isNil(this.projectPackageJson.private)) {
-      if (!_.isNil(this.rootPackageJson.private)) {
-        this.projectPackageJson.private = this.rootPackageJson.private;
-      } else {
-        this.projectPackageJson.private = true;
-      }
+    if (_.isNil(this.projectPackageJson.private) && !_.isNil(this.rootPackageJson.private)) {
+      this.projectPackageJson.private = this.rootPackageJson.private;
     }
 
     this.copyFromRootJson(
@@ -344,6 +340,9 @@ class DepsCalculator {
       'keywords',
       'repository'
     );
+
+    // put our stamp on it.
+    this.projectPackageJson["_generated"] = "This package.json was generated using @apployees-nx/node (https://github.com/apployees/apployees-nx)";
 
     return this.projectPackageJson;
   }

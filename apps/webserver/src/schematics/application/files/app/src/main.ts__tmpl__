@@ -1,0 +1,16 @@
+/**
+ * @apployees-nx/webserver Typescript compiler along with Babel. Typescript compiler works
+ * on the entire dependency graph starting with the input files, and is able to
+ * offer features such as namespaces that can be resolved across namespaces.
+ *
+ * Babel, however, only works with single modules, and thus cannot offer features
+ * such as namespaces across the workspace.
+ *
+ * Thus, we use the tsconfig option of "isolatedModules" to let Typescript compiler
+ * know that all Typescript files must be independent.
+ *
+ * In doing so, however, Typescript compiler needs to have at least an import
+ * or export, otherwise it throws an error. Since this file does not need an
+ * import or export, we put a dummy export constant here to make tsc happy.
+ */
+export const noop = 0;

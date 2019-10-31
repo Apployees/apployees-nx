@@ -85,7 +85,7 @@ export default function App() {
       <header className="app-header">
         <img src={logo} className={lessModuleStyles.AppLogo} alt="logo"/>
         <p>
-          Edit <code className="Path-Name">src/App.js</code> and save to reload!!!!!
+          Edit <code className="Path-Name">src/App.js</code> and save to reload!
         </p>
         <p className={sassModuleStyles.libraryText}>
           {library2()}

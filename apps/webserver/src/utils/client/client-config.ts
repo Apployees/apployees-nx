@@ -66,7 +66,7 @@ export function getClientConfig(
 
   const entries = Object.keys(otherEntries).reduce((acc, key) => {
     acc[key] = [
-      isEnvDevelopment && key === "main" && `react-ssr-dev-utils/webpackHotDevClient?devPort=${options.devWebpackPort}`,
+      isEnvDevelopment && key === "main" && `@apployees-nx/webserver/utils/client/webpackHotDevClient?devPort=${options.devWebpackPort}`,
       otherEntries[key]
     ].filter(Boolean);
 
@@ -270,6 +270,7 @@ export function getClientConfig(
       fs: "empty",
       net: "empty",
       tls: "empty",
+      // eslint-disable-next-line @typescript-eslint/camelcase
       child_process: "empty"
     },
     stats: getStatsConfig(options),

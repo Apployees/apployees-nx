@@ -54,10 +54,10 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
     },
     configurations: {
       production: {
-        extractLicenses: true,
+        dev: false,
         inspect: false,
         watch: false,
-        dev: false,
+        extractLicenses: true,
         fileReplacements: [
           {
             replace: join(project.sourceRoot, 'environments/environment.ts'),
@@ -67,7 +67,12 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
       },
       development: {
         dev: true,
-        extractLicenses: false
+        inspect: true,
+        watch: true,
+        extractLicenses: false,
+        notifier: {
+          excludeWarnings: true
+        }
       }
     }
   };
@@ -193,6 +198,7 @@ export default function(schema: Schema): Rule {
         ? externalSchematic('@nrwl/jest', 'jest-project', {
             project: options.name,
             setupFile: 'none',
+            supportTsx: true,
             skipSerializers: true
           })
         : noop(),
