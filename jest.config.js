@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-undef
-const { pathsToModuleNameMapper } = require('ts-jest/utils');
+const { pathsToModuleNameMapper } = require("ts-jest/utils");
 // In the following statement, replace `./tsconfig` with the path to your `tsconfig` file
 // which contains the path mapping (ie the `compilerOptions.paths` option):
 // eslint-disable-next-line no-undef
-const { compilerOptions } = require('./tsconfig');
+const { compilerOptions } = require("./tsconfig");
 // eslint-disable-next-line no-undef
 const path = require("path");
 
@@ -17,7 +17,7 @@ module.exports = {
   resolver: "@nrwl/jest/plugins/resolver",
   moduleFileExtensions: ["ts", "js", "html"],
   // eslint-disable-next-line no-undef
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths , { prefix: __dirname + '/' } ),
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: __dirname + "/" }),
   coverageReporters: ["html"],
-  passWithNoTests: true,
+  passWithNoTests: true
 };

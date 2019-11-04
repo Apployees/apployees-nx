@@ -15,6 +15,11 @@ function addDependencies(): Rule {
     {},
     {
       "@apployees-nx/webserver": nxVersion,
+
+      // these are dependencies that are part of the generated code. We need to
+      // add them here because webserver doesn't directly depend on them and so
+      // we cannot put them into webserver's own package.json. However, they
+      // should be part of the project in which the code is being generated.
       "antd": "^3.24.3",
       "domurl": "^2.2.0",
       "escape-string-regexp": "^2.0.0",
