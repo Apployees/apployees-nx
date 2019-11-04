@@ -1,4 +1,5 @@
 export default function getServerEnvironmentVariable(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   key: string, defaultValue?: any): any {
 
   let value = process.env[key] || env[key];

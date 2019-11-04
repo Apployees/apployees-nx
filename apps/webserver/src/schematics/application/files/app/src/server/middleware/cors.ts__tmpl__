@@ -2,23 +2,6 @@ import express from "express";
 import Url from "domurl";
 import getServerEnvironmentVariable from "../serverEnvs";
 
-export default function setupCors(app: express.Application): express.RequestHandler {
-  const hostOrigin = normalizeToOrigin(`https://${getServerEnvironmentVariable("HOST")}`);
-  const assetsUrlOrigin = normalizeToOrigin(getServerEnvironmentVariable("ASSETS_URL"));
-
-  return (req, res, next) => {
-    const origin = req.get("origin");
-    if (origin === hostOrigin || origin === assetsUrlOrigin) {
-      // allow cross domain between these two hosts
-      res.set({
-        "Access-Control-Allow-Origin": origin
-      });
-    }
-
-    next();
-  };
-}
-
 function normalizeToOrigin(url: string): string {
   const origin = new Url(url);
   const serverHost = getServerEnvironmentVariable("HOST");
@@ -37,4 +20,22 @@ function normalizeToOrigin(url: string): string {
   }
 
   return origin.toString();
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function setupCors(app: express.Application): express.RequestHandler {
+  const hostOrigin = normalizeToOrigin(`https://${getServerEnvironmentVariable("HOST")}`);
+  const assetsUrlOrigin = normalizeToOrigin(getServerEnvironmentVariable("ASSETS_URL"));
+
+  return (req, res, next) => {
+    const origin = req.get("origin");
+    if (origin === hostOrigin || origin === assetsUrlOrigin) {
+      // allow cross domain between these two hosts
+      res.set({
+        "Access-Control-Allow-Origin": origin
+      });
+    }
+
+    next();
+  };
 }

@@ -10,7 +10,9 @@ let app = require("./server").default;
  * Remove it if you do not want hot-code reload on server.
  */
 if (process.env.NODE_ENV !== "production") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((module as any).hot) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (module as any).hot.accept('./server', () => {
       console.log('Server reloading...');
 
@@ -29,7 +31,7 @@ if (process.env.NODE_ENV !== "production") {
 // various .env files.
 
 const port = parseInt(getServerEnvironmentVariable("PORT", "3000"), 10);
-const host = getServerEnvironmentVariable("HOST", "localhost")
+const host = getServerEnvironmentVariable("HOST", "localhost");
 const handler = express();
 handler.use((req, res, next) => app.handle(req, res, next));
 const keyAndCertificate = getKeyAndCertificate();

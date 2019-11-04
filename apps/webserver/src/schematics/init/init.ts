@@ -26,7 +26,20 @@ function addDependencies(): Rule {
       "express": "^4.17.1",
       "react": "^16.10.2",
       "react-dom": "^16.10.2",
-      "selfsigned": "^1.10.7"
+      "selfsigned": "^1.10.7",
+      "@babel/preset-react": "7.0.0",
+      "@typescript-eslint/eslint-plugin": "2.3.2",
+      "@typescript-eslint/parser": "2.3.2",
+      "@nrwl/jest": "8.7.0",
+      "@nrwl/eslint-plugin-nx": "8.7.0",
+      "@types/jest": "24.0.9",
+      "@nrwl/linter": "8.7.0",
+      "eslint": "6.1.0",
+      "eslint-config-prettier": "6.0.0",
+      "eslint-plugin-import": "2.18.2",
+      "eslint-plugin-jsx-a11y": "6.2.3",
+      "eslint-plugin-react": "7.16.0",
+      "eslint-plugin-react-hooks": "2.1.2"
     }
   );
 }
