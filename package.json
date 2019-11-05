@@ -1,6 +1,6 @@
 {
   "name": "apployees-nx",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "license": "MIT",
   "homepage": "https://github.com/apployees/apployees-nx",
   "repository": {
@@ -192,6 +192,8 @@
     "workbox-webpack-plugin": "^4.3.1",
     "worker-loader": "^2.0.0",
     "worker-plugin": "^3.2.0",
-    "write-file-webpack-plugin": "^4.5.1"
+    "write-file-webpack-plugin": "^4.5.1",
+    "@nrwl/linter": "8.7.0",
+    "jest-environment-jsdom-fourteen": "^0.1.0"
   }
 }

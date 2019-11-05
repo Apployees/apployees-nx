@@ -39,7 +39,9 @@ function addDependencies(): Rule {
       "eslint-plugin-import": "2.18.2",
       "eslint-plugin-jsx-a11y": "6.2.3",
       "eslint-plugin-react": "7.16.0",
-      "eslint-plugin-react-hooks": "2.1.2"
+      "eslint-plugin-react-hooks": "2.1.2",
+      "jest-environment-jsdom-fourteen": "^0.1.0",
+      "react-app-polyfill": "^1.0.4"
     }
   );
 }

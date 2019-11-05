@@ -64,7 +64,7 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
       },
       clientWebpackConfig: join(options.appProjectRoot, "webpack.client.overrides.js"),
       lessStyleVariables: join(options.appProjectRoot, "antd-theme.less"),
-      tsConfig: join(options.appProjectRoot, 'tsconfig.app.json'),
+      tsConfig: join(options.appProjectRoot, "tsconfig.app.json"),
       assets: [join(project.sourceRoot, "public")]
     },
     configurations: {
@@ -166,10 +166,20 @@ function modifyRootJestConfig(options: NormalizedSchema, npmScope: string): Rule
     const jestConfigFilePath = `/jest.config.js`;
     const cssTransformLine = `\t'^.+\\.(css|sass|scss|less)$': \`\${__dirname}/config/jest/cssTransform.js\`,`;
     const fileTransformLine = `\t'^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': \`\${__dirname}/config/jest/fileTransform.js\``;
+    const otherLines = `,
+  setupFiles: [
+    "react-app-polyfill/jsdom"
+  ],
+  testEnvironment: "jest-environment-jsdom-fourteen"`;
     if (host.exists(jestConfigFilePath)) {
-      const jestConfigSource = host.read(jestConfigFilePath)!.toString('utf-8');
+      const jestConfigSource = host.read(jestConfigFilePath)!.toString("utf-8");
 
-      let insertChange;
+      if (jestConfigSource.indexOf("react-app-polyfill/jsdom") >= 0) {
+        // already added.
+        return;
+      }
+
+      let insertTransformChange, insertOtherLinesChange;
       const jestConfigSourceFile =
         ts.createSourceFile(jestConfigFilePath, jestConfigSource, ts.ScriptTarget.Latest, true);
 
@@ -185,27 +195,35 @@ function modifyRootJestConfig(options: NormalizedSchema, npmScope: string): Rule
            * transform: { <-- identifier "transform" and ObjectLiteralExpression value
            *   ... <-- PropertyAssignments
            * }
-            */
+           */
           if (firstChild && firstChild.length > 0 &&
             firstChild[0].getFullText(jestConfigSourceFile).indexOf("transform") >= 0 &&
             secondChild && secondChild.length > 0
-            ) {
-            // add after the last child in the value
+          ) {
+            // add transform lines after the last child in the value
             const maybePropertyAssignment = findNodes(secondChild[0], ts.SyntaxKind.PropertyAssignment, 1);
             if (maybePropertyAssignment && maybePropertyAssignment.length > 0) {
-              insertChange = new InsertChange(jestConfigFilePath, maybePropertyAssignment[0].getEnd(), `,\n${cssTransformLine}\n${fileTransformLine}`);
+              insertTransformChange = new InsertChange(jestConfigFilePath, maybePropertyAssignment[0].getEnd(), `,\n${cssTransformLine}\n${fileTransformLine}`);
+
+              // add the other lines after the transform line.
+              insertOtherLinesChange = new InsertChange(jestConfigFilePath, propAssignment.getEnd(), otherLines);
+
+              break;
             }
           }
         }
       }
 
-      if (!insertChange) {
-        insertChange  = new InsertChange(jestConfigFilePath, jestConfigSource.length, `\n\n// Add the following lines to your "transform" object in your jest config.\n// ${cssTransformLine},\n// ${fileTransformLine}`);
+      if (!insertTransformChange) {
+        const transformChanges = `\n\n/* Add the following lines to your "transform" object in your jest config.\n\n${cssTransformLine},\n${fileTransformLine}\n\n\nAdd the following next to your transform (root level of the exported jest config object):\n\n${otherLines}\n\n*/`;
+        insertTransformChange = new InsertChange(jestConfigFilePath, jestConfigSource.length, transformChanges);
         context.logger.warn("Please see your jest.config.js file in the root of the project to make some necessary changes.");
       }
+
       insert(host, jestConfigFilePath, [
-        insertChange
-      ]);
+        insertTransformChange,
+        insertOtherLinesChange
+      ].filter(Boolean));
     } else {
       return updateJsonInTree(`/package.json`, json => {
 
