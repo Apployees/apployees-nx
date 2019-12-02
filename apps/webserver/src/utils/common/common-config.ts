@@ -1,39 +1,44 @@
-import { BuildBuilderOptions, FileReplacement } from '@apployees-nx/common-build-utils';
-import _ from 'lodash';
-import { Stats } from 'webpack';
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
+import { IBuildBuilderOptions, IFileReplacement } from "@apployees-nx/common-build-utils";
+import _ from "lodash";
+import { Stats } from "webpack";
 
 export const extensions = [
-  '.web.mjs',
-  '.mjs',
-  '.web.js',
-  '.js',
-  '.web.ts',
-  '.ts',
-  '.web.tsx',
-  '.tsx',
-  '.json',
-  '.web.jsx',
-  '.jsx'
+  ".web.mjs",
+  ".mjs",
+  ".web.js",
+  ".js",
+  ".web.ts",
+  ".ts",
+  ".web.tsx",
+  ".tsx",
+  ".json",
+  ".web.jsx",
+  ".jsx",
 ];
 
-export function getAliases(replacements: FileReplacement[]): { [key: string]: string } {
-  return _.extend({},
+export function getAliases(replacements: IFileReplacement[]): { [key: string]: string } {
+  return _.extend(
+    {},
     {
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
-      'react-native': 'react-native-web'
+      "react-native": "react-native-web",
     },
     (replacements || []).reduce(
       (aliases, replacement) => ({
         ...aliases,
-        [replacement.replace]: replacement.with
+        [replacement.replace]: replacement.with,
       }),
-      {}
-    )
+      {},
+    ),
   );
 }
 
-export function getStatsConfig(options: BuildBuilderOptions): Stats.ToStringOptions {
+export function getStatsConfig(options: IBuildBuilderOptions): Stats.ToStringOptions {
   return {
     hash: true,
     timings: false,
@@ -52,7 +57,7 @@ export function getStatsConfig(options: BuildBuilderOptions): Stats.ToStringOpti
     version: !!options.verbose,
     errorDetails: !!options.verbose,
     moduleTrace: !!options.verbose,
-    usedExports: !!options.verbose
+    usedExports: !!options.verbose,
   };
 }
 
@@ -60,5 +65,5 @@ export const FILENAMES = {
   thirdPartyLicenses: `3rdpartylicenses.txt`,
   appHtml: `app.html`,
   manifestJson: `asset-manifest.json`,
-  publicFolder: `public`
+  publicFolder: `public`,
 };

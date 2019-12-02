@@ -65,7 +65,7 @@
     "@angular-devkit/schematics": "8.3.14",
     "@apployees-nx/node": "*",
     "@apployees-nx/webserver": "*",
-    "@nrwl/eslint-plugin-nx": "8.6.0",
+    "@nrwl/eslint-plugin-nx": "8.8.3",
     "@nrwl/jest": "8.8.3",
     "@nrwl/linter": "8.8.3",
     "@nrwl/node": "8.8.3",
@@ -93,6 +93,7 @@
     "@typescript-eslint/parser": "^2.3.2",
     "antd": "^3.24.3",
     "autoprefixer": "9.6.1",
+    "branch-naming-check": "^1.0.2",
     "camelcase": "^5.3.1",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "circular-dependency-plugin": "^5.0.2",
@@ -120,6 +121,7 @@
     "html-webpack-injector": "^1.1.2",
     "html-webpack-plugin": "4.0.0-beta.5",
     "husky": "^3.0.3",
+    "husky-add-issue-tracker": "^0.0.9",
     "is-wsl": "^2.1.1",
     "jasmine-marbles": "0.4.0",
     "jest": "^24.1.0",
@@ -183,5 +185,11 @@
     "worker-loader": "^2.0.0",
     "worker-plugin": "^3.2.0",
     "write-file-webpack-plugin": "^4.5.1"
+  },
+  "husky": {
+    "hooks": {
+      "prepare-commit-msg": "husky-add-issue-tracker",
+      "pre-commit": "yarn affected:lint --parallel --maxParallel=3 --uncommitted --fix && git add . && branch-naming-check 'issue-\\d+-[a-zA-Z0-9-]+' 'issue-XXX-name-of-my-issue'"
+    }
   }
 }

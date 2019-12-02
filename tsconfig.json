@@ -14,17 +14,10 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "jsx": "react",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "types": [
-      "node",
-      "jest"
-    ],
+    "types": ["node", "jest"],
     "typeRoots": ["node_modules/@types"],
     "rootDir": ".",
     "baseUrl": ".",

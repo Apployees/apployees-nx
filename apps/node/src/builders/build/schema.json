@@ -93,10 +93,7 @@
       "oneOf": [
         {
           "type": "string",
-          "enum": [
-            "none",
-            "all"
-          ]
+          "enum": ["none", "all"]
         },
         {
           "type": "array",
@@ -112,10 +109,7 @@
       "oneOf": [
         {
           "type": "string",
-          "enum": [
-            "none",
-            "all"
-          ]
+          "enum": ["none", "all"]
         },
         {
           "type": "array",
@@ -161,10 +155,7 @@
           }
         },
         "additionalProperties": false,
-        "required": [
-          "replace",
-          "with"
-        ]
+        "required": ["replace", "with"]
       },
       "default": []
     },
@@ -173,10 +164,7 @@
       "description": "Path to a function which takes a webpack config, context and returns the resulting webpack config"
     }
   },
-  "required": [
-    "tsConfig",
-    "main"
-  ],
+  "required": ["tsConfig", "main"],
   "definitions": {
     "assetPattern": {
       "oneOf": [
@@ -204,11 +192,7 @@
             }
           },
           "additionalProperties": false,
-          "required": [
-            "glob",
-            "input",
-            "output"
-          ]
+          "required": ["glob", "input", "output"]
         },
         {
           "type": "string"

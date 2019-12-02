@@ -1,6 +1,8 @@
-export default function getServerEnvironmentVariable(
-  key: string, defaultValue?: any): any {
-
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
+export default function getServerEnvironmentVariable(key: string, defaultValue?: any): any {
   let value = process.env[key] || env[key];
   if (!value && defaultValue) {
     value = defaultValue;

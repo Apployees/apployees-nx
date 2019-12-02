@@ -1,10 +1,14 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import webpack, { Configuration } from "webpack";
 import path, { dirname } from "path";
 import { LicenseWebpackPlugin } from "license-webpack-plugin";
 import TerserWebpackPlugin from "terser-webpack-plugin";
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import { getOutputHashFormat } from "../common/hash-format";
-import { BuildWebserverBuilderOptions } from "../common/webserver-types";
+import { IBuildWebserverBuilderOptions } from "../common/webserver-types";
 import _ from "lodash";
 import { BuilderContext } from "@angular-devkit/architect";
 import { getBaseLoaders } from "../common/common-loaders";
@@ -27,16 +31,15 @@ import { readJsonFile } from "@nrwl/workspace";
 import WorkerPlugin from "worker-plugin";
 import WorkboxWebpackPlugin from "workbox-webpack-plugin";
 import "worker-loader";
-import { ProcessedEnvironmentVariables } from "@apployees-nx/common-build-utils";
+import { IProcessedEnvironmentVariables } from "@apployees-nx/common-build-utils";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import WebpackBar from "webpackbar";
 
 export function getClientConfig(
-  options: BuildWebserverBuilderOptions,
+  options: IBuildWebserverBuilderOptions,
   context: BuilderContext,
-  esm?: boolean
+  esm?: boolean,
 ): Configuration {
-
   const isEnvDevelopment = options.dev;
   const isEnvProduction = !options.dev;
   const isScriptOptimizeOn = isEnvProduction;
@@ -59,15 +62,19 @@ export function getClientConfig(
 
   const otherEntries = options.clientOtherEntries || {};
   if (otherEntries["main"]) {
-    throw new Error(`clientOtherEntries cannot have an entry with key 'main' (currently set to '${otherEntries["main"]}').`);
+    throw new Error(
+      `clientOtherEntries cannot have an entry with key 'main' (currently set to '${otherEntries["main"]}').`,
+    );
   }
 
   otherEntries["main"] = options.clientMain;
 
   const entries = Object.keys(otherEntries).reduce((acc, key) => {
     acc[key] = [
-      isEnvDevelopment && key === "main" && `@apployees-nx/webserver/utils/client/webpackHotDevClient?devPort=${options.devWebpackPort}`,
-      otherEntries[key]
+      isEnvDevelopment &&
+        key === "main" &&
+        `@apployees-nx/webserver/utils/client/webpackHotDevClient?devPort=${options.devWebpackPort}`,
+      otherEntries[key],
     ].filter(Boolean);
 
     return acc;
@@ -95,32 +102,28 @@ export function getClientConfig(
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: isEnvProduction
         ? info =>
-          path
-            .relative(path.resolve(options.root, options.sourceRoot), info.absoluteResourcePath)
-            .replace(/\\/g, "/")
-        : isEnvDevelopment &&
-        (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")),
+            path.relative(path.resolve(options.root, options.sourceRoot), info.absoluteResourcePath).replace(/\\/g, "/")
+        : isEnvDevelopment && (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")),
       // Prevents conflicts when multiple Webpack runtimes (from different apps)
       // are used on the same page.
-      jsonpFunction: `webpackJsonp${context.target.project}`
+      jsonpFunction: `webpackJsonp${context.target.project}`,
     },
     optimization: {
       minimize: isEnvProduction,
-      minimizer: isScriptOptimizeOn ? [
-        createTerserPlugin(shouldUseSourceMap),
-        createOptimizeCssAssetsPlugin(shouldUseSourceMap)
-      ] : [],
+      minimizer: isScriptOptimizeOn
+        ? [createTerserPlugin(shouldUseSourceMap), createOptimizeCssAssetsPlugin(shouldUseSourceMap)]
+        : [],
       // Automatically split vendor and commons
       // https://twitter.com/wSokra/status/969633336732905474
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
       splitChunks: {
         chunks: "all",
-        name: false
+        name: false,
       },
       runtimeChunk: true,
 
       // see https://github.com/webpack/webpack/issues/7128
-      namedModules: false
+      namedModules: false,
     },
     resolve: {
       extensions,
@@ -129,20 +132,20 @@ export function getClientConfig(
         new TsConfigPathsPlugin({
           configFile: options.tsConfig,
           extensions,
-          mainFields
+          mainFields,
         }),
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding
         // guards against forgotten dependencies and such.
-        PnpWebpackPlugin
+        PnpWebpackPlugin,
       ],
-      mainFields
+      mainFields,
     },
     resolveLoader: {
       plugins: [
         // Also related to Plug'n'Play, but this time it tells Webpack to load its loaders
         // from the current package.
-        PnpWebpackPlugin.moduleLoader(module)
-      ]
+        PnpWebpackPlugin.moduleLoader(module),
+      ],
     },
     module: {
       strictExportPresence: true,
@@ -157,15 +160,15 @@ export function getClientConfig(
         ),
         {
           test: /\.worker\.js$/,
-          use: { loader: "worker-loader" }
+          use: { loader: "worker-loader" },
         },
         {
           // "oneOf" will traverse all following loaders until one will
           // match the requirements. When no loader matches it will fall
           // back to the "file" loader at the end of the loader list.
-          oneOf: getClientLoaders(options)
-        }
-      ]
+          oneOf: getClientLoaders(options),
+        },
+      ],
     },
 
     plugins: [
@@ -177,72 +180,72 @@ export function getClientConfig(
           {
             inject: true,
             filename: FILENAMES.appHtml,
-            template: options.appHtml
+            template: options.appHtml,
           },
           isEnvProduction
             ? {
-              minify: {
-                removeComments: true,
-                collapseWhitespace: true,
-                removeRedundantAttributes: true,
-                useShortDoctype: true,
-                removeEmptyAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                keepClosingSlash: true,
-                minifyJS: true,
-                minifyCSS: true,
-                minifyURLs: true
+                minify: {
+                  removeComments: true,
+                  collapseWhitespace: true,
+                  removeRedundantAttributes: true,
+                  useShortDoctype: true,
+                  removeEmptyAttributes: true,
+                  removeStyleLinkTypeAttributes: true,
+                  keepClosingSlash: true,
+                  minifyJS: true,
+                  minifyCSS: true,
+                  minifyURLs: true,
+                },
               }
-            }
-            : undefined
-        )
+            : undefined,
+        ),
       ),
 
-      isEnvProduction && options.favicon &&
-      new FaviconsWebpackPlugin({
-        logo: options.favicon,
-        cache: true,
-        outputPath: "static/favicons/",
-        prefix: "static/favicons/",
-        excludeManifestInjection: true
-      }),
+      isEnvProduction &&
+        options.favicon &&
+        new FaviconsWebpackPlugin({
+          logo: options.favicon,
+          cache: true,
+          outputPath: "static/favicons/",
+          prefix: "static/favicons/",
+          excludeManifestInjection: true,
+        }),
 
       new HtmlWebpackInjector(),
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       isEnvProduction &&
-      options.inlineRuntimeChunk &&
-      new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
+        options.inlineRuntimeChunk &&
+        new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
       // Makes some environment variables available in index.html.
       // The public URL is available as %ASSETS_URL% in index.html, e.g.:
       // <link rel="shortcut icon" href="%ASSETS_URL%favicon.ico">
-      new InterpolateHtmlPlugin(HtmlWebpackPlugin,
-        webserverEnvironmentVariables.raw),
+      new InterpolateHtmlPlugin(HtmlWebpackPlugin, webserverEnvironmentVariables.raw),
 
       // add support for web workers.
       new WorkerPlugin({
-        globalObject: "self"
+        globalObject: "self",
       }),
 
       // add support for service workers
       // Generate a service worker script that will precache, and keep up to date,
       // the HTML & assets that are part of the Webpack build.
       isEnvProduction &&
-      new WorkboxWebpackPlugin.GenerateSW({
-        clientsClaim: true,
-        exclude: [/\.map$/, /asset-manifest\.json$/],
-        importWorkboxFrom: "cdn",
-        navigateFallback: publicPath + FILENAMES.appHtml,
-        navigateFallbackBlacklist: [
-          // Exclude URLs starting with /_, as they're likely an API call
-          new RegExp("^/_"),
-          // Exclude any URLs whose last part seems to be a file extension
-          // as they're likely a resource and not a SPA route.
-          // URLs containing a "?" character won't be blacklisted as they're likely
-          // a route with query params (e.g. auth callbacks).
-          new RegExp("/[^/?]+\\.[^/]+$")
-        ]
-      }),
+        new WorkboxWebpackPlugin.GenerateSW({
+          clientsClaim: true,
+          exclude: [/\.map$/, /asset-manifest\.json$/],
+          importWorkboxFrom: "cdn",
+          navigateFallback: publicPath + FILENAMES.appHtml,
+          navigateFallbackBlacklist: [
+            // Exclude URLs starting with /_, as they're likely an API call
+            new RegExp("^/_"),
+            // Exclude any URLs whose last part seems to be a file extension
+            // as they're likely a resource and not a SPA route.
+            // URLs containing a "?" character won't be blacklisted as they're likely
+            // a route with query params (e.g. auth callbacks).
+            new RegExp("/[^/?]+\\.[^/]+$"),
+          ],
+        }),
 
       // Generate a manifest file which contains a mapping of all asset filenames
       // to their corresponding output file so that tools can pick it up without
@@ -251,11 +254,9 @@ export function getClientConfig(
         fileName: FILENAMES.manifestJson,
         publicPath: publicPath,
         generate: (seed, files) => {
-
-          return generateManifestContents(publicPath, files,
-            seed, options, webserverEnvironmentVariables);
-        }
-      })
+          return generateManifestContents(publicPath, files, seed, options, webserverEnvironmentVariables);
+        },
+      }),
     ].filter(Boolean),
     // Some libraries import Node modules but don't use them in the browser.
     // Tell Webpack to provide empty mocks for them so importing them works.
@@ -267,22 +268,24 @@ export function getClientConfig(
       net: "empty",
       tls: "empty",
       // eslint-disable-next-line @typescript-eslint/camelcase
-      child_process: "empty"
+      child_process: "empty",
     },
     stats: getStatsConfig(options),
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter
-    performance: false
+    performance: false,
   };
 
   const extraPlugins: webpack.Plugin[] = [];
 
   if (options.progress) {
-    extraPlugins.push(new WebpackBar({
-      name: "client",
-      fancy: isEnvDevelopment,
-      basic: !isEnvDevelopment
-    }));
+    extraPlugins.push(
+      new WebpackBar({
+        name: "client",
+        fancy: isEnvDevelopment,
+        basic: !isEnvDevelopment,
+      }),
+    );
   }
 
   if (options.extractLicenses) {
@@ -291,23 +294,22 @@ export function getClientConfig(
         pattern: /.*/,
         suppressErrors: true,
         perChunkOutput: false,
-        outputFilename: FILENAMES.thirdPartyLicenses
-      })
+        outputFilename: FILENAMES.thirdPartyLicenses,
+      }),
     );
   }
 
   if (options.showCircularDependencies) {
     extraPlugins.push(
       new CircularDependencyPlugin({
-        exclude: /[\\\/]node_modules[\\\/]/
-      })
+        // eslint-disable-next-line no-useless-escape
+        exclude: /[\\\/]node_modules[\\\/]/,
+      }),
     );
   }
 
   if (isEnvDevelopment && options.devClientBundleAnalyzer) {
-    extraPlugins.push(
-      new BundleAnalyzerPlugin()
-    );
+    extraPlugins.push(new BundleAnalyzerPlugin());
   }
 
   webpackConfig.plugins = [...webpackConfig.plugins, ...extraPlugins];
@@ -321,15 +323,15 @@ export function createOptimizeCssAssetsPlugin(shouldUseSourceMap: boolean) {
       parser: safePostCssParser,
       map: shouldUseSourceMap
         ? {
-          // `inline: false` forces the sourcemap to be output into a
-          // separate file
-          inline: false,
-          // `annotation: true` appends the sourceMappingURL to the end of
-          // the css file, helping the browser find the sourcemap
-          annotation: true
-        }
-        : false
-    }
+            // `inline: false` forces the sourcemap to be output into a
+            // separate file
+            inline: false,
+            // `annotation: true` appends the sourceMappingURL to the end of
+            // the css file, helping the browser find the sourcemap
+            annotation: true,
+          }
+        : false,
+    },
   });
 }
 
@@ -342,7 +344,7 @@ export function createTerserPlugin(shouldUseSourceMap: boolean) {
         // into invalid ecma 5 code. This is why the 'compress' and 'output'
         // sections only apply transformations that are ecma 5 safe
         // https://github.com/facebook/create-react-app/pull/4234
-        ecma: 8
+        ecma: 8,
       },
       compress: {
         ecma: 5,
@@ -356,10 +358,10 @@ export function createTerserPlugin(shouldUseSourceMap: boolean) {
         // https://github.com/facebook/create-react-app/issues/5250
         // Pending further investigation:
         // https://github.com/terser-js/terser/issues/120
-        inline: 2
+        inline: 2,
       },
       mangle: {
-        safari10: true
+        safari10: true,
       },
       output: {
         ecma: 5,
@@ -367,8 +369,8 @@ export function createTerserPlugin(shouldUseSourceMap: boolean) {
         // Turned on because emoji and regex is not minified properly using default
         // https://github.com/facebook/create-react-app/issues/2488
         // eslint-disable-next-line @typescript-eslint/camelcase
-        ascii_only: true
-      }
+        ascii_only: true,
+      },
     },
     // Use multi-process parallel running to improve the build speed
     // Default number of concurrent runs: os.cpus().length - 1
@@ -377,7 +379,7 @@ export function createTerserPlugin(shouldUseSourceMap: boolean) {
     parallel: !isWsl,
     // Enable file caching
     cache: true,
-    sourceMap: shouldUseSourceMap
+    sourceMap: shouldUseSourceMap,
   });
 }
 
@@ -395,15 +397,17 @@ export function createTerserPlugin(shouldUseSourceMap: boolean) {
  * @param seed
  * @param options
  */
-function generateManifestContents(publicPath, files, seed,
-                                  options: BuildWebserverBuilderOptions,
-                                  envVars: ProcessedEnvironmentVariables) {
-
+function generateManifestContents(
+  publicPath,
+  files,
+  seed,
+  options: IBuildWebserverBuilderOptions,
+  envVars: IProcessedEnvironmentVariables,
+) {
   const icons: any = [];
   const iconToSearch = publicPath + "static/favicons/android-chrome";
 
   const manifestFiles = files.reduce(function(manifest, file) {
-
     // skip the manifests generated by favicon plugin
     if (file.name.startsWith("static/favicons/manifest")) {
       return manifest;
@@ -415,7 +419,7 @@ function generateManifestContents(publicPath, files, seed,
       icons.push({
         src: file.path,
         sizes: file.path.substring(iconToSearch.length + 1, file.path.indexOf(".png")),
-        type: "image/png"
+        type: "image/png",
       });
     }
 
@@ -433,6 +437,6 @@ function generateManifestContents(publicPath, files, seed,
   }
 
   return _.merge(suppliedManifest, {
-    files: manifestFiles
+    files: manifestFiles,
   });
 }

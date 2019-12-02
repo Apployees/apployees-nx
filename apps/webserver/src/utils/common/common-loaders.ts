@@ -1,5 +1,9 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import _ from "lodash";
-import { BuildWebserverBuilderOptions } from "./webserver-types";
+import { IBuildWebserverBuilderOptions } from "./webserver-types";
 import { importTransformer } from "./import-transformer";
 
 // style files regexes
@@ -11,12 +15,12 @@ export const lessRegex = /\.less$/;
 export const lessModuleRegex = /\.module\.less$/;
 
 export function getBaseLoaders(
-  options: BuildWebserverBuilderOptions,
+  options: IBuildWebserverBuilderOptions,
   context: string,
   esm: boolean,
   debug: boolean, // controls verbosity for babel
   isEnvDevelopment: boolean,
-  isEnvServer: boolean
+  isEnvServer: boolean,
 ) {
   const isEnvProduction = !isEnvDevelopment;
 
@@ -25,9 +29,7 @@ export function getBaseLoaders(
     { parser: { requireEnsure: false } },
     {
       test: /\.([jt])sx?$/,
-      loader: _.isString(require.resolve("ts-loader"))
-        ? require.resolve("ts-loader")
-        : "ts-loader",
+      loader: _.isString(require.resolve("ts-loader")) ? require.resolve("ts-loader") : "ts-loader",
       exclude: /node_modules/,
       options: {
         configFile: options.tsConfig,
@@ -36,12 +38,12 @@ export function getBaseLoaders(
         // https://github.com/TypeStrong/ts-loader/pull/685
         experimentalWatchApi: true,
         compilerOptions: {
-          sourceMap: isEnvServer || isEnvDevelopment
+          sourceMap: isEnvServer || isEnvDevelopment,
         },
         getCustomTransformers: () => ({
-          before: [importTransformer(options.importTransformers)]
-        })
-      }
+          before: [importTransformer(options.importTransformers)],
+        }),
+      },
 
       // XXX: Was using babel-loader before. There are just too many
       // hacks and workarounds for getting full typescript support.
@@ -128,7 +130,7 @@ export function getBaseLoaders(
       //   cacheCompression: isEnvProduction,
       //   compact: isEnvProduction,
       // }
-    }
+    },
   ];
 }
 

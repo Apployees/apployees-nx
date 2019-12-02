@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import { clientOnly } from "./clientOnly";
 
 /**
@@ -25,6 +29,5 @@ import { clientOnly } from "./clientOnly";
  * directly or indirectly through this file, then you will have to manually reload
  * the page to see the changes.
  */
-
 
 console.log(clientOnly() + " <-- From this is just anotherClientEntry.ts");

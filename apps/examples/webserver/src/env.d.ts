@@ -6,44 +6,43 @@ declare const process: {
   env: {
     NODE_ENV: "production" | "development" | string;
     RENDER_ENV: "server" | "client" | string;
-  }
+  };
 };
 
 declare const env: any;
 
-
-declare module '*.bmp' {
+declare module "*.bmp" {
   const src: string;
   export default src;
 }
 
-declare module '*.gif' {
+declare module "*.gif" {
   const src: string;
   export default src;
 }
 
-declare module '*.jpg' {
+declare module "*.jpg" {
   const src: string;
   export default src;
 }
 
-declare module '*.jpeg' {
+declare module "*.jpeg" {
   const src: string;
   export default src;
 }
 
-declare module '*.png' {
+declare module "*.png" {
   const src: string;
   export default src;
 }
 
-declare module '*.webp' {
-    const src: string;
-    export default src;
+declare module "*.webp" {
+  const src: string;
+  export default src;
 }
 
-declare module '*.svg' {
-  import React from 'react';
+declare module "*.svg" {
+  import React from "react";
 
   export const ReactComponent: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 
@@ -51,44 +50,42 @@ declare module '*.svg' {
   export default src;
 }
 
-
-declare module '*.css' {
+declare module "*.css" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
 
-declare module '*.less' {
+declare module "*.less" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
 
-declare module '*.scss' {
+declare module "*.scss" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
 
-declare module '*.sass' {
+declare module "*.sass" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
 
-
-declare module '*.module.css' {
+declare module "*.module.css" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
 
-declare module '*.module.less' {
+declare module "*.module.less" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
 
-declare module '*.module.scss' {
+declare module "*.module.scss" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
 
-declare module '*.module.sass' {
+declare module "*.module.sass" {
   const classes: { readonly [key: string]: string };
   export default classes;
 }

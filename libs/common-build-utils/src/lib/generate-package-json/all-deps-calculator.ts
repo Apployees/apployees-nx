@@ -1,26 +1,30 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { lastModifiedAmongProjectFiles, mtime, normalizedProjectRoot } from '@nrwl/workspace/src/command-line/shared';
-import { appRootPath } from '@nrwl/workspace/src/utils/app-root';
-import { ProjectNode } from '@nrwl/workspace/src/command-line/shared';
-import { directoryExists, fileExists } from '@nrwl/workspace/src/utils/fileutils';
-import { readJsonFile } from '@angular-devkit/schematics/tools/file-system-utility';
-import * as path from 'path';
-import * as ts from 'typescript';
-import { DependencyType } from '@nrwl/workspace/src/command-line/deps-calculator';
-import { output } from '@nrwl/workspace';
-import { BuilderContext } from '@angular-devkit/architect';
-import { getExternalizedLibraryImports } from '../node-externals/externalized-imports';
-import * as _ from 'lodash';
-import * as stringify from 'json-stable-stringify';
-import { ExternalDependencies } from '../types/common-types';
-import { readRootPackageJson } from '../builder/sources';
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { lastModifiedAmongProjectFiles, mtime, normalizedProjectRoot } from "@nrwl/workspace/src/command-line/shared";
+import { appRootPath } from "@nrwl/workspace/src/utils/app-root";
+import { ProjectNode } from "@nrwl/workspace/src/command-line/shared";
+import { directoryExists, fileExists } from "@nrwl/workspace/src/utils/fileutils";
+import { readJsonFile } from "@angular-devkit/schematics/tools/file-system-utility";
+import * as path from "path";
+import * as ts from "typescript";
+import { DependencyType } from "@nrwl/workspace/src/command-line/deps-calculator";
+import { output } from "@nrwl/workspace";
+import { BuilderContext } from "@angular-devkit/architect";
+import { getExternalizedLibraryImports } from "../node-externals/externalized-imports";
+import * as _ from "lodash";
+import * as stringify from "json-stable-stringify";
+import { ExternalDependencies } from "../types/common-types";
+import { readRootPackageJson } from "../builder/sources";
 
 /**
  * Package name to version number to be used in package.json files.
  */
 export type PackageJsonDependencies = {
   [packageName: string]: string;
-}
+};
 
 export type IPackageJson = {
   name?: string;
@@ -37,7 +41,7 @@ export type IPackageJson = {
   devDependencies?: PackageJsonDependencies;
   peerDependencies?: PackageJsonDependencies;
   optionalDependencies?: PackageJsonDependencies;
-}
+};
 
 export function doWritePackageJson(
   npmScope: string,
@@ -45,9 +49,8 @@ export function doWritePackageJson(
   allProjects: ProjectNode[],
   context: BuilderContext,
   externalDependencies: ExternalDependencies,
-  externalLibraries: ExternalDependencies
+  externalLibraries: ExternalDependencies,
 ): void {
-
   const projectOutputPath = getProjectOutputPath(project, context);
   const distPackageJsonPath = `${projectOutputPath}/package.json`;
   const m = lastModifiedAmongProjectFiles([project]);
@@ -55,25 +58,25 @@ export function doWritePackageJson(
     console.log(`Trying to mkdirSync ${projectOutputPath}`);
     mkdirSync(projectOutputPath);
   }
-  const existingBuiltPackageJson: IPackageJson =
-    fileExists(distPackageJsonPath) ? readJsonFile(distPackageJsonPath) as IPackageJson : null;
+  const existingBuiltPackageJson: IPackageJson = fileExists(distPackageJsonPath)
+    ? (readJsonFile(distPackageJsonPath) as IPackageJson)
+    : null;
 
   if (!existingBuiltPackageJson || m > mtime(distPackageJsonPath)) {
     const rootPackageJson = readRootPackageJson(project);
 
-    const isLibraryExternalized =
-      getExternalizedLibraryImports(externalLibraries, npmScope);
+    const isLibraryExternalized = getExternalizedLibraryImports(externalLibraries, npmScope);
 
     const calculator = new DepsCalculator(
       npmScope,
       project,
       allProjects,
-      (f: string) => readFileSync(`${appRootPath}/${f}`, 'UTF-8'),
+      (f: string) => readFileSync(`${appRootPath}/${f}`, "UTF-8"),
       context,
       rootPackageJson,
       externalDependencies,
       isLibraryExternalized,
-      {}
+      {},
     );
 
     writePackageJsonSync(calculator.generatePackageJson(), distPackageJsonPath);
@@ -89,7 +92,6 @@ export function doWritePackageJson(
       const distPackageLockLockFilePath = `${projectOutputPath}/package-lock.json`;
       copyFileSync(rootYarnLockFilePath, distPackageLockLockFilePath);
     }
-
   }
 }
 
@@ -108,33 +110,33 @@ function getProjectOutputPath(project: ProjectNode, context: BuilderContext): st
 }
 
 function writePackageJsonSync(packageJson: IPackageJson, filePath: string): void {
-  writeFileSync(filePath, stringify(packageJson, {
-    space: '  ',
-    cmp: (a, b) => {
-      if (a.key === 'name') {
-        return -1;
-      } else if (b.key === 'name') {
-        return 1;
-      } else if (a.key === 'version') {
-        return -1;
-      } else if (b.key === 'version') {
-        return 1;
-      } else if (a.key === 'description') {
-        return -1;
-      } else if (b.key === 'description') {
-        return 1;
-      } else {
-        return a.key < b.key ? -1 : 1;
-      }
-    }
-  }));
+  writeFileSync(
+    filePath,
+    stringify(packageJson, {
+      space: "  ",
+      cmp: (a, b) => {
+        if (a.key === "name") {
+          return -1;
+        } else if (b.key === "name") {
+          return 1;
+        } else if (a.key === "version") {
+          return -1;
+        } else if (b.key === "version") {
+          return 1;
+        } else if (a.key === "description") {
+          return -1;
+        } else if (b.key === "description") {
+          return 1;
+        } else {
+          return a.key < b.key ? -1 : 1;
+        }
+      },
+    }),
+  );
 }
 
 class DepsCalculator {
-  private readonly scanner: ts.Scanner = ts.createScanner(
-    ts.ScriptTarget.Latest,
-    false
-  );
+  private readonly scanner: ts.Scanner = ts.createScanner(ts.ScriptTarget.Latest, false);
 
   private projectPackageJson: IPackageJson;
   private packageVersionsReference: PackageJsonDependencies;
@@ -148,13 +150,16 @@ class DepsCalculator {
     private rootPackageJson: IPackageJson,
     private externalDependencies: ExternalDependencies,
     private isLibraryExternalized: _.Dictionary<true>,
-    private dependentProjects: { [root: string]: DepsCalculator } = {}
+    private dependentProjects: { [root: string]: DepsCalculator } = {},
   ) {
     // avoid circular dependency check to itself.
     this.dependentProjects[project.root] = this;
 
     this.projectPackageJson = this.readProjectPackageJson(this.project);
-    this.packageVersionsReference = this.consolidateAllDependenciesIntoMap([this.rootPackageJson, this.projectPackageJson]);
+    this.packageVersionsReference = this.consolidateAllDependenciesIntoMap([
+      this.rootPackageJson,
+      this.projectPackageJson,
+    ]);
   }
 
   /**
@@ -182,23 +187,13 @@ class DepsCalculator {
    */
   processFile(filePath: string): void {
     const extension = path.extname(filePath);
-    if (
-      extension !== '.ts' &&
-      extension !== '.tsx' &&
-      extension !== '.js' &&
-      extension !== '.jsx'
-    ) {
+    if (extension !== ".ts" && extension !== ".tsx" && extension !== ".js" && extension !== ".jsx") {
       return;
     }
     const content = this.fileRead(filePath);
     // const strippedContent = stripSourceCode(this.scanner, content);
-    if (content !== '') {
-      const tsFile = ts.createSourceFile(
-        filePath,
-        content,
-        ts.ScriptTarget.Latest,
-        true
-      );
+    if (content !== "") {
+      const tsFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
       this.processNode(filePath, tsFile, tsFile);
     }
   }
@@ -206,7 +201,8 @@ class DepsCalculator {
   private processNode(filePath: string, node: ts.Node, sourceFile: ts.SourceFile): void {
     switch (node.kind) {
       case ts.SyntaxKind.ImportDeclaration: // import x from "xyz";
-      case ts.SyntaxKind.ExportDeclaration: { // export x from "xyz";
+      case ts.SyntaxKind.ExportDeclaration: {
+        // export x from "xyz";
         const moduleSpecifier = (node as ts.ImportDeclaration).moduleSpecifier;
         if (moduleSpecifier) {
           if (!moduleSpecifier.parent) {
@@ -214,14 +210,17 @@ class DepsCalculator {
           }
           this.addDepIfNeeded(
             this.getStringLiteralValue(moduleSpecifier, sourceFile),
-            filePath, DependencyType.es6Import);
+            filePath,
+            DependencyType.es6Import,
+          );
           return;
         }
         break;
       }
-      case ts.SyntaxKind.ImportEqualsDeclaration: { // import y = require("y");
-        const externalModuleReference: ts.ExternalModuleReference =
-          ((node as ts.ImportEqualsDeclaration).moduleReference as ts.ExternalModuleReference);
+      case ts.SyntaxKind.ImportEqualsDeclaration: {
+        // import y = require("y");
+        const externalModuleReference: ts.ExternalModuleReference = (node as ts.ImportEqualsDeclaration)
+          .moduleReference as ts.ExternalModuleReference;
         if (externalModuleReference) {
           if (!externalModuleReference.parent) {
             externalModuleReference.parent = node as ts.ImportEqualsDeclaration;
@@ -234,15 +233,18 @@ class DepsCalculator {
 
             this.addDepIfNeeded(
               this.getStringLiteralValue(externalModuleReference.expression, sourceFile),
-              filePath, DependencyType.es6Import);
+              filePath,
+              DependencyType.es6Import,
+            );
             return;
           }
         }
 
         break;
       }
-      case ts.SyntaxKind.CallExpression: {// require("z"); or require.resolve("z"); or require.ensure(["a", "b"], ...)
-        const callExpression: ts.CallExpression = (node as ts.CallExpression);
+      case ts.SyntaxKind.CallExpression: {
+        // require("z"); or require.resolve("z"); or require.ensure(["a", "b"], ...)
+        const callExpression: ts.CallExpression = node as ts.CallExpression;
         if (callExpression) {
           const expression = callExpression.expression;
           if (expression) {
@@ -251,7 +253,7 @@ class DepsCalculator {
             }
 
             const callName: string = expression.getText(sourceFile);
-            if (callName === 'require' || callName === 'require.resolve' || callName === 'import') {
+            if (callName === "require" || callName === "require.resolve" || callName === "import") {
               const argument = callExpression.arguments[0];
               if (argument) {
                 if (!argument.parent) {
@@ -260,27 +262,29 @@ class DepsCalculator {
 
                 this.addDepIfNeeded(
                   this.getStringLiteralValue(argument, sourceFile),
-                  filePath, DependencyType.es6Import);
+                  filePath,
+                  DependencyType.es6Import,
+                );
                 return;
               }
-            } else if (callName.indexOf('require') >= 0 && callName.indexOf('ensure') >= 0 &&
-              callExpression.arguments[0].kind === ts.SyntaxKind.ArrayLiteralExpression) {
+            } else if (
+              callName.indexOf("require") >= 0 &&
+              callName.indexOf("ensure") >= 0 &&
+              callExpression.arguments[0].kind === ts.SyntaxKind.ArrayLiteralExpression
+            ) {
               const argument2 = callExpression.arguments[0];
               if (!argument2.parent) {
                 argument2.parent = callExpression;
               }
 
-              (argument2 as ts.ArrayLiteralExpression).forEachChild(
-                (x: ts.Node) => {
-                  if (!x.parent) {
-                    x.parent = argument2;
-                  }
+              (argument2 as ts.ArrayLiteralExpression).forEachChild((x: ts.Node) => {
+                if (!x.parent) {
+                  x.parent = argument2;
+                }
 
-                  this.addDepIfNeeded(
-                    this.getStringLiteralValue(x, sourceFile),
-                    filePath, DependencyType.es6Import);
-                  return;
-                });
+                this.addDepIfNeeded(this.getStringLiteralValue(x, sourceFile), filePath, DependencyType.es6Import);
+                return;
+              });
             }
           }
         }
@@ -291,18 +295,14 @@ class DepsCalculator {
       }
     }
 
-    if (
-      ts.isImportDeclaration(node) ||
-      (ts.isExportDeclaration(node) && node.moduleSpecifier)
-    ) {
+    if (ts.isImportDeclaration(node) || (ts.isExportDeclaration(node) && node.moduleSpecifier)) {
       const imp = this.getStringLiteralValue(node.moduleSpecifier, sourceFile);
       this.addDepIfNeeded(imp, filePath, DependencyType.es6Import);
       return; // stop traversing downwards
     }
 
     // Continue traversing down the AST from the current node
-    ts.forEachChild(node,
-      child => this.processNode(filePath, child, sourceFile));
+    ts.forEachChild(node, child => this.processNode(filePath, child, sourceFile));
   }
 
   /**
@@ -321,28 +321,22 @@ class DepsCalculator {
 
     // take the version from the root package.json...
     if (!this.projectPackageJson.version) {
-      this.projectPackageJson.version = this.rootPackageJson.version || '0.0.0';
+      this.projectPackageJson.version = this.rootPackageJson.version || "0.0.0";
     }
 
     if (!this.projectPackageJson.license) {
-      this.projectPackageJson.license = this.rootPackageJson.license || 'UNLICENSED';
+      this.projectPackageJson.license = this.rootPackageJson.license || "UNLICENSED";
     }
 
     if (_.isNil(this.projectPackageJson.private) && !_.isNil(this.rootPackageJson.private)) {
       this.projectPackageJson.private = this.rootPackageJson.private;
     }
 
-    this.copyFromRootJson(
-      'description',
-      'author',
-      'bugs',
-      'homepage',
-      'keywords',
-      'repository'
-    );
+    this.copyFromRootJson("description", "author", "bugs", "homepage", "keywords", "repository");
 
     // put our stamp on it.
-    this.projectPackageJson["_generated"] = "This package.json was generated using @apployees-nx/node (https://github.com/apployees/apployees-nx)";
+    this.projectPackageJson["_generated"] =
+      "This package.json was generated using @apployees-nx/node (https://github.com/apployees/apployees-nx)";
 
     return this.projectPackageJson;
   }
@@ -366,11 +360,7 @@ class DepsCalculator {
     }
   }
 
-  private addDepIfNeeded(
-    expr: string,
-    filePath: string,
-    depType: DependencyType
-  ) {
+  private addDepIfNeeded(expr: string, filePath: string, depType: DependencyType) {
     const matchingProject = this.allProjects.filter(a => {
       const normalizedRoot = normalizedProjectRoot(a);
       return (
@@ -380,14 +370,12 @@ class DepsCalculator {
       );
     })[0];
 
-
     if (matchingProject) {
       this.addDependencyForProject(matchingProject);
-    } else if (!expr.startsWith('.') &&
-      (!this.externalDependencies ||
-        this.externalDependencies === 'all' ||
-        _.isArray(this.externalDependencies))) {
-
+    } else if (
+      !expr.startsWith(".") &&
+      (!this.externalDependencies || this.externalDependencies === "all" || _.isArray(this.externalDependencies))
+    ) {
       this.addDependencyForNodeModule(expr);
     }
   }
@@ -415,7 +403,7 @@ class DepsCalculator {
           this.rootPackageJson,
           this.externalDependencies,
           this.isLibraryExternalized,
-          this.dependentProjects
+          this.dependentProjects,
         );
       } // else we don't need to do anything since we already crawled it.
     } else {
@@ -436,16 +424,16 @@ class DepsCalculator {
             bodyLines: [
               `Cannot extract version from ${matchingProject.root}/package.json.`,
               `The version number is needed because ${matchingProject.root} is set to not be bundled as per externalLibraries option`,
-              `The version * will be used instead.`
-            ]
+              `The version * will be used instead.`,
+            ],
           });
 
-          version = '*';
+          version = "*";
         }
       }
 
-      if (version === '0.0.0') {
-        version = '*';
+      if (version === "0.0.0") {
+        version = "*";
       }
 
       if (!this.projectPackageJson.dependencies) {
@@ -469,10 +457,10 @@ class DepsCalculator {
 
     // Build multiple possible names...e.g. if the name is `@scope/x/y/z`, then
     // the node_module could be @scope/x or @scope/x/y or @scope/x/y/z
-    const segments = name.split('/').filter(x => !!x);
+    const segments = name.split("/").filter(x => !!x);
     const permutations = [];
     for (let i = 1; i <= segments.length; i++) {
-      permutations.push(segments.slice(0, i).join('/'));
+      permutations.push(segments.slice(0, i).join("/"));
     }
 
     for (const permutation of permutations) {
@@ -486,8 +474,7 @@ class DepsCalculator {
       if (versionToUse) {
         // now check if we should even put it in the package.json file according
         // to externalDependencies...
-        if (!_.isArray(this.externalDependencies) ||
-          this.externalDependencies.filter(a => a === permutation)) {
+        if (!_.isArray(this.externalDependencies) || this.externalDependencies.filter(a => a === permutation)) {
           if (!this.projectPackageJson.dependencies) {
             this.projectPackageJson.dependencies = {};
           }
@@ -540,15 +527,15 @@ class DepsCalculator {
 
   private readProjectPackageJson(projectNode: ProjectNode): IPackageJson {
     const projectPackageJsonPath = `${appRootPath}/${projectNode.root}/package.json`;
-    const projectPackageJson: IPackageJson =
-      fileExists(projectPackageJsonPath) ? readJsonFile(projectPackageJsonPath) as IPackageJson :
-        {};
+    const projectPackageJson: IPackageJson = fileExists(projectPackageJsonPath)
+      ? (readJsonFile(projectPackageJsonPath) as IPackageJson)
+      : {};
 
     return projectPackageJson;
   }
 
   private mergeDependencies(base: IPackageJson, overwriteWith: IPackageJson): void {
-    const toOverwrite = overwriteWith || {} as IPackageJson;
+    const toOverwrite = overwriteWith || ({} as IPackageJson);
     _.forEach(toOverwrite.devDependencies || {}, (value, key) => {
       if (!base.devDependencies) {
         base.devDependencies = {};

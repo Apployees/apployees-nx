@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import express from "express";
 import https from "https";
 import { readFileSync } from "fs";
@@ -12,11 +16,11 @@ let app = require("./server").default;
  */
 if (process.env.NODE_ENV === "development") {
   if ((module as any).hot) {
-    (module as any).hot.accept('./server', () => {
-      console.log('Server reloading...');
+    (module as any).hot.accept("./server", () => {
+      console.log("Server reloading...");
 
       try {
-        app = require('./server').default;
+        app = require("./server").default;
       } catch (error) {
         // Do nothing
       }
@@ -24,34 +28,32 @@ if (process.env.NODE_ENV === "development") {
   }
 }
 
-
 // We will run a standard express instance on the given port.
 // The port and SSL settings come from your configuration or from the
 // various .env files.
 
 const port = parseInt(getServerEnvironmentVariable("PORT", "3000"), 10);
-const host = getServerEnvironmentVariable("HOST", "localhost")
+const host = getServerEnvironmentVariable("HOST", "localhost");
 const handler = express();
 handler.use((req, res, next) => app.handle(req, res, next));
 const keyAndCertificate = getKeyAndCertificate();
 if (keyAndCertificate) {
-  https.createServer({
-    key: keyAndCertificate.key,
-    cert: keyAndCertificate.certificate,
-  }, handler).listen(port, host, () => {
-    console.log(
-      `Webserver is running: https://${host}:${port}`
-    );
-  });
-} else {
-  handler
+  https
+    .createServer(
+      {
+        key: keyAndCertificate.key,
+        cert: keyAndCertificate.certificate,
+      },
+      handler,
+    )
     .listen(port, host, () => {
-      console.log(
-        `Webserver is running: http://${host}:${port}`
-      );
+      console.log(`Webserver is running: https://${host}:${port}`);
     });
+} else {
+  handler.listen(port, host, () => {
+    console.log(`Webserver is running: http://${host}:${port}`);
+  });
 }
-
 
 // just to show you what environment variables are available in the env global
 // variable. These variables are collected over the order of .env files as per

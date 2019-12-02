@@ -1,6 +1,10 @@
-import { readWorkspaceJson } from '@nrwl/workspace';
-import * as _ from 'lodash';
-import { ExternalDependencies } from '../types/common-types';
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
+import { readWorkspaceJson } from "@nrwl/workspace";
+import * as _ from "lodash";
+import { ExternalDependencies } from "../types/common-types";
 
 /**
  * the name of the import as it appears in code
@@ -9,11 +13,11 @@ import { ExternalDependencies } from '../types/common-types';
  */
 export function getExternalizedLibraryImports(
   externalLibraries: ExternalDependencies,
-  npmScope: string): _.Dictionary<true> {
+  npmScope: string,
+): _.Dictionary<true> {
   const isLibraryExternalized: _.Dictionary<true> = {};
 
-  if (externalLibraries === 'all' || _.isArray(externalLibraries)) {
-
+  if (externalLibraries === "all" || _.isArray(externalLibraries)) {
     const workspaceJson = readWorkspaceJson();
 
     const possibleProjectIds: _.Dictionary<string> = {};
@@ -31,11 +35,14 @@ export function getExternalizedLibraryImports(
      ]
      */
     _.forEach(workspaceJson.projects, (project, projectName) => {
-      if (project.projectType === 'library') {
-        const projectRootWithoutAppsOrLibs = project.root.split('/').slice(1).join('/');
+      if (project.projectType === "library") {
+        const projectRootWithoutAppsOrLibs = project.root
+          .split("/")
+          .slice(1)
+          .join("/");
         const importName = `@${npmScope}/${projectRootWithoutAppsOrLibs}`;
 
-        if (externalLibraries === 'all') {
+        if (externalLibraries === "all") {
           isLibraryExternalized[importName] = true;
         } else {
           // let's just save them here for now, we will come back to them and

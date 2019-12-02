@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import { BuilderContext, createBuilder } from "@angular-devkit/architect";
 import { JsonObject } from "@angular-devkit/core";
 import { BuildResult, runWebpack } from "@angular-devkit/build-webpack";
@@ -8,20 +12,19 @@ import { concatMap, map } from "rxjs/operators";
 import { getNodeWebpackConfig } from "../../utils/node.config";
 import { getSourceRoot, OUT_FILENAME, WebpackBuildEvent, writePackageJson } from "@apployees-nx/common-build-utils";
 import { normalizeBuildOptions } from "../../utils/normalize";
-import { BuildNodeBuilderOptions } from "../../utils/node-types";
+import { IBuildNodeBuilderOptions } from "../../utils/node-types";
 import fs from "fs-extra";
 
 try {
-  require('dotenv').config();
-} catch (e) {}
+  require("dotenv").config();
+} catch (e) {
+  console.error("Error while loading dotenv config.");
+  console.error(e);
+}
 
-export default createBuilder<JsonObject & BuildNodeBuilderOptions>(run);
+export default createBuilder<JsonObject & IBuildNodeBuilderOptions>(run);
 
-function run(
-  options: JsonObject & BuildNodeBuilderOptions,
-  context: BuilderContext
-): Observable<WebpackBuildEvent> {
-
+function run(options: JsonObject & IBuildNodeBuilderOptions, context: BuilderContext): Observable<WebpackBuildEvent> {
   const nodeEnv: string = options.dev ? "development" : "production";
   // do this otherwise our bootstrapped @apployees-nx/node actually replaces this
   // to "development" or "production" at build time.
@@ -36,16 +39,14 @@ function run(
   let yarnExists;
 
   return from(getSourceRoot(context)).pipe(
-    map(sourceRoot =>
-      normalizeBuildOptions(options, context, sourceRoot)
-    ),
+    map(sourceRoot => normalizeBuildOptions(options, context, sourceRoot)),
     map(options => {
       yarnExists = fs.existsSync(path.resolve(options.root, "yarn.lock"));
       let config = getNodeWebpackConfig(options, context);
       if (options.webpackConfig) {
         config = __non_webpack_require__(options.webpackConfig)(config, {
           options,
-          configuration: context.target.configuration
+          configuration: context.target.configuration,
         });
       }
       return [options, config];
@@ -61,15 +62,11 @@ function run(
       runWebpack(config, context, {
         logging: stats => {
           context.logger.info(stats.toString(config.stats));
-        }
-      })
+        },
+      }),
     ),
     map((buildEvent: BuildResult) => {
-      buildEvent.outfile = resolve(
-        context.workspaceRoot,
-        options.outputPath,
-        OUT_FILENAME
-      );
+      buildEvent.outfile = resolve(context.workspaceRoot, options.outputPath, OUT_FILENAME);
       return buildEvent as WebpackBuildEvent;
     }),
     map((buildEvent: WebpackBuildEvent) => {
@@ -77,7 +74,7 @@ function run(
       // an npm bundle that is linked to node_modules.
       writePackageJson(options, context, options.externalDependencies, options.externalLibraries);
       return buildEvent;
-    })
+    }),
   );
 }
 

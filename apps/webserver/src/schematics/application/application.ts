@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import ts from "typescript";
 import {
   apply,
@@ -11,7 +15,7 @@ import {
   SchematicContext,
   template,
   Tree,
-  url
+  url,
 } from "@angular-devkit/schematics";
 import { join, normalize, Path } from "@angular-devkit/core";
 import { Schema } from "./schema";
@@ -24,31 +28,31 @@ import {
   offsetFromRoot,
   toFileName,
   updateJsonInTree,
-  updateWorkspaceInTree
+  updateWorkspaceInTree,
 } from "@nrwl/workspace";
 import init from "../init/init";
 import { existsSync } from "fs";
 import path from "path";
 import { InsertChange } from "@nrwl/workspace/src/utils/ast-utils";
 
-interface NormalizedSchema extends Schema {
+interface INormalizedSchema extends Schema {
   appProjectRoot: Path;
   parsedTags: string[];
 }
 
-function updateNxJson(options: NormalizedSchema): Rule {
+function updateNxJson(options: INormalizedSchema): Rule {
   return updateJsonInTree(`/nx.json`, json => {
     return {
       ...json,
       projects: {
         ...json.projects,
-        [options.name]: { tags: options.parsedTags }
-      }
+        [options.name]: { tags: options.parsedTags },
+      },
     };
   });
 }
 
-function getBuildConfig(project: any, options: NormalizedSchema) {
+function getBuildConfig(project: any, options: INormalizedSchema) {
   return {
     builder: "@apployees-nx/webserver:build",
     options: {
@@ -60,12 +64,12 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
       manifestJson: join(project.sourceRoot, "public", "manifest.json"),
       clientOtherEntries: {
         // eslint-disable-next-line @typescript-eslint/camelcase
-        anotherClientEntry_head: join(project.sourceRoot, "client", "anotherClientEntry.ts")
+        anotherClientEntry_head: join(project.sourceRoot, "client", "anotherClientEntry.ts"),
       },
       clientWebpackConfig: join(options.appProjectRoot, "webpack.client.overrides.js"),
       lessStyleVariables: join(options.appProjectRoot, "antd-theme.less"),
       tsConfig: join(options.appProjectRoot, "tsconfig.app.json"),
-      assets: [join(project.sourceRoot, "public")]
+      assets: [join(project.sourceRoot, "public")],
     },
     configurations: {
       production: {
@@ -76,23 +80,23 @@ function getBuildConfig(project: any, options: NormalizedSchema) {
         fileReplacements: [
           {
             replace: join(project.sourceRoot, "environments/environment.ts"),
-            with: join(project.sourceRoot, "environments/environment.prod.ts")
-          }
-        ]
+            with: join(project.sourceRoot, "environments/environment.prod.ts"),
+          },
+        ],
       },
       development: {
         dev: true,
         inspect: true,
         extractLicenses: false,
         notifier: {
-          excludeWarnings: true
-        }
-      }
-    }
+          excludeWarnings: true,
+        },
+      },
+    },
   };
 }
 
-function updateWorkspaceJson(options: NormalizedSchema): Rule {
+function updateWorkspaceJson(options: INormalizedSchema): Rule {
   return updateWorkspaceInTree(workspaceJson => {
     const project = {
       root: options.appProjectRoot,
@@ -100,14 +104,14 @@ function updateWorkspaceJson(options: NormalizedSchema): Rule {
       projectType: "application",
       prefix: options.name,
       schematics: {},
-      architect: {} as any
+      architect: {} as any,
     };
 
     project.architect.build = getBuildConfig(project, options);
     project.architect.lint = generateProjectLint(
       normalize(project.root),
       join(normalize(project.root), "tsconfig.app.json"),
-      options.linter
+      options.linter,
     );
 
     workspaceJson.projects[options.name] = project;
@@ -118,7 +122,7 @@ function updateWorkspaceJson(options: NormalizedSchema): Rule {
   });
 }
 
-function addAppFiles(options: NormalizedSchema, npmScope: string): Rule {
+function addAppFiles(options: INormalizedSchema, npmScope: string): Rule {
   let appDir = path.resolve(__dirname, path.normalize(`schematics/application/files/app`));
   if (!existsSync(appDir)) {
     appDir = path.resolve(__dirname, path.normalize(`files/app`));
@@ -131,37 +135,39 @@ function addAppFiles(options: NormalizedSchema, npmScope: string): Rule {
         name: options.name,
         npmScope: npmScope,
         root: options.appProjectRoot,
-        offset: offsetFromRoot(options.appProjectRoot)
+        offset: offsetFromRoot(options.appProjectRoot),
       }),
-      move(options.appProjectRoot)
-    ])
+      move(options.appProjectRoot),
+    ]),
   );
 }
 
-function addWorkspaceFiles(options: NormalizedSchema, npmScope: string): Rule {
+function addWorkspaceFiles(options: INormalizedSchema, npmScope: string): Rule {
   let workspaceFilesDir = path.resolve(__dirname, path.normalize(`schematics/application/workspace-files`));
   if (!existsSync(workspaceFilesDir)) {
     workspaceFilesDir = path.resolve(__dirname, path.normalize(`workspace-files`));
   }
 
   return (host: Tree, context: SchematicContext) => {
-    if (!host.exists(path.join("config", "jest", "cssTransform.js")) &&
-      !host.exists(path.join("config", "jest", "fileTransform.js"))) {
+    if (
+      !host.exists(path.join("config", "jest", "cssTransform.js")) &&
+      !host.exists(path.join("config", "jest", "fileTransform.js"))
+    ) {
       return mergeWith(
         apply(url(workspaceFilesDir), [
           template({
             tmpl: "",
             name: options.name,
-            npmScope: npmScope
+            npmScope: npmScope,
           }),
-          move(`/`)
-        ])
+          move(`/`),
+        ]),
       );
     }
   };
 }
 
-function modifyRootJestConfig(options: NormalizedSchema, npmScope: string): Rule {
+function modifyRootJestConfig(options: INormalizedSchema, npmScope: string): Rule {
   return (host: Tree, context: SchematicContext) => {
     const jestConfigFilePath = `/jest.config.js`;
     const cssTransformLine = `\t'^.+\\.(css|sass|scss|less)$': \`\${__dirname}/config/jest/cssTransform.js\`,`;
@@ -180,8 +186,12 @@ function modifyRootJestConfig(options: NormalizedSchema, npmScope: string): Rule
       }
 
       let insertTransformChange, insertOtherLinesChange;
-      const jestConfigSourceFile =
-        ts.createSourceFile(jestConfigFilePath, jestConfigSource, ts.ScriptTarget.Latest, true);
+      const jestConfigSourceFile = ts.createSourceFile(
+        jestConfigFilePath,
+        jestConfigSource,
+        ts.ScriptTarget.Latest,
+        true,
+      );
 
       const propertyAssignments = findNodes(jestConfigSourceFile, ts.SyntaxKind.PropertyAssignment);
       if (propertyAssignments && propertyAssignments.length > 0) {
@@ -196,14 +206,21 @@ function modifyRootJestConfig(options: NormalizedSchema, npmScope: string): Rule
            *   ... <-- PropertyAssignments
            * }
            */
-          if (firstChild && firstChild.length > 0 &&
+          if (
+            firstChild &&
+            firstChild.length > 0 &&
             firstChild[0].getFullText(jestConfigSourceFile).indexOf("transform") >= 0 &&
-            secondChild && secondChild.length > 0
+            secondChild &&
+            secondChild.length > 0
           ) {
             // add transform lines after the last child in the value
             const maybePropertyAssignment = findNodes(secondChild[0], ts.SyntaxKind.PropertyAssignment, 1);
             if (maybePropertyAssignment && maybePropertyAssignment.length > 0) {
-              insertTransformChange = new InsertChange(jestConfigFilePath, maybePropertyAssignment[0].getEnd(), `,\n${cssTransformLine}\n${fileTransformLine}`);
+              insertTransformChange = new InsertChange(
+                jestConfigFilePath,
+                maybePropertyAssignment[0].getEnd(),
+                `,\n${cssTransformLine}\n${fileTransformLine}`,
+              );
 
               // add the other lines after the transform line.
               insertOtherLinesChange = new InsertChange(jestConfigFilePath, propAssignment.getEnd(), otherLines);
@@ -217,16 +234,14 @@ function modifyRootJestConfig(options: NormalizedSchema, npmScope: string): Rule
       if (!insertTransformChange) {
         const transformChanges = `\n\n/* Add the following lines to your "transform" object in your jest config.\n\n${cssTransformLine},\n${fileTransformLine}\n\n\nAdd the following next to your transform (root level of the exported jest config object):\n\n${otherLines}\n\n*/`;
         insertTransformChange = new InsertChange(jestConfigFilePath, jestConfigSource.length, transformChanges);
-        context.logger.warn("Please see your jest.config.js file in the root of the project to make some necessary changes.");
+        context.logger.warn(
+          "Please see your jest.config.js file in the root of the project to make some necessary changes.",
+        );
       }
 
-      insert(host, jestConfigFilePath, [
-        insertTransformChange,
-        insertOtherLinesChange
-      ].filter(Boolean));
+      insert(host, jestConfigFilePath, [insertTransformChange, insertOtherLinesChange].filter(Boolean));
     } else {
       return updateJsonInTree(`/package.json`, json => {
-
         if (!json.jest) {
           return json;
         }
@@ -246,10 +261,9 @@ function modifyRootJestConfig(options: NormalizedSchema, npmScope: string): Rule
   };
 }
 
-function updateRootPackageJson(options: NormalizedSchema): Rule {
+function updateRootPackageJson(options: INormalizedSchema): Rule {
   return (host: Tree) => {
     return updateJsonInTree(`/package.json`, json => {
-
       if (!json.scripts) {
         json.scripts = {};
       }
@@ -264,8 +278,6 @@ function updateRootPackageJson(options: NormalizedSchema): Rule {
   };
 }
 
-
-
 export default function(schema: Schema): Rule {
   return (host: Tree, context: SchematicContext) => {
     const options = normalizeOptions(schema);
@@ -273,7 +285,7 @@ export default function(schema: Schema): Rule {
 
     return chain([
       init({
-        skipFormat: true
+        skipFormat: true,
       }),
       addLintFiles(options.appProjectRoot, options.linter),
       addAppFiles(options, npmScope),
@@ -284,17 +296,17 @@ export default function(schema: Schema): Rule {
       updateRootPackageJson(options),
       options.unitTestRunner === "jest"
         ? externalSchematic("@nrwl/jest", "jest-project", {
-          project: options.name,
-          setupFile: "none",
-          supportTsx: true,
-          skipSerializers: true
-        })
-        : noop()
+            project: options.name,
+            setupFile: "none",
+            supportTsx: true,
+            skipSerializers: true,
+          })
+        : noop(),
     ])(host, context);
   };
 }
 
-function normalizeOptions(options: Schema): NormalizedSchema {
+function normalizeOptions(options: Schema): INormalizedSchema {
   const appDirectory = options.directory
     ? `${toFileName(options.directory)}/${toFileName(options.name)}`
     : toFileName(options.name);
@@ -303,14 +315,12 @@ function normalizeOptions(options: Schema): NormalizedSchema {
 
   const appProjectRoot = join(normalize("apps"), appDirectory);
 
-  const parsedTags = options.tags
-    ? options.tags.split(",").map(s => s.trim())
-    : [];
+  const parsedTags = options.tags ? options.tags.split(",").map(s => s.trim()) : [];
 
   return {
     ...options,
     name: toFileName(appProjectName),
     appProjectRoot,
-    parsedTags
+    parsedTags,
   };
 }

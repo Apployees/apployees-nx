@@ -1,11 +1,15 @@
-import path from 'path';
-import express from 'express';
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
+import path from "path";
+import express from "express";
 
-import htmlMiddleware from './middleware/html';
-import renderMiddleware from './middleware/render';
+import htmlMiddleware from "./middleware/html";
+import renderMiddleware from "./middleware/render";
 import cors from "./middleware/cors";
 
-const publicPath = path.join(__dirname, '/public');
+const publicPath = path.join(__dirname, "/public");
 const app = express();
 
 app.use(cors(app));

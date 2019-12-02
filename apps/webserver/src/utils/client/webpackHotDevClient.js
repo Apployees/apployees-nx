@@ -1,11 +1,9 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 
-'use strict';
+"use strict";
 
 /* global __resourceQuery */
 
@@ -18,19 +16,19 @@
 // that looks similar to our console output. The error overlay is inspired by:
 // https://github.com/glenjamin/webpack-hot-middleware
 
-var url = require('url');
-var SockJS = require('sockjs-client');
-var stripAnsi = require('strip-ansi');
-var launchEditorEndpoint = require('react-dev-utils/launchEditorEndpoint');
-var formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
-var ErrorOverlay = require('react-error-overlay');
-var querystring = require('querystring');
+const url = require("url");
+const SockJS = require("sockjs-client");
+const stripAnsi = require("strip-ansi");
+const launchEditorEndpoint = require("react-dev-utils/launchEditorEndpoint");
+const formatWebpackMessages = require("react-dev-utils/formatWebpackMessages");
+const ErrorOverlay = require("react-error-overlay");
+const querystring = require("querystring");
 
-let devPort = '';
-let devHost = '';
-let devHttps = '';
+let devPort = "";
+let devHost = "";
+let devHttps = "";
 if (__resourceQuery) {
-  var params = querystring.parse(__resourceQuery.slice(1));
+  const params = querystring.parse(__resourceQuery.slice(1));
   devPort = params.devPort;
   devHost = params.devHost;
   devHttps = params.devHttps;
@@ -40,20 +38,21 @@ ErrorOverlay.setEditorHandler(function editorHandler(errorLocation) {
   // Keep this sync with errorOverlayMiddleware.js
   fetch(
     url.format({
-      protocol: devHttps === 'true' ? 'https' : window.location.protocol,
+      protocol: devHttps === "true" ? "https" : window.location.protocol,
       hostname: devHost || window.location.hostname,
       port: devPort || window.location.port,
       pathname: launchEditorEndpoint,
-      search: 'fileName=' +
+      search:
+        "fileName=" +
         window.encodeURIComponent(errorLocation.fileName) +
-        '&lineNumber=' +
+        "&lineNumber=" +
         window.encodeURIComponent(errorLocation.lineNumber || 1) +
-        '&colNumber=' +
+        "&colNumber=" +
         window.encodeURIComponent(errorLocation.colNumber || 1),
     }),
     {
-      mode: 'no-cors' // 'cors' by default
-    }
+      mode: "no-cors", // 'cors' by default
+    },
   );
 });
 
@@ -63,15 +62,15 @@ ErrorOverlay.setEditorHandler(function editorHandler(errorLocation) {
 // application. This is handled below when we are notified of a compile (code
 // change).
 // See https://github.com/facebook/create-react-app/issues/3096
-var hadRuntimeError = false;
+let hadRuntimeError = false;
 ErrorOverlay.startReportingRuntimeErrors({
   onError: function() {
     hadRuntimeError = true;
   },
-  filename: '/static/js/bundle.js',
+  filename: "/static/js/bundle.js",
 });
 
-if (module.hot && typeof module.hot.dispose === 'function') {
+if (module.hot && typeof module.hot.dispose === "function") {
   module.hot.dispose(function() {
     // TODO: why do we need this?
     ErrorOverlay.stopReportingRuntimeErrors();
@@ -79,35 +78,33 @@ if (module.hot && typeof module.hot.dispose === 'function') {
 }
 
 // Connect to WebpackDevServer via a socket.
-var connection = new SockJS(
+const connection = new SockJS(
   url.format({
-    protocol: devHttps === 'true' ? 'https' : window.location.protocol,
+    protocol: devHttps === "true" ? "https" : window.location.protocol,
     hostname: devHost || window.location.hostname,
     port: devPort || window.location.port,
     // Hardcoded in WebpackDevServer
-    pathname: '/sockjs-node',
-  })
+    pathname: "/sockjs-node",
+  }),
 );
 
 // Unlike WebpackDevServer client, we won't try to reconnect
 // to avoid spamming the console. Disconnect usually happens
 // when developer stops the server.
 connection.onclose = function() {
-  if (typeof console !== 'undefined' && typeof console.info === 'function') {
-    console.info(
-      'The development server has disconnected.\nRefresh the page if necessary.'
-    );
+  if (typeof console !== "undefined" && typeof console.info === "function") {
+    console.info("The development server has disconnected.\nRefresh the page if necessary.");
   }
 };
 
 // Remember some state related to hot module replacement.
-var isFirstCompilation = true;
-var mostRecentCompilationHash = null;
-var hasCompileErrors = false;
+let isFirstCompilation = true;
+let mostRecentCompilationHash = null;
+let hasCompileErrors = false;
 
 function clearOutdatedErrors() {
   // Clean up outdated compile errors, if any.
-  if (typeof console !== 'undefined' && typeof console.clear === 'function') {
+  if (typeof console !== "undefined" && typeof console.clear === "function") {
     if (hasCompileErrors) {
       console.clear();
     }
@@ -118,7 +115,7 @@ function clearOutdatedErrors() {
 function handleSuccess() {
   clearOutdatedErrors();
 
-  var isHotUpdate = !isFirstCompilation;
+  const isHotUpdate = !isFirstCompilation;
   isFirstCompilation = false;
   hasCompileErrors = false;
 
@@ -136,24 +133,21 @@ function handleSuccess() {
 function handleWarnings(warnings) {
   clearOutdatedErrors();
 
-  var isHotUpdate = !isFirstCompilation;
+  const isHotUpdate = !isFirstCompilation;
   isFirstCompilation = false;
   hasCompileErrors = false;
 
   function printWarnings() {
     // Print warnings to the console.
-    var formatted = formatWebpackMessages({
+    const formatted = formatWebpackMessages({
       warnings: warnings,
       errors: [],
     });
 
-    if (typeof console !== 'undefined' && typeof console.warn === 'function') {
-      for (var i = 0; i < formatted.warnings.length; i++) {
+    if (typeof console !== "undefined" && typeof console.warn === "function") {
+      for (let i = 0; i < formatted.warnings.length; i++) {
         if (i === 5) {
-          console.warn(
-            'There were more warnings in other files.\n' +
-              'You can find a complete log in the terminal.'
-          );
+          console.warn("There were more warnings in other files.\n" + "You can find a complete log in the terminal.");
           break;
         }
         console.warn(stripAnsi(formatted.warnings[i]));
@@ -181,7 +175,7 @@ function handleErrors(errors) {
   hasCompileErrors = true;
 
   // "Massage" webpack messages.
-  var formatted = formatWebpackMessages({
+  const formatted = formatWebpackMessages({
     errors: errors,
     warnings: [],
   });
@@ -190,8 +184,8 @@ function handleErrors(errors) {
   ErrorOverlay.reportBuildError(formatted.errors[0]);
 
   // Also log them to the console.
-  if (typeof console !== 'undefined' && typeof console.error === 'function') {
-    for (var i = 0; i < formatted.errors.length; i++) {
+  if (typeof console !== "undefined" && typeof console.error === "function") {
+    for (let i = 0; i < formatted.errors.length; i++) {
       console.error(stripAnsi(formatted.errors[i]));
     }
   }
@@ -214,23 +208,23 @@ function handleAvailableHash(hash) {
 
 // Handle messages from the server.
 connection.onmessage = function(e) {
-  var message = JSON.parse(e.data);
+  const message = JSON.parse(e.data);
   switch (message.type) {
-    case 'hash':
+    case "hash":
       handleAvailableHash(message.data);
       break;
-    case 'still-ok':
-    case 'ok':
+    case "still-ok":
+    case "ok":
       handleSuccess();
       break;
-    case 'content-changed':
+    case "content-changed":
       // Triggered when a file from `contentBase` changed.
       window.location.reload();
       break;
-    case 'warnings':
+    case "warnings":
       handleWarnings(message.data);
       break;
-    case 'errors':
+    case "errors":
       handleErrors(message.data);
       break;
     default:
@@ -248,7 +242,7 @@ function isUpdateAvailable() {
 
 // Webpack disallows updates in other states.
 function canApplyUpdates() {
-  return module.hot.status() === 'idle';
+  return module.hot.status() === "idle";
 }
 
 // Attempt to update code on the fly, fall back to a hard reload.
@@ -269,7 +263,7 @@ function tryApplyUpdates(onHotUpdateSuccess) {
       return;
     }
 
-    if (typeof onHotUpdateSuccess === 'function') {
+    if (typeof onHotUpdateSuccess === "function") {
       // Maybe we want to do something.
       onHotUpdateSuccess();
     }
@@ -281,7 +275,7 @@ function tryApplyUpdates(onHotUpdateSuccess) {
   }
 
   // https://webpack.github.io/docs/hot-module-replacement.html#check
-  var result = module.hot.check(/* autoApply */ true, handleApplyUpdates);
+  const result = module.hot.check(/* autoApply */ true, handleApplyUpdates);
 
   // // Webpack 2 returns a Promise instead of invoking a callback
   if (result && result.then) {
@@ -291,7 +285,7 @@ function tryApplyUpdates(onHotUpdateSuccess) {
       },
       function(err) {
         handleApplyUpdates(err, null);
-      }
+      },
     );
   }
 }

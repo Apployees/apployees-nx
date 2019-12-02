@@ -1,10 +1,14 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import "source-map-support";
 import webpack, { Configuration } from "webpack";
 import path, { dirname } from "path";
 import { LicenseWebpackPlugin } from "license-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import TsConfigPathsPlugin from "tsconfig-paths-webpack-plugin";
-import { BuildWebserverBuilderOptions } from "../common/webserver-types";
+import { IBuildWebserverBuilderOptions } from "../common/webserver-types";
 import _ from "lodash";
 import { BuilderContext } from "@angular-devkit/architect";
 import { getBaseLoaders } from "../common/common-loaders";
@@ -21,11 +25,10 @@ import WorkerPlugin from "worker-plugin";
 import WebpackBar from "webpackbar";
 
 export function getServerConfig(
-  options: BuildWebserverBuilderOptions,
+  options: IBuildWebserverBuilderOptions,
   context: BuilderContext,
-  esm?: boolean
+  esm?: boolean,
 ): Configuration {
-
   const mainFields = [...(esm ? ["es2015"] : []), "module", "main"];
   const isEnvDevelopment = options.dev;
   const isEnvProduction = !options.dev;
@@ -47,26 +50,15 @@ export function getServerConfig(
     mode: isEnvProduction ? "production" : "development",
     // Stop compilation early in production
     bail: isEnvProduction,
-    devtool: isEnvProduction
-      ? shouldUseSourceMap
-        ? "source-map"
-        : false
-      : "inline-source-map",
-    entry: [
+    devtool: isEnvProduction ? (shouldUseSourceMap ? "source-map" : false) : "inline-source-map",
+    entry: [isEnvDevelopment && "webpack/hot/poll?100", options.serverMain].filter(Boolean),
+    externals: getNodeExternals(options.serverExternalLibraries, options.serverExternalDependencies, [
       isEnvDevelopment && "webpack/hot/poll?100",
-      options.serverMain
-    ].filter(Boolean),
-    externals: getNodeExternals(
-      options.serverExternalLibraries,
-      options.serverExternalDependencies,
-      [
-        isEnvDevelopment && "webpack/hot/poll?100",
-        /\.(eot|woff|woff2|ttf|otf)$/,
-        /\.(svg|png|jpg|jpeg|gif|ico)$/,
-        /\.(mp4|mp3|ogg|swf|webp)$/,
-        /\.(css|scss|sass|sss|less)$/
-      ]
-    ),
+      /\.(eot|woff|woff2|ttf|otf)$/,
+      /\.(svg|png|jpg|jpeg|gif|ico)$/,
+      /\.(mp4|mp3|ogg|swf|webp)$/,
+      /\.(css|scss|sass|sss|less)$/,
+    ]),
     output: {
       path: options.outputPath,
       publicPath: publicPath,
@@ -75,43 +67,42 @@ export function getServerConfig(
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: isEnvProduction
         ? info =>
-          path
-            .relative(path.resolve(options.root, options.sourceRoot), info.absoluteResourcePath)
-            .replace(/\\/g, "/")
-        : isEnvDevelopment &&
-        (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/"))
+            path.relative(path.resolve(options.root, options.sourceRoot), info.absoluteResourcePath).replace(/\\/g, "/")
+        : isEnvDevelopment && (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")),
     },
     resolve: {
       modules: ["node_modules", `${appRootPath}/node_modules`],
       extensions,
-      alias: _.extend({},
+      alias: _.extend(
+        {},
         {
           "@": path.resolve(__dirname),
           "~": path.resolve(__dirname),
           // This is required so symlinks work during development.
-          "webpack/hot/poll": _.isString(require.resolve(`webpack/hot/poll`)) ?
-            require.resolve(`webpack/hot/poll`) : `webpack/hot/poll`
+          "webpack/hot/poll": _.isString(require.resolve(`webpack/hot/poll`))
+            ? require.resolve(`webpack/hot/poll`)
+            : `webpack/hot/poll`,
         },
-        getAliases(options.serverFileReplacements)
+        getAliases(options.serverFileReplacements),
       ),
       plugins: [
         new TsConfigPathsPlugin({
           configFile: options.tsConfig,
           extensions,
-          mainFields
+          mainFields,
         }),
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding
         // guards against forgotten dependencies and such.
-        PnpWebpackPlugin
+        PnpWebpackPlugin,
       ],
-      mainFields
+      mainFields,
     },
     resolveLoader: {
       plugins: [
         // Also related to Plug'n'Play, but this time it tells Webpack to load its loaders
         // from the current package.
-        PnpWebpackPlugin.moduleLoader(module)
-      ]
+        PnpWebpackPlugin.moduleLoader(module),
+      ],
     },
     module: {
       strictExportPresence: true,
@@ -122,31 +113,31 @@ export function getServerConfig(
           esm,
           options.verbose,
           isEnvDevelopment,
-          true // isEnvServer
+          true, // isEnvServer
         ),
         {
           // "oneOf" will traverse all following loaders until one will
           // match the requirements. When no loader matches it will fall
           // back to the "file" loader at the end of the loader list.
-          oneOf: getServerLoaders(options)
-        }
-      ]
+          oneOf: getServerLoaders(options),
+        },
+      ],
     },
     plugins: [
       ...getPlugins(options, context, false),
       isEnvDevelopment &&
-      new StartServerPlugin({
-        name: "index.js",
-        nodeArgs
-      }),
+        new StartServerPlugin({
+          name: "index.js",
+          nodeArgs,
+        }),
       isEnvDevelopment && new webpack.WatchIgnorePlugin([options.publicOutputFolder_calculated]),
       // add support for web workers.
-      new WorkerPlugin()
+      new WorkerPlugin(),
     ].filter(Boolean),
     node: {
       __console: false,
       __dirname: false,
-      __filename: false
+      __filename: false,
     },
     stats: getStatsConfig(options),
     // Turn off performance processing because we utilize
@@ -154,18 +145,20 @@ export function getServerConfig(
     performance: false,
     optimization: {
       // see https://github.com/webpack/webpack/issues/7128
-      namedModules: false
-    }
+      namedModules: false,
+    },
   };
 
   const extraPlugins: webpack.Plugin[] = [];
 
   if (options.progress) {
-    extraPlugins.push(new WebpackBar({
-      name: "server",
-      fancy: isEnvDevelopment,
-      basic: !isEnvDevelopment
-    }));
+    extraPlugins.push(
+      new WebpackBar({
+        name: "server",
+        fancy: isEnvDevelopment,
+        basic: !isEnvDevelopment,
+      }),
+    );
   }
 
   if (options.extractLicenses) {
@@ -174,8 +167,8 @@ export function getServerConfig(
         pattern: /.*/,
         suppressErrors: true,
         perChunkOutput: false,
-        outputFilename: `3rdpartylicenses.txt`
-      })
+        outputFilename: `3rdpartylicenses.txt`,
+      }),
     );
   }
 
@@ -189,31 +182,31 @@ export function getServerConfig(
         ignore: asset.ignore,
         from: {
           glob: asset.glob,
-          dot: true
-        }
+          dot: true,
+        },
       };
     });
 
     const copyWebpackPluginOptions = {
       ignore: [
-        ".gitkeep", "**/.DS_Store", "**/Thumbs.db",
+        ".gitkeep",
+        "**/.DS_Store",
+        "**/Thumbs.db",
         // don't overwrite the files we generated ourselves for the client
-        ..._.values(FILENAMES).filter(fileName => fileName !== FILENAMES.publicFolder)
-      ]
+        ..._.values(FILENAMES).filter(fileName => fileName !== FILENAMES.publicFolder),
+      ],
     };
 
-    const copyWebpackPluginInstance = new CopyWebpackPlugin(
-      copyWebpackPluginPatterns,
-      copyWebpackPluginOptions
-    );
+    const copyWebpackPluginInstance = new CopyWebpackPlugin(copyWebpackPluginPatterns, copyWebpackPluginOptions);
     extraPlugins.push(copyWebpackPluginInstance);
   }
 
   if (options.showCircularDependencies) {
     extraPlugins.push(
       new CircularDependencyPlugin({
-        exclude: /[\\\/]node_modules[\\\/]/
-      })
+        // eslint-disable-next-line no-useless-escape
+        exclude: /[\\\/]node_modules[\\\/]/,
+      }),
     );
   }
 

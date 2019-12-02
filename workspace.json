@@ -19,9 +19,7 @@
               "schematic-application": "apps/webserver/src/schematics/application/application.ts"
             },
             "tsConfig": "apps/webserver/tsconfig.app.json",
-            "assets": [
-              "apps/webserver/src"
-            ]
+            "assets": ["apps/webserver/src"]
           },
           "configurations": {
             "production": {
@@ -51,14 +49,8 @@
           "options": {
             "linter": "eslint",
             "config": "apps/webserver/.eslintrc",
-            "tsConfig": [
-              "apps/webserver/tsconfig.app.json",
-              "apps/webserver/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/webserver/**"
-            ]
+            "tsConfig": ["apps/webserver/tsconfig.app.json", "apps/webserver/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**", "!apps/webserver/**"]
           }
         },
         "test": {
@@ -81,14 +73,8 @@
           "options": {
             "linter": "eslint",
             "config": "libs/examples/library1/.eslintrc",
-            "tsConfig": [
-              "libs/examples/library1/tsconfig.lib.json",
-              "libs/examples/library1/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**",
-              "!libs/examples/library1/**"
-            ]
+            "tsConfig": ["libs/examples/library1/tsconfig.lib.json", "libs/examples/library1/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**", "!libs/examples/library1/**"]
           }
         },
         "test": {
@@ -111,14 +97,8 @@
           "options": {
             "linter": "eslint",
             "config": "libs/examples/library2/.eslintrc",
-            "tsConfig": [
-              "libs/examples/library2/tsconfig.lib.json",
-              "libs/examples/library2/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**",
-              "!libs/examples/library2/**"
-            ]
+            "tsConfig": ["libs/examples/library2/tsconfig.lib.json", "libs/examples/library2/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**", "!libs/examples/library2/**"]
           }
         },
         "test": {
@@ -149,9 +129,7 @@
               "schematic-application": "apps/node/src/schematics/application/application.ts"
             },
             "tsConfig": "apps/node/tsconfig.app.json",
-            "assets": [
-              "apps/node/src"
-            ]
+            "assets": ["apps/node/src"]
           },
           "configurations": {
             "production": {
@@ -181,14 +159,8 @@
           "options": {
             "linter": "eslint",
             "config": "apps/node/.eslintrc",
-            "tsConfig": [
-              "apps/node/tsconfig.app.json",
-              "apps/node/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/node/**"
-            ]
+            "tsConfig": ["apps/node/tsconfig.app.json", "apps/node/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**", "!apps/node/**"]
           }
         },
         "test": {
@@ -213,9 +185,7 @@
             "outputPath": "dist/apps/examples/import-types",
             "main": "apps/examples/import-types/src/main.ts",
             "tsConfig": "apps/examples/import-types/tsconfig.app.json",
-            "assets": [
-              "apps/examples/import-types/src/assets"
-            ]
+            "assets": ["apps/examples/import-types/src/assets"]
           },
           "configurations": {
             "production": {
@@ -251,10 +221,7 @@
               "apps/examples/import-types/tsconfig.app.json",
               "apps/examples/import-types/tsconfig.spec.json"
             ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/examples/import-types/**"
-            ]
+            "exclude": ["**/node_modules/**", "!apps/examples/import-types/**"]
           }
         },
         "test": {
@@ -277,14 +244,8 @@
           "options": {
             "linter": "eslint",
             "config": "libs/common-build-utils/.eslintrc",
-            "tsConfig": [
-              "libs/common-build-utils/tsconfig.lib.json",
-              "libs/common-build-utils/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**",
-              "!libs/common-build-utils/**"
-            ]
+            "tsConfig": ["libs/common-build-utils/tsconfig.lib.json", "libs/common-build-utils/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**", "!libs/common-build-utils/**"]
           }
         },
         "test": {
@@ -318,9 +279,7 @@
             "clientWebpackConfig": "apps/examples/webserver/webpack.client.overrides.js",
             "lessStyleVariables": "apps/examples/webserver/antd-theme.less",
             "tsConfig": "apps/examples/webserver/tsconfig.app.json",
-            "assets": [
-              "apps/examples/webserver/src/public"
-            ],
+            "assets": ["apps/examples/webserver/src/public"],
             "importTransformers": [
               {
                 "libraryName": "antd",
@@ -359,14 +318,8 @@
           "options": {
             "linter": "eslint",
             "config": "apps/examples/webserver/.eslintrc",
-            "tsConfig": [
-              "apps/examples/webserver/tsconfig.app.json",
-              "apps/examples/webserver/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**",
-              "!apps/examples/webserver/**"
-            ]
+            "tsConfig": ["apps/examples/webserver/tsconfig.app.json", "apps/examples/webserver/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**", "!apps/examples/webserver/**"]
           }
         },
         "test": {

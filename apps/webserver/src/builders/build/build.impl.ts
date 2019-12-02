@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import path, { resolve } from "path";
 import fs from "fs-extra";
 import chalk from "chalk";
@@ -11,9 +15,9 @@ import {
   loadEnvironmentVariables,
   OUT_FILENAME,
   WebpackBuildEvent,
-  writePackageJson
+  writePackageJson,
 } from "@apployees-nx/common-build-utils";
-import { BuildWebserverBuilderOptions } from "../../utils/common/webserver-types";
+import { IBuildWebserverBuilderOptions } from "../../utils/common/webserver-types";
 import { normalizeBuildOptions } from "../../utils/common/normalize";
 import { getServerConfig } from "../../utils/server/server-config";
 import { getClientConfig } from "../../utils/client/client-config";
@@ -28,8 +32,7 @@ import escape from "escape-string-regexp";
 import WebpackDevServer from "webpack-dev-server";
 import noopServiceWorkerMiddleware from "react-dev-utils/noopServiceWorkerMiddleware";
 
-const measureFileSizesBeforeBuild =
-  FileSizeReporter.measureFileSizesBeforeBuild;
+const measureFileSizesBeforeBuild = FileSizeReporter.measureFileSizesBeforeBuild;
 const printFileSizesAfterBuild = FileSizeReporter.printFileSizesAfterBuild;
 
 // These sizes are pretty large. We'll warn for bundles exceeding them.
@@ -41,19 +44,20 @@ const isInteractive = process.stdout.isTTY;
 try {
   require("dotenv").config();
 } catch (e) {
+  console.error("Error while loading dotenv config.");
+  console.error(e);
 }
 
-export default createBuilder<JsonObject & BuildWebserverBuilderOptions>(run);
+export default createBuilder<JsonObject & IBuildWebserverBuilderOptions>(run);
 
-interface WebpackDevServerReference {
-  server: WebpackDevServer & { sockWrite: Function, sockets: any };
+interface IWebpackDevServerReference {
+  server: WebpackDevServer & { sockWrite: Function; sockets: any };
 }
 
 function run(
-  options: JsonObject & BuildWebserverBuilderOptions,
-  context: BuilderContext
+  options: JsonObject & IBuildWebserverBuilderOptions,
+  context: BuilderContext,
 ): Observable<WebpackBuildEvent> {
-
   const nodeEnv: string = options.dev ? "development" : "production";
   // do this otherwise our bootstrapped @apployees-nx/node actually replaces this
   // to "development" or "production" at build time.
@@ -62,71 +66,65 @@ function run(
   process.env[nodeEnvKey] = nodeEnv;
   process.env[babelEnvKey] = nodeEnv;
 
-  const devServer: WebpackDevServerReference = { server: null };
+  const devServer: IWebpackDevServerReference = { server: null };
   const devSocket = {
     warnings: warnings => {
       devServer.server.sockWrite(devServer.server.sockets, "warnings", warnings);
     },
     errors: errors => {
       devServer.server.sockWrite(devServer.server.sockets, "errors", errors);
-    }
+    },
   };
   let yarnExists;
 
   return from(getSourceRoot(context)).pipe(
-    map(sourceRoot =>
-      normalizeBuildOptions(options, context, sourceRoot)
+    map(sourceRoot => normalizeBuildOptions(options, context, sourceRoot)),
+    switchMap((options: IBuildWebserverBuilderOptions) =>
+      checkBrowsers(path.resolve(options.root, options.sourceRoot), isInteractive).then(() => options),
     ),
-    switchMap((options: BuildWebserverBuilderOptions) =>
-      checkBrowsers(path.resolve(options.root, options.sourceRoot), isInteractive)
-        .then(() => options)),
-    switchMap((options: BuildWebserverBuilderOptions) => {
-
+    switchMap((options: IBuildWebserverBuilderOptions) => {
       yarnExists = fs.existsSync(path.resolve(options.root, "yarn.lock"));
       loadEnvironmentVariables(options, context);
 
       if (options.dev) {
-        return choosePort(options.devHost, options.devAppPort)
-          .then(appPort => {
-            if (_.isNil(appPort)) {
-              throw new Error("Could not start because we could not find a port for app server.");
+        return choosePort(options.devHost, options.devAppPort).then(appPort => {
+          if (_.isNil(appPort)) {
+            throw new Error("Could not start because we could not find a port for app server.");
+          }
+
+          options.devAppPort = appPort;
+          process.env.PORT = appPort;
+
+          return choosePort(options.devHost, options.devWebpackPort).then(webpackPort => {
+            if (_.isNil(webpackPort)) {
+              throw new Error("Could not start because we could not find a port for the webpack server.");
             }
 
-            options.devAppPort = appPort;
-            process.env.PORT = appPort;
+            options.devWebpackPort = webpackPort;
+            process.env.DEV_PORT = webpackPort;
+            const protocol = options.devHttps ? "https" : "http";
 
-            return choosePort(options.devHost, options.devWebpackPort)
-              .then(webpackPort => {
-                if (_.isNil(webpackPort)) {
-                  throw new Error("Could not start because we could not find a port for the webpack server.");
-                }
+            options.assetsUrl = `${protocol}://${options.devHost}:${webpackPort}/`;
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            options.devUrls_calculated = prepareUrls(protocol, options.devHost, appPort);
 
-                options.devWebpackPort = webpackPort;
-                process.env.DEV_PORT = webpackPort;
-                const protocol = options.devHttps ? "https" : "http";
-
-                options.assetsUrl = `${protocol}://${options.devHost}:${webpackPort}/`;
-                // eslint-disable-next-line @typescript-eslint/camelcase
-                options.devUrls_calculated = prepareUrls(protocol, options.devHost, appPort);
-
-                return options;
-              });
+            return options;
           });
+        });
       } else {
         return Promise.resolve(options);
       }
     }),
-    switchMap((options: BuildWebserverBuilderOptions) => {
+    switchMap((options: IBuildWebserverBuilderOptions) => {
       if (!options.dev) {
-        return measureFileSizesBeforeBuild(options.publicOutputFolder_calculated)
-          .then((previousFileSizesForPublicFolder) =>
-            [options, previousFileSizesForPublicFolder]);
+        return measureFileSizesBeforeBuild(options.publicOutputFolder_calculated).then(
+          previousFileSizesForPublicFolder => [options, previousFileSizesForPublicFolder],
+        );
       } else {
         return Promise.resolve([options, null]);
       }
     }),
     map(([options, previousFileSizesForPublicFolder]) => {
-
       // Remove all content but keep the directory so that
       // if you're in it, you don't end up in Trash
       fs.emptyDirSync(options.outputPath);
@@ -134,10 +132,7 @@ function run(
       return [options, previousFileSizesForPublicFolder];
     }),
     map(([options, previousFileSizesForPublicFolder]) => {
-
-      if (!fs.existsSync(options.appHtml) ||
-        !fs.existsSync(options.clientMain) ||
-        !fs.existsSync(options.serverMain)) {
+      if (!fs.existsSync(options.appHtml) || !fs.existsSync(options.clientMain) || !fs.existsSync(options.serverMain)) {
         throw new Error("One of appHtml, clientMain, or serverMain is not specified.");
       }
 
@@ -145,7 +140,7 @@ function run(
       if (options.serverWebpackConfig) {
         serverConfig = __non_webpack_require__(options.serverWebpackConfig)(serverConfig, {
           options,
-          configuration: context.target.configuration
+          configuration: context.target.configuration,
         });
       }
 
@@ -153,20 +148,22 @@ function run(
       if (options.clientWebpackConfig) {
         clientConfig = __non_webpack_require__(options.clientWebpackConfig)(clientConfig, {
           options,
-          configuration: context.target.configuration
+          configuration: context.target.configuration,
         });
       }
 
       // remove the output directory before we go further
 
-
       return [options, serverConfig, clientConfig, previousFileSizesForPublicFolder];
     }),
-    concatMap(([options, serverConfig, clientConfig, previousFileSizesForPublicFolder]:
-                 [BuildWebserverBuilderOptions, Configuration, Configuration, object]) => {
-
+    concatMap(
+      ([options, serverConfig, clientConfig, previousFileSizesForPublicFolder]: [
+        IBuildWebserverBuilderOptions,
+        Configuration,
+        Configuration,
+        object,
+      ]) => {
         if (options.dev) {
-
           /**
            * Run the webpack for server and webpack dev server for client.
            */
@@ -176,16 +173,19 @@ function run(
               logging: stats => {
                 context.logger.info(stats.toString(serverConfig.stats));
               },
-              webpackFactory: (config: Configuration) => of(createCompiler({
-                webpack: webpack,
-                config: serverConfig,
-                appName: context.target.project + " - Server",
-                useYarn: yarnExists,
-                tscCompileOnError: true,
-                useTypeScript: true,
-                devSocket: devSocket,
-                urls: options.devUrls_calculated
-              }))
+              webpackFactory: (config: Configuration) =>
+                of(
+                  createCompiler({
+                    webpack: webpack,
+                    config: serverConfig,
+                    appName: context.target.project + " - Server",
+                    useYarn: yarnExists,
+                    tscCompileOnError: true,
+                    useTypeScript: true,
+                    devSocket: devSocket,
+                    urls: options.devUrls_calculated,
+                  }),
+                ),
             }),
 
             runWebpackDevServer(clientConfig, context, {
@@ -193,27 +193,27 @@ function run(
                 context.logger.info(stats.toString(clientConfig.stats));
               },
               devServerConfig: createWebpackServerOptions(options, context, devServer),
-              webpackFactory: (config: webpack.Configuration) => of(createCompiler({
-                webpack: webpack,
-                config: clientConfig,
-                appName: context.target.project + " - Client",
-                useYarn: yarnExists,
-                tscCompileOnError: true,
-                useTypeScript: true,
-                devSocket: devSocket,
-                urls: options.devUrls_calculated
-              }) as webpack.Compiler)
+              webpackFactory: (config: webpack.Configuration) =>
+                of(createCompiler({
+                  webpack: webpack,
+                  config: clientConfig,
+                  appName: context.target.project + " - Client",
+                  useYarn: yarnExists,
+                  tscCompileOnError: true,
+                  useTypeScript: true,
+                  devSocket: devSocket,
+                  urls: options.devUrls_calculated,
+                }) as webpack.Compiler),
             }).pipe(
               map(output => {
                 output.baseUrl = options.devUrls_calculated.localUrlForBrowser;
                 return output;
-              })
+              }),
             ),
 
-            of(options)
+            of(options),
           );
         } else {
-
           /**
            * Run the webpack for server and webpack for client.
            */
@@ -221,7 +221,7 @@ function run(
             runWebpack(serverConfig, context, {
               logging: stats => {
                 context.logger.info(stats.toString(serverConfig.stats));
-              }
+              },
             }),
 
             runWebpack(clientConfig, context, {
@@ -235,71 +235,75 @@ function run(
                   previousFileSizesForPublicFolder,
                   options.publicOutputFolder_calculated,
                   WARN_AFTER_BUNDLE_GZIP_SIZE,
-                  WARN_AFTER_CHUNK_GZIP_SIZE
+                  WARN_AFTER_CHUNK_GZIP_SIZE,
                 );
-              }
+              },
             }),
 
-            of(options)
+            of(options),
           );
         }
-      }
+      },
     ),
-    map(([serverBuildEvent, clientBuildEventOrDevServerBuildOutput, options]:
-           [WebpackBuildEvent, WebpackBuildEvent | DevServerBuildOutput, BuildWebserverBuilderOptions]) => {
-      if (!options.dev) {
-        serverBuildEvent.success = serverBuildEvent.success && clientBuildEventOrDevServerBuildOutput.success;
-        serverBuildEvent.error = serverBuildEvent.error && clientBuildEventOrDevServerBuildOutput.error;
-        serverBuildEvent.outfile = resolve(
-          context.workspaceRoot,
-          options.outputPath,
-          OUT_FILENAME
-        );
-        return [serverBuildEvent as WebpackBuildEvent, options];
-      } else {
-        return [clientBuildEventOrDevServerBuildOutput as DevServerBuildOutput, options];
-      }
-    }),
-    map(([clientBuildEventOrDevServerBuildOutput, options]:
-           [WebpackBuildEvent & DevServerBuildOutput, BuildWebserverBuilderOptions]) => {
-      // we only consider server external dependencies and libraries because it is the server
-      // code that is run by node, not the browser code.
+    map(
+      ([serverBuildEvent, clientBuildEventOrDevServerBuildOutput, options]: [
+        WebpackBuildEvent,
+        WebpackBuildEvent | DevServerBuildOutput,
+        IBuildWebserverBuilderOptions,
+      ]) => {
+        if (!options.dev) {
+          serverBuildEvent.success = serverBuildEvent.success && clientBuildEventOrDevServerBuildOutput.success;
+          serverBuildEvent.error = serverBuildEvent.error && clientBuildEventOrDevServerBuildOutput.error;
+          serverBuildEvent.outfile = resolve(context.workspaceRoot, options.outputPath, OUT_FILENAME);
+          return [serverBuildEvent as WebpackBuildEvent, options];
+        } else {
+          return [clientBuildEventOrDevServerBuildOutput as DevServerBuildOutput, options];
+        }
+      },
+    ),
+    map(
+      ([clientBuildEventOrDevServerBuildOutput, options]: [
+        WebpackBuildEvent & DevServerBuildOutput,
+        IBuildWebserverBuilderOptions,
+      ]) => {
+        // we only consider server external dependencies and libraries because it is the server
+        // code that is run by node, not the browser code.
 
-      if (!options.dev) {
-        writePackageJson(options, context, options.serverExternalDependencies, options.serverExternalLibraries);
+        if (!options.dev) {
+          writePackageJson(options, context, options.serverExternalDependencies, options.serverExternalLibraries);
 
-        printHostingInstructions(options);
+          printHostingInstructions(options);
 
-        return clientBuildEventOrDevServerBuildOutput;
-      } else {
-        return clientBuildEventOrDevServerBuildOutput;
-      }
-    })
+          return clientBuildEventOrDevServerBuildOutput;
+        } else {
+          return clientBuildEventOrDevServerBuildOutput;
+        }
+      },
+    ),
   );
 }
 
-
-function printHostingInstructions(options: BuildWebserverBuilderOptions) {
+function printHostingInstructions(options: IBuildWebserverBuilderOptions) {
   const assetsPath = options.assetsUrl;
   // eslint-disable-next-line @typescript-eslint/camelcase
   const publicOutputFolder_calculated = options.publicOutputFolder_calculated;
   const buildFolder = options.outputPath;
 
   console.log(
-    `\n\n\n\nThe project was built assuming all static assets are served from the path '${chalk.green(
-      assetsPath
-    )}'.`
+    `\n\n\n\nThe project was built assuming all static assets are served from the path '${chalk.green(assetsPath)}'.`,
   );
   console.log();
   if (assetsPath.startsWith("/")) {
     console.log(
-      `All of your static assets will be served from the rendering server (specifically from ${chalk.green(publicOutputFolder_calculated)}).`
+      `All of your static assets will be served from the rendering server (specifically from ${chalk.green(
+        publicOutputFolder_calculated,
+      )}).`,
     );
     console.log("\nWe recommend serving static assets from a CDN in production.");
     console.log(
       `\nYou can control this with the ${chalk.cyan(
-        "ASSETS_URL"
-      )} environment variable and set its value to the CDN URL for your next build.`
+        "ASSETS_URL",
+      )} environment variable and set its value to the CDN URL for your next build.`,
     );
     console.log();
   }
@@ -311,9 +315,11 @@ function printHostingInstructions(options: BuildWebserverBuilderOptions) {
   console.log();
 }
 
-function createWebpackServerOptions(options: BuildWebserverBuilderOptions,
-                                    context: BuilderContext,
-                                    serverReference: WebpackDevServerReference) {
+function createWebpackServerOptions(
+  options: IBuildWebserverBuilderOptions,
+  context: BuilderContext,
+  serverReference: IWebpackDevServerReference,
+) {
   const config: WebpackDevServer.Configuration = {
     // this needs to remain disabled because our webpackdevserver runs on a
     // different port than the server app.
@@ -340,20 +346,20 @@ function createWebpackServerOptions(options: BuildWebserverBuilderOptions,
     // src/node_modules is not ignored to support absolute imports
     // https://github.com/facebook/create-react-app/issues/1065
     watchOptions: {
-      ignored: ignoredFiles(path.resolve(options.root, options.sourceRoot))
+      ignored: ignoredFiles(path.resolve(options.root, options.sourceRoot)),
     },
     host: options.devHost,
     port: options.devWebpackPort,
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-      "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+      "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization",
     },
     overlay: false,
     historyApiFallback: {
       // Paths with dots should still use the history fallback.
       // See https://github.com/facebook/create-react-app/issues/387.
-      disableDotRule: true
+      disableDotRule: true,
     },
     public: options.devUrls_calculated.lanUrlForConfig,
     https: options.devHttps,
@@ -371,19 +377,14 @@ function createWebpackServerOptions(options: BuildWebserverBuilderOptions,
       // it used the same host and port.
       // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
       app.use(noopServiceWorkerMiddleware());
-    }
+    },
   };
 
   return config;
 }
 
 function ignoredFiles(appSrc) {
-  return new RegExp(
-    `^(?!${escape(
-      path.normalize(appSrc + "/").replace(/[\\]+/g, "/")
-    )}).+/node_modules/`,
-    "g"
-  );
+  return new RegExp(`^(?!${escape(path.normalize(appSrc + "/").replace(/[\\]+/g, "/"))}).+/node_modules/`, "g");
 }
 
 // eslint-disable-next-line @typescript-eslint/camelcase

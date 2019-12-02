@@ -1,12 +1,15 @@
-import { BuildBuilderOptions } from "../types/common-types";
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
+import { IBuildBuilderOptions } from "../types/common-types";
 import { BuilderContext } from "@angular-devkit/architect";
-import {resolve} from "path";
-import {existsSync} from "fs";
+import { resolve } from "path";
+import { existsSync } from "fs";
 import { getProjectRoots } from "@nrwl/workspace/src/command-line/shared";
 import _ from "lodash";
 
-export function loadEnvironmentVariables(options: BuildBuilderOptions,
-                                         context: BuilderContext): object {
+export function loadEnvironmentVariables(options: IBuildBuilderOptions, context: BuilderContext): object {
   const nodeEnv: string = options.dev ? "development" : "production";
 
   const baseEnvFileAtRootOfProject = resolve(options.envFolderPath || "", ".env");
@@ -19,11 +22,11 @@ export function loadEnvironmentVariables(options: BuildBuilderOptions,
     // since normally you expect tests to produce the same
     // results for everyone
     nodeEnv !== "test" && `${baseEnvFileAtRootOfProject}.local.any`,
-    `${baseEnvFileAtRootOfProject}.any`
+    `${baseEnvFileAtRootOfProject}.any`,
   ].filter(Boolean);
 
   const retVal: object = {
-    NODE_ENV: nodeEnv
+    NODE_ENV: nodeEnv,
   };
 
   // Load environment variables from .env* files. Suppress warnings using silent
@@ -35,8 +38,8 @@ export function loadEnvironmentVariables(options: BuildBuilderOptions,
     if (existsSync(dotenvFile)) {
       const parsed = require("dotenv-expand")(
         require("dotenv").config({
-          path: dotenvFile
-        })
+          path: dotenvFile,
+        }),
       ).parsed;
 
       for (const k in parsed) {
@@ -50,25 +53,28 @@ export function loadEnvironmentVariables(options: BuildBuilderOptions,
   return retVal;
 }
 
-export interface ProcessedEnvironmentVariables {
+export interface IProcessedEnvironmentVariables {
   raw: object;
   stringified: object;
   nonStringified?: object;
 }
 
-export function getProcessedEnvironmentVariables(raw, topKey = "process.env"): ProcessedEnvironmentVariables {
-// Stringify all values so we can feed into Webpack DefinePlugin
+export function getProcessedEnvironmentVariables(raw, topKey = "process.env"): IProcessedEnvironmentVariables {
+  // Stringify all values so we can feed into Webpack DefinePlugin
   const stringified = {
     [topKey]: Object.keys(raw).reduce((env, key) => {
       env[key] = JSON.stringify(raw[key]);
       return env;
-    }, {})
+    }, {}),
   };
 
-  return { raw, stringified, nonStringified: {[topKey]: raw} };
+  return { raw, stringified, nonStringified: { [topKey]: raw } };
 }
 
 export function getDefaultEnvsFolderForProject(root, context: BuilderContext) {
-  return resolve(root, context.target.project ?
-    getProjectRoots([context.target.project])[0] : context.workspaceRoot, "envs");
+  return resolve(
+    root,
+    context.target.project ? getProjectRoots([context.target.project])[0] : context.workspaceRoot,
+    "envs",
+  );
 }

@@ -1,13 +1,17 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import { existsSync, readFileSync } from "fs";
 import createCertificateAndKeys from "./createCertificateAndKeys";
 import getServerEnvironmentVariable from "./serverEnvs";
 
-export interface KeyAndCertificate {
+export interface IKeyAndCertificate {
   key: string;
   certificate: string;
 }
 
-export default function getKeyAndCertificate(): KeyAndCertificate {
+export default function getKeyAndCertificate(): IKeyAndCertificate {
   const isHttps = getServerEnvironmentVariable("HTTPS", false);
   if (isHttps === true || isHttps === "true") {
     const key = getServerEnvironmentVariable("HTTPS_KEY");
@@ -23,7 +27,7 @@ export default function getKeyAndCertificate(): KeyAndCertificate {
       // the key and certificate are inlined from the builder...
       return {
         key: key,
-        certificate: cert
+        certificate: cert,
       };
     } else {
       // generate one

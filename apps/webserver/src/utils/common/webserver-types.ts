@@ -1,12 +1,16 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import {
-  BuildBuilderOptions,
+  IBuildBuilderOptions,
   ExternalDependencies,
-  FileReplacement,
-  InspectType
-} from '@apployees-nx/common-build-utils';
-import { ImportTransformerOptions } from "./import-transformer-options";
+  IFileReplacement,
+  InspectType,
+} from "@apployees-nx/common-build-utils";
+import { IImportTransformerOptions } from "./import-transformer-options";
 
-export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
+export interface IBuildWebserverBuilderOptions extends IBuildBuilderOptions {
   devHost?: string;
   devAppPort?: number;
   devHttps?: boolean;
@@ -34,8 +38,8 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   inlineRuntimeChunk?: boolean;
   serverExternalDependencies?: ExternalDependencies;
   serverExternalLibraries?: ExternalDependencies;
-  serverFileReplacements: FileReplacement[];
-  clientFileReplacements: FileReplacement[];
+  serverFileReplacements: IFileReplacement[];
+  clientFileReplacements: IFileReplacement[];
   lessStyleVariables?: string;
   lessStyleVariables_calculated?: object;
   serverWebpackConfig?: string;
@@ -44,5 +48,5 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   inspectHost?: string;
   inspectPort?: number;
   devClientBundleAnalyzer?: boolean;
-  importTransformers: ImportTransformerOptions[];
+  importTransformers: IImportTransformerOptions[];
 }

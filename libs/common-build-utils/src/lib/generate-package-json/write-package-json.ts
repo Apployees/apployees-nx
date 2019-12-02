@@ -1,15 +1,19 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import { output, readNxJson, readWorkspaceJson } from "@nrwl/workspace";
 import { getProjectNodes } from "@nrwl/workspace/src/command-line/shared";
 import { BuilderContext } from "@angular-devkit/architect";
-import { BuildBuilderOptions, ExternalDependencies } from "../types/common-types";
+import { IBuildBuilderOptions, ExternalDependencies } from "../types/common-types";
 import * as _ from "lodash";
 import { doWritePackageJson } from "./all-deps-calculator";
 
 export function writePackageJson(
-  options: BuildBuilderOptions,
+  options: IBuildBuilderOptions,
   context: BuilderContext,
   externalDependencies: ExternalDependencies,
-  externalLibraries: ExternalDependencies
+  externalLibraries: ExternalDependencies,
 ): void {
   const workspaceJson = readWorkspaceJson();
   const nxJson = readNxJson();
@@ -21,7 +25,7 @@ export function writePackageJson(
     output.warn({
       title: `Cannot generate package.json -> no project with ${context.target.project} found`,
       slug: "generate-package-json:no-project",
-      bodyLines: [`Cannot generate package.json -> no project with ${context.target.project} found`]
+      bodyLines: [`Cannot generate package.json -> no project with ${context.target.project} found`],
     });
 
     return;
@@ -29,4 +33,3 @@ export function writePackageJson(
 
   doWritePackageJson(nxJson.npmScope, projectNode, projectNodes, context, externalDependencies, externalLibraries);
 }
-

@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import React from "react";
 import { useState } from "react";
 
@@ -58,7 +62,7 @@ import sassModuleStyles from "./styles/AppSass.module.sass";
  */
 import "./styles/AppSass.sass";
 
-import {Button} from "antd";
+import { Button } from "antd";
 
 /**
  * We'll declare a worker variable that we will use later on to load the
@@ -72,7 +76,6 @@ let webWorker;
  * @constructor
  */
 export default function App() {
-
   const initialDynamicLibraryText = "Dynamic library loading...please wait!!";
   const [dynamicLibraryText, setDynamicLibraryText] = useState(initialDynamicLibraryText);
   const [webWorkerText, setWebWorkerText] = useState("Test Web Worker");
@@ -83,30 +86,24 @@ export default function App() {
   return (
     <div className={cssModuleStyles.app}>
       <header className="app-header">
-        <img src={logo} className={lessModuleStyles.AppLogo} alt="logo"/>
+        <img src={logo} className={lessModuleStyles.AppLogo} alt="logo" />
         <p>
           Edit <code className="Path-Name">src/App.js</code> and save to reload!
         </p>
-        <p className={sassModuleStyles.libraryText}>
-          {library2()}
-        </p>
-        {dynamicLibraryText !== initialDynamicLibraryText &&
-        <p className={sassModuleStyles.libraryText}>
-          {dynamicLibraryText}
-        </p>
-        }
+        <p className={sassModuleStyles.libraryText}>{library2()}</p>
+        {dynamicLibraryText !== initialDynamicLibraryText && (
+          <p className={sassModuleStyles.libraryText}>{dynamicLibraryText}</p>
+        )}
 
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
           Learn React
         </a>
-        <Button onClick={onLoadLibraryClick} style={{ margin: 50 }}
-                type="primary"
-                disabled={dynamicLibraryText !== initialDynamicLibraryText}>
+        <Button
+          onClick={onLoadLibraryClick}
+          style={{ margin: 50 }}
+          type="primary"
+          disabled={dynamicLibraryText !== initialDynamicLibraryText}
+        >
           Load a dynamic library.
         </Button>
         <Button onClick={onWebWorkerTestClick} style={{ margin: 50 }}>
@@ -150,7 +147,6 @@ function onWebWorkerTestClickFn(setWebWorkerText) {
 
     webWorker.postMessage("Current date from main thread is " + new Date());
   };
-
 }
 function onLoadLibraryClickFn(dynamicLibraryText, initialDynamicLibraryText: string, setDynamicLibraryText) {
   return (event: React.MouseEvent) => {
@@ -160,11 +156,9 @@ function onLoadLibraryClickFn(dynamicLibraryText, initialDynamicLibraryText: str
        * Example of a lazy-loaded library. This library will be bundled in a
        * separate chunk and downloaded on-demand when this code executes.
        */
-      import("@apployees-nx/examples/library1")
-        .then(library1 => {
-          setDynamicLibraryText(library1.library1());
-        });
+      import("@apployees-nx/examples/library1").then(library1 => {
+        setDynamicLibraryText(library1.library1());
+      });
     }
   };
-
 }

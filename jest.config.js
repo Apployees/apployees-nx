@@ -12,12 +12,12 @@ module.exports = {
   testMatch: ["**/+(*.)+(spec|test).+(ts|js)?(x)"],
   testPathIgnorePatterns: ["/node_modules/", "/dist/"],
   transform: {
-    "^.+\\.(ts|js|html)$": "ts-jest"
+    "^.+\\.(ts|js|html)$": "ts-jest",
   },
   resolver: "@nrwl/jest/plugins/resolver",
   moduleFileExtensions: ["ts", "js", "html"],
   // eslint-disable-next-line no-undef
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: __dirname + "/" }),
   coverageReporters: ["html"],
-  passWithNoTests: true
+  passWithNoTests: true,
 };

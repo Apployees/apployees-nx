@@ -1,11 +1,14 @@
-// Adapted from https://github.com/Brooooooklyn/ts-import-plugin/blob/master/src/index.ts
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 
 import * as ts from "typescript";
 import { join as pathJoin, sep } from "path";
-import { ImportTransformerOptions } from "./import-transformer-options";
+import { IImportTransformerOptions } from "./import-transformer-options";
 import _ from "lodash";
 
-export interface ImportedStruct {
+export interface IImportedStruct {
   importName: string;
   variableName?: string;
 }
@@ -33,7 +36,7 @@ function camel2Underline(_str: string) {
 }
 
 function getImportedStructs(node: ts.Node) {
-  const structs = new Set<ImportedStruct>();
+  const structs = new Set<IImportedStruct>();
   node.forEachChild(importChild => {
     if (!ts.isImportClause(importChild)) {
       return;
@@ -66,14 +69,14 @@ function getImportedStructs(node: ts.Node) {
       // import { foo as bar } from 'baz'
       structs.add({
         importName: importSpecifier.propertyName.text,
-        variableName: importSpecifier.name.text
+        variableName: importSpecifier.name.text,
       });
     });
   });
   return structs;
 }
 
-function createDistAst(struct: ImportedStruct, options: ImportTransformerOptions) {
+function createDistAst(struct: IImportedStruct, options: IImportTransformerOptions) {
   const astNodes: ts.Node[] = [];
 
   const { libraryName } = options;
@@ -92,28 +95,19 @@ function createDistAst(struct: ImportedStruct, options: ImportTransformerOptions
       undefined,
       undefined,
       ts.createImportClause(
-        struct.variableName || !options.useDefaultImports
-          ? undefined
-          : ts.createIdentifier(struct.importName),
+        struct.variableName || !options.useDefaultImports ? undefined : ts.createIdentifier(struct.importName),
         struct.variableName
           ? ts.createNamedImports([
               ts.createImportSpecifier(
-                options.useDefaultImports
-                  ? ts.createIdentifier("default")
-                  : ts.createIdentifier(struct.importName),
-                ts.createIdentifier(struct.variableName)
-              )
+                options.useDefaultImports ? ts.createIdentifier("default") : ts.createIdentifier(struct.importName),
+                ts.createIdentifier(struct.variableName),
+              ),
             ])
           : options.useDefaultImports
           ? undefined
-          : ts.createNamedImports([
-              ts.createImportSpecifier(
-                undefined,
-                ts.createIdentifier(struct.importName)
-              )
-            ])
+          : ts.createNamedImports([ts.createImportSpecifier(undefined, ts.createIdentifier(struct.importName))]),
       ),
-      ts.createLiteral(importPath)
+      ts.createLiteral(importPath),
     );
 
     astNodes.push(scriptNode);
@@ -138,7 +132,7 @@ function createDistAst(struct: ImportedStruct, options: ImportTransformerOptions
             undefined,
             undefined,
             undefined,
-            ts.createLiteral(additionalImportPath)
+            ts.createLiteral(additionalImportPath),
           );
           astNodes.push(styleNode);
         }
@@ -152,24 +146,16 @@ function createDistAst(struct: ImportedStruct, options: ImportTransformerOptions
         undefined,
         ts.createImportClause(
           undefined,
-          ts.createNamedImports([
-            ts.createImportSpecifier(
-              undefined,
-              ts.createIdentifier(_importName)
-            )
-          ])
+          ts.createNamedImports([ts.createImportSpecifier(undefined, ts.createIdentifier(_importName))]),
         ),
-        ts.createLiteral(libraryName!)
-      )
+        ts.createLiteral(libraryName!),
+      ),
     );
   }
   return astNodes;
 }
 
-export function importTransformer(
-  _options: Array<ImportTransformerOptions>
-) {
-
+export function importTransformer(_options: Array<IImportTransformerOptions>) {
   const transformer: ts.TransformerFactory<ts.SourceFile> = context => {
     const visitor: ts.Visitor = node => {
       if (ts.isSourceFile(node)) {
@@ -198,7 +184,7 @@ export function importTransformer(
           const nodes = createDistAst(struct, options);
           return acc.concat(nodes);
         },
-        [] as ts.Node[]
+        [] as ts.Node[],
       );
     };
 

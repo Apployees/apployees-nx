@@ -21,6 +21,7 @@
     "plugin:prettier/recommended"
   ],
   "rules": {
+    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-ignore": "off",
@@ -61,11 +62,6 @@
       // default to "createReactClass"
       "pragma": "React",  // Pragma to use, default to "React"
       "version": "detect" // React version. "detect" automatically picks the version you have installed.
-    },
-    "linkComponents": [
-      // Components used as alternatives to <a> for linking, eg. <Link to={ url } />
-      // We use HrefAnchor in Skeletos
-      "HrefAnchor"
-    ]
+    }
   }
 }

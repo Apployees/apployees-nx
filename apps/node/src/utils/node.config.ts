@@ -1,24 +1,28 @@
-import { Configuration } from 'webpack';
-import mergeWebpack from 'webpack-merge';
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
+import { Configuration } from "webpack";
+import mergeWebpack from "webpack-merge";
 
-import { getNodeExternals } from '@apployees-nx/common-build-utils';
-import { getBaseWebpackPartial } from './config';
-import { BuildNodeBuilderOptions } from './node-types';
+import { getNodeExternals } from "@apployees-nx/common-build-utils";
+import { getBaseWebpackPartial } from "./config";
+import { IBuildNodeBuilderOptions } from "./node-types";
 import { BuilderContext } from "@angular-devkit/architect";
 
-function getNodePartial(options: BuildNodeBuilderOptions) {
+function getNodePartial(options: IBuildNodeBuilderOptions) {
   const webpackConfig: Configuration = {
     output: {
-      libraryTarget: 'commonjs'
+      libraryTarget: "commonjs",
     },
-    target: 'node',
-    node: false
+    target: "node",
+    node: false,
   };
 
   if (!options.dev) {
     webpackConfig.optimization = {
       minimize: false,
-      concatenateModules: false
+      concatenateModules: false,
     };
   }
 
@@ -30,9 +34,6 @@ function getNodePartial(options: BuildNodeBuilderOptions) {
   return webpackConfig;
 }
 
-export function getNodeWebpackConfig(options: BuildNodeBuilderOptions, context?: BuilderContext) {
-  return mergeWebpack([
-    getBaseWebpackPartial(options, context),
-    getNodePartial(options)
-  ]);
+export function getNodeWebpackConfig(options: IBuildNodeBuilderOptions, context?: BuilderContext) {
+  return mergeWebpack([getBaseWebpackPartial(options, context), getNodePartial(options)]);
 }

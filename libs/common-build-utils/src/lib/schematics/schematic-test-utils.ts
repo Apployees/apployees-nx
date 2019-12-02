@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import { SchematicTestRunner } from "@angular-devkit/schematics/testing";
 import { Rule, Tree } from "@angular-devkit/schematics";
 import { join } from "path";
@@ -14,29 +18,24 @@ export function callRule(runner: SchematicTestRunner, rule: Rule, tree: Tree) {
   return runner.callRule(rule, tree).toPromise();
 }
 
-
-export interface AppConfig {
+export interface IAppConfig {
   appName: string; // name of app
   appModule: string; // app/app.module.ts in the above sourceDir
 }
-let appConfig: AppConfig; // configure built in createApp()
-export function createApp(
-  tree: Tree,
-  appName: string,
-  routing = true
-): Tree {
+let appConfig: IAppConfig; // configure built in createApp()
+export function createApp(tree: Tree, appName: string, routing = true): Tree {
   appName = toFileName(appName);
   // save for getAppDir() lookup by external *.spec.ts tests
   appConfig = {
     appName,
-    appModule: `/apps/${appName}/src/app/app.module.ts`
+    appModule: `/apps/${appName}/src/app/app.module.ts`,
   };
 
   tree.create(
     appConfig.appModule,
     `
      export function test() { return "hello"; }
-  `
+  `,
   );
   tree.create(
     `/apps/${appName}/src/main.ts`,
@@ -44,24 +43,24 @@ export function createApp(
     import { test } from './app/app.module';
     
     console.log(test());
-  `
+  `,
   );
   tree.create(
     `/apps/${appName}/tsconfig.app.json`,
     JSON.stringify({
-      include: ['**/*.ts']
-    })
+      include: ["**/*.ts"],
+    }),
   );
   tree.create(
     `/apps/${appName}-e2e/tsconfig.e2e.json`,
     JSON.stringify({
-      include: ['../**/*.ts']
-    })
+      include: ["../**/*.ts"],
+    }),
   );
   tree.overwrite(
-    '/workspace.json',
+    "/workspace.json",
     JSON.stringify({
-      newProjectRoot: '',
+      newProjectRoot: "",
       version: 1,
       projects: {
         [appName]: {
@@ -70,16 +69,16 @@ export function createApp(
           architect: {
             build: {
               options: {
-                main: `apps/${appName}/src/main.ts`
-              }
+                main: `apps/${appName}/src/main.ts`,
+              },
             },
             serve: {
-              options: {}
-            }
-          }
-        }
-      }
-    })
+              options: {},
+            },
+          },
+        },
+      },
+    }),
   );
   return tree;
 }
@@ -112,7 +111,7 @@ export class MockBuilderContext implements BuilderContext {
 
   target: Target = {
     project: null,
-    target: null
+    target: null,
   };
 
   get currentDirectory() {
@@ -125,11 +124,7 @@ export class MockBuilderContext implements BuilderContext {
 
   logger = new TestLogger("test");
 
-  constructor(
-    private architect: Architect,
-    private architectHost: TestingArchitectHost
-  ) {
-  }
+  constructor(private architect: Architect, private architectHost: TestingArchitectHost) {}
 
   async addBuilderFromPackage(path: string) {
     return await this.architectHost.addBuilderFromPackage(path);
@@ -143,19 +138,11 @@ export class MockBuilderContext implements BuilderContext {
     return this.architectHost.getBuilderNameForTarget(target);
   }
 
-  scheduleTarget(
-    target: Target,
-    overrides?: JsonObject,
-    scheduleOptions?: ScheduleOptions
-  ) {
+  scheduleTarget(target: Target, overrides?: JsonObject, scheduleOptions?: ScheduleOptions) {
     return this.architect.scheduleTarget(target, overrides, scheduleOptions);
   }
 
-  scheduleBuilder(
-    name: string,
-    overrides?: JsonObject,
-    scheduleOptions?: ScheduleOptions
-  ) {
+  scheduleBuilder(name: string, overrides?: JsonObject, scheduleOptions?: ScheduleOptions) {
     return this.architect.scheduleBuilder(name, overrides, scheduleOptions);
   }
 
@@ -163,22 +150,23 @@ export class MockBuilderContext implements BuilderContext {
     return this.architectHost.getOptionsForTarget(target);
   }
 
-  validateOptions<T extends JsonObject = JsonObject>(
-    options: JsonObject,
-    builderName: string
-  ): Promise<T> {
+  validateOptions<T extends JsonObject = JsonObject>(options: JsonObject, builderName: string): Promise<T> {
     return Promise.resolve<T>(options as T);
   }
 
   reportRunning() {
+    // nothing
   }
 
   reportStatus(status: string) {
+    // nothing
   }
 
   reportProgress(current: number, total?: number, status?: string) {
+    // nothing
   }
 
   addTeardown(teardown: () => Promise<void> | void) {
+    // nothing
   }
 }

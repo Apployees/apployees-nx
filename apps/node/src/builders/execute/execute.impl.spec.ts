@@ -1,24 +1,25 @@
-import {
-  NodeExecuteBuilderOptions,
-  nodeExecuteBuilderHandler
-} from './execute.impl';
-import { of, from } from 'rxjs';
-import * as devkitArchitect from '@angular-devkit/architect';
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
+import { INodeExecuteBuilderOptions, nodeExecuteBuilderHandler } from "./execute.impl";
+import { of, from } from "rxjs";
+import * as devkitArchitect from "@angular-devkit/architect";
 import { getMockContext, InspectType, MockBuilderContext } from "@apployees-nx/common-build-utils";
 
-jest.mock('child_process');
-const { fork } = require('child_process');
-jest.mock('tree-kill');
-const treeKill = require('tree-kill');
+jest.mock("child_process");
+const { fork } = require("child_process");
+jest.mock("tree-kill");
+const treeKill = require("tree-kill");
 
-describe('NodeExecuteBuilder', () => {
-  let testOptions: NodeExecuteBuilderOptions;
+describe("NodeExecuteBuilder", () => {
+  let testOptions: INodeExecuteBuilderOptions;
   let context: MockBuilderContext;
   let scheduleTargetAndForget: jasmine.Spy;
 
   beforeEach(async () => {
     fork.mockReturnValue({
-      pid: 123
+      pid: 123,
     });
     treeKill.mockImplementation((pid, signal, callback) => {
       callback();
@@ -26,231 +27,202 @@ describe('NodeExecuteBuilder', () => {
     context = await getMockContext();
     context.addTarget(
       {
-        project: 'nodeapp',
-        target: 'build'
+        project: "nodeapp",
+        target: "build",
       },
-      '@apployees-nx/node:build'
+      "@apployees-nx/node:build",
     );
     testOptions = {
       inspect: true,
       args: [],
-      buildTarget: 'nodeapp:build',
+      buildTarget: "nodeapp:build",
       port: 9229,
       waitUntilTargets: [],
-      host: 'localhost'
+      host: "localhost",
     };
-    scheduleTargetAndForget = spyOn(
-      devkitArchitect,
-      'scheduleTargetAndForget'
-    ).and.returnValue(of({ success: true, outfile: 'outfile.js' }));
+    scheduleTargetAndForget = spyOn(devkitArchitect, "scheduleTargetAndForget").and.returnValue(
+      of({ success: true, outfile: "outfile.js" }),
+    );
   });
 
-  it('should build the application and start the built file', async () => {
+  it("should build the application and start the built file", async () => {
     await nodeExecuteBuilderHandler(testOptions, context).toPromise();
 
     expect(scheduleTargetAndForget).toHaveBeenCalledWith(
       context,
       {
-        project: 'nodeapp',
-        target: 'build'
+        project: "nodeapp",
+        target: "build",
       },
       {
-        watch: true
-      }
+        watch: true,
+      },
     );
-    expect(fork).toHaveBeenCalledWith('outfile.js', [], {
-      execArgv: [
-        '-r',
-        'source-map-support/register',
-        '--inspect=localhost:9229'
-      ]
+    expect(fork).toHaveBeenCalledWith("outfile.js", [], {
+      execArgv: ["-r", "source-map-support/register", "--inspect=localhost:9229"],
     });
     expect(treeKill).toHaveBeenCalledTimes(0);
     expect(fork).toHaveBeenCalledTimes(1);
   });
 
-  describe('--inspect', () => {
-    describe('inspect', () => {
-      it('should inspect the process', async () => {
+  describe("--inspect", () => {
+    describe("inspect", () => {
+      it("should inspect the process", async () => {
         await nodeExecuteBuilderHandler(
           {
             ...testOptions,
-            inspect: InspectType.Inspect
+            inspect: InspectType.Inspect,
           },
-          context
+          context,
         ).toPromise();
-        expect(fork).toHaveBeenCalledWith('outfile.js', [], {
-          execArgv: [
-            '-r',
-            'source-map-support/register',
-            '--inspect=localhost:9229'
-          ]
+        expect(fork).toHaveBeenCalledWith("outfile.js", [], {
+          execArgv: ["-r", "source-map-support/register", "--inspect=localhost:9229"],
         });
       });
     });
 
-    describe('inspect-brk', () => {
-      it('should inspect and break at beginning of execution', async () => {
+    describe("inspect-brk", () => {
+      it("should inspect and break at beginning of execution", async () => {
         await nodeExecuteBuilderHandler(
           {
             ...testOptions,
-            inspect: InspectType.InspectBrk
+            inspect: InspectType.InspectBrk,
           },
-          context
+          context,
         ).toPromise();
-        expect(fork).toHaveBeenCalledWith('outfile.js', [], {
-          execArgv: [
-            '-r',
-            'source-map-support/register',
-            '--inspect=localhost:9229'
-          ]
+        expect(fork).toHaveBeenCalledWith("outfile.js", [], {
+          execArgv: ["-r", "source-map-support/register", "--inspect=localhost:9229"],
         });
       });
     });
   });
 
-  describe('--host', () => {
-    describe('0.0.0.0', () => {
-      it('should inspect the process on host 0.0.0.0', async () => {
+  describe("--host", () => {
+    describe("0.0.0.0", () => {
+      it("should inspect the process on host 0.0.0.0", async () => {
         await nodeExecuteBuilderHandler(
           {
             ...testOptions,
-            host: '0.0.0.0'
+            host: "0.0.0.0",
           },
-          context
+          context,
         ).toPromise();
-        expect(fork).toHaveBeenCalledWith('outfile.js', [], {
-          execArgv: [
-            '-r',
-            'source-map-support/register',
-            '--inspect=localhost:9229'
-          ]
+        expect(fork).toHaveBeenCalledWith("outfile.js", [], {
+          execArgv: ["-r", "source-map-support/register", "--inspect=localhost:9229"],
         });
       });
     });
   });
 
-  describe('--port', () => {
-    describe('1234', () => {
-      it('should inspect the process on port 1234', async () => {
+  describe("--port", () => {
+    describe("1234", () => {
+      it("should inspect the process on port 1234", async () => {
         await nodeExecuteBuilderHandler(
           {
             ...testOptions,
-            port: 1234
+            port: 1234,
           },
-          context
+          context,
         ).toPromise();
-        expect(fork).toHaveBeenCalledWith('outfile.js', [], {
-          execArgv: [
-            '-r',
-            'source-map-support/register',
-            '--inspect=localhost:1234'
-          ]
+        expect(fork).toHaveBeenCalledWith("outfile.js", [], {
+          execArgv: ["-r", "source-map-support/register", "--inspect=localhost:1234"],
         });
       });
     });
   });
 
-  it('should log errors from killing the process', async done => {
+  it("should log errors from killing the process", async done => {
     treeKill.mockImplementation((pid, signal, callback) => {
-      callback(new Error('Error Message'));
+      callback(new Error("Error Message"));
     });
-    const loggerError = spyOn(context.logger, 'error');
+    const loggerError = spyOn(context.logger, "error");
     scheduleTargetAndForget = scheduleTargetAndForget.and.returnValue(
-      from([
-        { success: true, outfile: 'outfile.js' },
-        { success: true, outfile: 'outfile.js' }
-      ])
+      from([{ success: true, outfile: "outfile.js" }, { success: true, outfile: "outfile.js" }]),
     );
     nodeExecuteBuilderHandler(testOptions, context).subscribe({
       complete: () => {
-        expect(loggerError.calls.argsFor(1)).toEqual(['Error Message']);
+        expect(loggerError.calls.argsFor(1)).toEqual(["Error Message"]);
         done();
-      }
+      },
     });
   });
 
-  it('should log errors from killing the process on windows', async () => {
+  it("should log errors from killing the process on windows", async () => {
     treeKill.mockImplementation((pid, signal, callback) => {
-      callback([new Error('error'), '', 'Error Message']);
+      callback([new Error("error"), "", "Error Message"]);
     });
-    const loggerError = spyOn(context.logger, 'error');
+    const loggerError = spyOn(context.logger, "error");
     scheduleTargetAndForget = scheduleTargetAndForget.and.returnValue(
-      from([
-        { success: true, outfile: 'outfile.js' },
-        { success: true, outfile: 'outfile.js' }
-      ])
+      from([{ success: true, outfile: "outfile.js" }, { success: true, outfile: "outfile.js" }]),
     );
     await nodeExecuteBuilderHandler(testOptions, context).toPromise();
-    expect(loggerError.calls.argsFor(1)).toEqual(['Error Message']);
+    expect(loggerError.calls.argsFor(1)).toEqual(["Error Message"]);
   });
 
-  it('should build the application and start the built file with options', async () => {
+  it("should build the application and start the built file with options", async () => {
     await nodeExecuteBuilderHandler(
       {
         ...testOptions,
         inspect: false,
-        args: ['arg1', 'arg2']
+        args: ["arg1", "arg2"],
       },
-      context
+      context,
     ).toPromise();
-    expect(fork).toHaveBeenCalledWith('outfile.js', ['arg1', 'arg2'], {
-      execArgv: ['-r', 'source-map-support/register']
+    expect(fork).toHaveBeenCalledWith("outfile.js", ["arg1", "arg2"], {
+      execArgv: ["-r", "source-map-support/register"],
     });
   });
 
-  it('should warn users who try to use it in production', async () => {
-    spyOn(context, 'validateOptions').and.returnValue(
+  it("should warn users who try to use it in production", async () => {
+    spyOn(context, "validateOptions").and.returnValue(
       Promise.resolve({
-        dev: false
-      })
+        dev: false,
+      }),
     );
-    spyOn(context.logger, 'warn');
+    spyOn(context.logger, "warn");
     await nodeExecuteBuilderHandler(testOptions, context).toPromise();
     expect(context.logger.warn).toHaveBeenCalled();
   });
 
-  describe('waitUntilTasks', () => {
-    it('should run the tasks before starting the build', async () => {
-      scheduleTargetAndForget = scheduleTargetAndForget.and.returnValue(
-        of({ success: true })
-      );
+  describe("waitUntilTasks", () => {
+    it("should run the tasks before starting the build", async () => {
+      scheduleTargetAndForget = scheduleTargetAndForget.and.returnValue(of({ success: true }));
       await nodeExecuteBuilderHandler(
         {
           ...testOptions,
-          waitUntilTargets: ['project1:target1', 'project2:target2']
+          waitUntilTargets: ["project1:target1", "project2:target2"],
         },
-        context
+        context,
       ).toPromise();
 
       expect(scheduleTargetAndForget).toHaveBeenCalledTimes(3);
       expect(scheduleTargetAndForget).toHaveBeenCalledWith(context, {
-        project: 'project1',
-        target: 'target1'
+        project: "project1",
+        target: "target1",
       });
       expect(scheduleTargetAndForget).toHaveBeenCalledWith(context, {
-        project: 'project2',
-        target: 'target2'
+        project: "project2",
+        target: "target2",
       });
     });
 
-    it('should not run the build if any of the tasks fail', async () => {
+    it("should not run the build if any of the tasks fail", async () => {
       scheduleTargetAndForget = scheduleTargetAndForget.and.callFake(target =>
-        of({ success: target.target === 'project1' })
+        of({ success: target.target === "project1" }),
       );
-      const loggerError = spyOn(context.logger, 'error');
+      const loggerError = spyOn(context.logger, "error");
 
       const output = await nodeExecuteBuilderHandler(
         {
           ...testOptions,
-          waitUntilTargets: ['project1:target1', 'project2:target2']
+          waitUntilTargets: ["project1:target1", "project2:target2"],
         },
-        context
+        context,
       ).toPromise();
       expect(output).toEqual(
         jasmine.objectContaining({
-          success: false
-        })
+          success: false,
+        }),
       );
       expect(loggerError).toHaveBeenCalled();
     });

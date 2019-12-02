@@ -1,4 +1,7 @@
-// es6 style imports
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import _ from "lodash";
 
 // require assignment using a package that is not directly added in the root package.json
@@ -10,28 +13,26 @@ require("typescript");
 // library import that is externalized and not bundled.
 // it is expected that this library would be published independently.
 // See the externalLibraries field in angular.json file
-import {library2} from "@apployees-nx/examples/library2";
+import { library2 } from "@apployees-nx/examples/library2";
 
-interface SomeInterfaceToTryToThrowLineNumbersOff {
+interface ISomeInterfaceToTryToThrowLineNumbersOff {
   x: string;
   y: number;
 }
 
 function isValidVersion(version: string) {
   // lazy loaded node_module
-  import("semver")
-    .then(semver => {
-      console.log(`semver ${version} is valid?? ${!!semver.valid(version)}`);
-    });
+  import("semver").then(semver => {
+    console.log(`semver ${version} is valid?? ${!!semver.valid(version)}`);
+  });
 }
 
 function importLibraries() {
   // lazy loaded library
-  import("@apployees-nx/examples/library1")
-    .then(library1 => {
-      console.log(library2());
-      console.log(library1.library1());
-    })
+  import("@apployees-nx/examples/library1").then(library1 => {
+    console.log(library2());
+    console.log(library1.library1());
+  });
 }
 
 importLibraries();

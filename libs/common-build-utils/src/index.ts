@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 export * from "./lib/builder/sources";
 export * from "./lib/builder/normalize";
 export * from "./lib/builder/common-env-utils";
