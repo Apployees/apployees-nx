@@ -1,4 +1,3 @@
-
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
@@ -7,24 +6,32 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "@nrwl/nx"],
+  "plugins": [
+    "header", // https://github.com/Stuk/eslint-plugin-header
+    "@typescript-eslint",
+    "@nrwl/nx"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended", // https://github.com/yannickcr/eslint-plugin-react
     "prettier",
-    "prettier/@typescript-eslint"
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
   ],
   "rules": {
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
     "@typescript-eslint/explicit-member-accessibility": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/no-parameter-properties": "off",
-    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/interface-name-prefix": [ "error", { "prefixWithI": "always" }],
     "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-var-requires": "off",
-    "no-useless-escape": "off",
-    "no-empty": "off",
+    "no-case-declarations": "off", // Typescript gives an error when we re-declare so we can switch this off safely.
     "@nrwl/nx/enforce-module-boundaries": [
       "error",
       {
@@ -33,14 +40,32 @@
           { "sourceTag": "*", "onlyDependOnLibsWithTags": ["*"] }
         ]
       }
+    ],
+
+    // this is for eslint-plugin-header
+    "header/header": [
+      2, "block", [
+        "******************************************************************************",
+        {"pattern": " \\* © Apployees Inc., \\d{4}", "template": " * © Apployees Inc., 2019"},
+        " * All Rights Reserved.",
+        " *****************************************************************************"
+      ]
     ]
   },
-  "overrides": [
-    {
-      "files": ["*.tsx"],
-      "rules": {
-        "@typescript-eslint/no-unused-vars": "off"
-      }
-    }
-  ]
+
+  "settings": {
+
+    // this is for eslint-plugin-react. See https://github.com/yannickcr/eslint-plugin-react
+    "react": {
+      "createClass": "createReactClass", // Regex for Component Factory to use,
+      // default to "createReactClass"
+      "pragma": "React",  // Pragma to use, default to "React"
+      "version": "detect" // React version. "detect" automatically picks the version you have installed.
+    },
+    "linkComponents": [
+      // Components used as alternatives to <a> for linking, eg. <Link to={ url } />
+      // We use HrefAnchor in Skeletos
+      "HrefAnchor"
+    ]
+  }
 }

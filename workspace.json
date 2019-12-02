@@ -320,6 +320,19 @@
             "tsConfig": "apps/examples/webserver/tsconfig.app.json",
             "assets": [
               "apps/examples/webserver/src/public"
+            ],
+            "importTransformers": [
+              {
+                "libraryName": "antd",
+                "subdirectory": "lib",
+                "transformCamel2Dash": true,
+                "useDefaultImports": true,
+                "additionalImports": {
+                  "Row": ["../grid/style/index.less"],
+                  "Col": ["../grid/style/index.less"],
+                  "*": ["style/index.less"]
+                }
+              }
             ]
           },
           "configurations": {
@@ -336,7 +349,8 @@
             },
             "development": {
               "extractLicenses": false,
-              "dev": true
+              "dev": true,
+              "devClientBundleAnalyzer": false
             }
           }
         },

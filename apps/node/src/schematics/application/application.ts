@@ -196,11 +196,11 @@ export default function(schema: Schema): Rule {
       updateRootPackageJson(options),
       options.unitTestRunner === 'jest'
         ? externalSchematic('@nrwl/jest', 'jest-project', {
-            project: options.name,
-            setupFile: 'none',
-            supportTsx: true,
-            skipSerializers: true
-          })
+          project: options.name,
+          setupFile: 'none',
+          supportTsx: true,
+          skipSerializers: true
+        })
         : noop(),
       options.frontendProject ? addProxy(options) : noop()
     ])(host, context);

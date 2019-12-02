@@ -10,7 +10,7 @@ let app = require("./server").default;
  * The following code block will ensure all server-side code can be hot-reloaded.
  * Remove it if you do not want hot-code reload on server.
  */
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV === "development") {
   if ((module as any).hot) {
     (module as any).hot.accept('./server', () => {
       console.log('Server reloading...');

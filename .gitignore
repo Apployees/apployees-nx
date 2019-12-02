@@ -12,7 +12,6 @@
 *.tgz
 *.swp
 *.orig
-.vagrant
 
 # ======================================================================================================================
 # Temporary folders
@@ -28,10 +27,17 @@ lib-cov
 # ======================================================================================================================
 node_modules
 
+## Yarn.lock file generated in sub-packages:
+## Need to comment this out when https://github.com/yarnpkg/yarn/issues/5428 is resolved.
+packages/**/**/yarn.lock
+
 # Ignore npm lock file
 package-lock.json
 
 jspm_packages/
+
+yarn_cache
+.kube
 
 # ======================================================================================================================
 # Editors
@@ -42,9 +48,10 @@ jspm_packages/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-/.idea
+.idea/*
 !.idea/runConfigurations
 !.idea/copyright
+!.idea/apployees.iml
 
 .project
 .classpath
@@ -52,6 +59,13 @@ jspm_packages/
 *.launch
 .settings/
 *.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # ======================================================================================================================
 # OS stupidity
@@ -62,35 +76,43 @@ Thumbs.db
 # ======================================================================================================================
 # Builds
 # ======================================================================================================================
+dist
 **/dist/**/*
 *.build.output
 *.tsbuildinfo
-/out-tsc
+out-tsc
+**/out-tsc/**/*
 
 # Serverless directories
 .build
 .serverless
 
 # Logs
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
+.sass-cache
+connect.lock
+coverage
+libpeerconnection.log
 npm-debug.log
 yarn-error.log
 testem.log
 
 # ======================================================================================================================
+# Script outputs
+# ======================================================================================================================
+# Vagrants temp files
+packages/__devops/vagrant/**/.vagrant
+
+
+# ======================================================================================================================
 # Tests
 # ======================================================================================================================
-## Let's not ignore .jest as it contains information for incremental unit testing
-# **/.jest/**/*
-
+.jest
 **/junit.xml
-coverage/
 junit.xml
-test-reports/
-**/__image_snapshots__/__diff_output__/
+coverage
+test-reports
+**/__image_snapshots__/__diff_output__
+__image_snapshots__/__diff_output__
 .nyc_output
 
 # ======================================================================================================================

@@ -51,7 +51,7 @@ export function getClientConfig(
     ? `static/js/[name]${hashFormat.chunk}${suffixFormat}.js`
     : "static/js/[name].js";
 
-  const shouldUseSourceMap = options.sourceMap;
+  const shouldUseSourceMap = isEnvDevelopment; // clients never have source maps in production code
 
   const webserverEnvironmentVariables = getWebserverEnvironmentVariables(options, context, true);
 
@@ -79,11 +79,7 @@ export function getClientConfig(
     mode: isEnvProduction ? "production" : "development",
     // Stop compilation early in production
     bail: isEnvProduction,
-    devtool: isEnvProduction
-      ? shouldUseSourceMap
-        ? "source-map"
-        : false
-      : "eval-source-map",
+    devtool: shouldUseSourceMap ? "eval-source-map" : false,
     entry: entries,
     output: {
       // The build folder.
@@ -157,7 +153,7 @@ export function getClientConfig(
           esm,
           options.verbose,
           isEnvDevelopment,
-          false // isEnvServer
+          false, // isEnvServer
         ),
         {
           test: /\.worker\.js$/,
@@ -370,6 +366,7 @@ export function createTerserPlugin(shouldUseSourceMap: boolean) {
         comments: false,
         // Turned on because emoji and regex is not minified properly using default
         // https://github.com/facebook/create-react-app/issues/2488
+        // eslint-disable-next-line @typescript-eslint/camelcase
         ascii_only: true
       }
     },
@@ -431,6 +428,7 @@ function generateManifestContents(publicPath, files, seed,
   }
 
   if (!suppliedManifest.start_url && envVars.raw["PUBLIC_URL"]) {
+    // eslint-disable-next-line @typescript-eslint/camelcase
     suppliedManifest.start_url = envVars.raw["PUBLIC_URL"];
   }
 

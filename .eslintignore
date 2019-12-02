@@ -7,3 +7,5 @@ coverage/
 test-reports/
 .terraform
 terraform
+plopfile.js
+plop-generators/**

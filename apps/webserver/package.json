@@ -1,6 +1,6 @@
 {
   "name": "@apployees-nx/webserver",
-  "description": "An create-react-app inspired Webserver Plugin for Nx, with SSR and PWA capabilities.",
+  "description": "A create-react-app inspired plugin for Nx, with SSR and PWA capabilities.",
   "keywords": [
     "Monorepo",
     "Webserver",
@@ -22,20 +22,11 @@
     "migrations": "./migrations.json"
   },
   "dependencies": {
-    "@babel/core": "^7.6.0",
-    "@babel/plugin-transform-runtime": "^7.6.2",
-    "@babel/runtime": "^7.6.3",
     "autoprefixer": "^9.6.1",
-    "babel-loader": "^8.0.6",
     "@svgr/webpack": "^4.3.3",
-    "babel-plugin-import": "^1.12.2",
-    "babel-plugin-transform-async-to-promises": "^0.8.14",
     "react-app-polyfill": "^1.0.4",
     "selfsigned": "^1.10.7",
-    "styled-components": "^4.3.2",
     "node-sass": "^4.13.0",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
     "less": "^3.10.3",
     "fork-ts-checker-webpack-plugin": "^1.5.0",
     "camelcase": "^5.3.1"

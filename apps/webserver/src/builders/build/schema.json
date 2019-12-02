@@ -243,6 +243,47 @@
       },
       "default": []
     },
+    "importTransformers": {
+      "description": "Transform imports in Typescript code -- use this to only import a subset of modules from a package.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "libraryName": {
+            "type": "string",
+            "description": "The name of the library import, e.g. 'antd' or 'lodash'."
+          },
+          "subdirectory": {
+            "type": "string",
+            "default": "lib",
+            "description": "Where in the module is the named import is located. For example, if you specify `import { TimePicker } from \"antd\"`, and if the value of `subdirectory` is `lib`, then it will transform to `import TimePicker from 'antd/lib/time-picker';` -- i.e. the path to require from is {moduleName}/{subdirectory}/{namedImport}."
+          },
+          "transformCamel2Dash": {
+            "type": "boolean",
+            "default": true,
+            "description": "Converts a named import from camelcase into one with dashes. E.g. Converts `import { TimePicker } from \"antd\"` to `import TimePicker from 'antd/lib/time-picker';` -- notice how it converted `antd/lib/TimePicker` to `antd/lib/time-picker`."
+          },
+          "transformCamel2Underline": {
+            "type": "boolean",
+            "default": false,
+            "description": "Converts a named import from camelcase into one with underlines. E.g. Converts `import { TimePicker } from \"antd\"` to `import TimePicker from 'antd/lib/time_picker';` -- notice how it converted `antd/lib/TimePicker` to `antd/lib/time_picker`."
+          },
+          "useDefaultImports": {
+            "type": "boolean",
+            "default": true,
+            "description": "Set this option to `false` if your module does not have a default export. If this is `true`, you should have `allowSyntheticDefaultImports` set to true in your tsconfig.json."
+          },
+          "additionalImports": {
+            "type": "object",
+            "default": {},
+            "description": "An object where the key is a string that represents the name of the import, and the value is a list of strings that represent the paths to the additional imports relative to the transformed import directory. This is useful if you have to import any additional associated modules such as css or less files. A key \"*\" will apply to all the rest of the imports that don't match the other keys. E.g. if you specify `{\"Row\": \"[\"style/index.css\"]\", \"*\": [\"style/index.less\"]}` then an import such as `import { TimePicker } from \"antd\"` will be transformed into two import statements: (1) `import TimePicker from 'antd/lib/time-picker';`, (2) `import 'antd/lib/time-picker/style/index.less';`. The (2) import in the example will then be subject to the less loaders from webpack. Additionally, an import such as `import { Row } from \"antd\"` will be transformed into: (1) `import Row from 'antd/lib/row';`, (2) `import 'antd/lib/row/style/index.css';`. Notice how it used index.css for the row since it matched the `Row` key in the object, but for TimePicker it used index.less since it matched `*`."
+          }
+        },
+        "additionalProperties": false,
+        "required": ["libraryName"]
+      },
+      "default": []
+    },
     "lessStyleVariables": {
       "type": "string",
       "description": "Path to a .less file that defines variables that will be loaded by less-loader. Use this to customize the theme for various frameworks like AntD."

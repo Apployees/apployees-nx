@@ -43,7 +43,7 @@ export function getStatsConfig(options: BuildBuilderOptions): Stats.ToStringOpti
     warnings: true,
     errors: true,
     colors: !options.verbose && !options.statsJson,
-    chunks: !options.verbose,
+    chunks: !options.verbose && !options.dev,
     assets: !!options.verbose,
     chunkOrigins: !!options.verbose,
     chunkModules: !!options.verbose,

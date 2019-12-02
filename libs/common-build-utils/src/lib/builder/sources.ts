@@ -1,7 +1,7 @@
 import { BuilderContext } from '@angular-devkit/architect';
 import { workspaces } from '@angular-devkit/core';
 import { NodeJsSyncHost } from '@angular-devkit/core/node';
-import { ProjectNode } from '@nrwl/workspace/src/command-line/affected-apps';
+import { ProjectNode } from '@nrwl/workspace/src/command-line/shared';
 import { appRootPath } from '@nrwl/workspace/src/utils/app-root';
 import { fileExists } from '@nrwl/workspace/src/utils/fileutils';
 import { readJsonFile } from '@angular-devkit/schematics/tools/file-system-utility';

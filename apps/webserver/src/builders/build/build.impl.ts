@@ -106,6 +106,7 @@ function run(
                 const protocol = options.devHttps ? "https" : "http";
 
                 options.assetsUrl = `${protocol}://${options.devHost}:${webpackPort}/`;
+                // eslint-disable-next-line @typescript-eslint/camelcase
                 options.devUrls_calculated = prepareUrls(protocol, options.devHost, appPort);
 
                 return options;
@@ -216,7 +217,6 @@ function run(
           /**
            * Run the webpack for server and webpack for client.
            */
-
           return forkJoin(
             runWebpack(serverConfig, context, {
               logging: stats => {
@@ -281,6 +281,7 @@ function run(
 
 function printHostingInstructions(options: BuildWebserverBuilderOptions) {
   const assetsPath = options.assetsUrl;
+  // eslint-disable-next-line @typescript-eslint/camelcase
   const publicOutputFolder_calculated = options.publicOutputFolder_calculated;
   const buildFolder = options.outputPath;
 

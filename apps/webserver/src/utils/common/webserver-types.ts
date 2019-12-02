@@ -4,6 +4,7 @@ import {
   FileReplacement,
   InspectType
 } from '@apployees-nx/common-build-utils';
+import { ImportTransformerOptions } from "./import-transformer-options";
 
 export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   devHost?: string;
@@ -43,4 +44,5 @@ export interface BuildWebserverBuilderOptions extends BuildBuilderOptions {
   inspectHost?: string;
   inspectPort?: number;
   devClientBundleAnalyzer?: boolean;
+  importTransformers: ImportTransformerOptions[];
 }

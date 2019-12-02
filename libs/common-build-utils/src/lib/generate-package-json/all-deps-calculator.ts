@@ -1,7 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { lastModifiedAmongProjectFiles, mtime, normalizedProjectRoot } from '@nrwl/workspace/src/command-line/shared';
 import { appRootPath } from '@nrwl/workspace/src/utils/app-root';
-import { ProjectNode } from '@nrwl/workspace/src/command-line/affected-apps';
+import { ProjectNode } from '@nrwl/workspace/src/command-line/shared';
 import { directoryExists, fileExists } from '@nrwl/workspace/src/utils/fileutils';
 import { readJsonFile } from '@angular-devkit/schematics/tools/file-system-utility';
 import * as path from 'path';

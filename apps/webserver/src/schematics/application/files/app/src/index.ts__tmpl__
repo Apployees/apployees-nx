@@ -9,7 +9,7 @@ let app = require("./server").default;
  * The following code block will ensure all server-side code can be hot-reloaded.
  * Remove it if you do not want hot-code reload on server.
  */
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV === "development") {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((module as any).hot) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,3 +1,4 @@
+import "source-map-support";
 import webpack, { Configuration } from "webpack";
 import path, { dirname } from "path";
 import { LicenseWebpackPlugin } from "license-webpack-plugin";
@@ -50,7 +51,7 @@ export function getServerConfig(
       ? shouldUseSourceMap
         ? "source-map"
         : false
-      : "eval-source-map",
+      : "inline-source-map",
     entry: [
       isEnvDevelopment && "webpack/hot/poll?100",
       options.serverMain

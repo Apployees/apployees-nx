@@ -1,9 +1,14 @@
 console.log('Hello World!');
 
 /**
- * @apployees-nx/webserver Typescript compiler along with Babel. Typescript compiler works
- * on the entire dependency graph starting with the input files, and is able to
- * offer features such as namespaces that can be resolved across namespaces.
+ * Why is this `export const noop = 0;` here?
+ *
+ * See https://github.com/microsoft/TypeScript/issues/15230
+ *
+ * tl;dr:
+ *
+ * The Typescript compiler works on the entire dependency graph starting with the input files,
+ * and is able to offer features such as namespaces that can be resolved across namespaces.
  *
  * Babel, however, only works with single modules, and thus cannot offer features
  * such as namespaces across the workspace.
