@@ -201,8 +201,7 @@ export function getClientConfig(
         ),
       ),
 
-      isEnvProduction &&
-        options.favicon &&
+      options.favicon &&
         new FaviconsWebpackPlugin({
           logo: options.favicon,
           cache: true,
