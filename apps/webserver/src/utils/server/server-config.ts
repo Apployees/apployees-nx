@@ -128,6 +128,7 @@ export function getServerConfig(
       isEnvDevelopment &&
         new StartServerPlugin({
           name: "index.js",
+          signal: false,
           nodeArgs,
         }),
       isEnvDevelopment && new webpack.WatchIgnorePlugin([options.publicOutputFolder_calculated]),
