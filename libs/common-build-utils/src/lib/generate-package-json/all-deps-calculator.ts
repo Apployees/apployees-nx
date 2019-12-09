@@ -140,6 +140,7 @@ class DepsCalculator {
 
   private projectPackageJson: IPackageJson;
   private packageVersionsReference: PackageJsonDependencies;
+  private alreadyCrawled = false;
 
   constructor(
     private npmScope: string,
@@ -166,6 +167,8 @@ class DepsCalculator {
    * Generate the package.json for this project.
    */
   generatePackageJson(): IPackageJson {
+    this.alreadyCrawled = true;
+
     // first generate this project's package.json
     const thisProjectPackageJson = this.generatePackageJsonOnly();
 
@@ -173,8 +176,8 @@ class DepsCalculator {
     // dependent projects too, since we passed the same object to all DepsCalculator
     // objects of dependencies (see #addDepIfNeeded).
     _.forEach(this.dependentProjects, (deps, projectPath) => {
-      if (projectPath !== this.project.root) {
-        const depPackageJson = deps.generatePackageJsonOnly();
+      if (projectPath !== this.project.root && !deps.alreadyCrawled) {
+        const depPackageJson = deps.generatePackageJson();
         this.mergeDependencies(thisProjectPackageJson, depPackageJson);
       }
     });
@@ -186,8 +189,16 @@ class DepsCalculator {
    * Process a file and update it's dependencies
    */
   processFile(filePath: string): void {
-    const extension = path.extname(filePath);
-    if (extension !== ".ts" && extension !== ".tsx" && extension !== ".js" && extension !== ".jsx") {
+    const parsedPath = path.parse(filePath);
+    if (
+      (parsedPath.ext !== ".ts" &&
+        parsedPath.ext !== ".tsx" &&
+        parsedPath.ext !== ".js" &&
+        parsedPath.ext !== ".jsx") ||
+      parsedPath.dir.indexOf("__tests__") >= 0 ||
+      parsedPath.name.endsWith(".spec") ||
+      parsedPath.name.toLowerCase().endsWith("test")
+    ) {
       return;
     }
     const content = this.fileRead(filePath);
@@ -394,7 +405,7 @@ class DepsCalculator {
       // as well.
       if (!this.dependentProjects[matchingProject.root]) {
         // we have not yet crawled this dependent project...so do it.
-        new DepsCalculator(
+        const depsCalculator = new DepsCalculator(
           this.npmScope,
           matchingProject,
           this.allProjects,
@@ -405,6 +416,8 @@ class DepsCalculator {
           this.isLibraryExternalized,
           this.dependentProjects,
         );
+
+        this.dependentProjects[matchingProject.root] = depsCalculator;
       } // else we don't need to do anything since we already crawled it.
     } else {
       // if the library is externalized, then it means we are not bundling this
