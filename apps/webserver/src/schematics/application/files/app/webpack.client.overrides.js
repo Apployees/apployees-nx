@@ -1,7 +1,3 @@
-/*******************************************************************************
- * © Apployees Inc., 2019
- * All Rights Reserved.
- ******************************************************************************/
 const path = require("path");
 
 module.exports = function override(config, { options, configuration }) {

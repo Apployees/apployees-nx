@@ -5,5 +5,3 @@ describe("something", () => {
     expect(because).toEqual("why-not");
   })
 });
-
-export const noop = 0;
