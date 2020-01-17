@@ -35,7 +35,7 @@ export function getBaseWebpackPartial(options: IBuildNodeBuilderOptions, context
       },
       options.otherEntries,
     ),
-    devtool: isEnvProduction ? (shouldUseSourceMap ? "source-map" : false) : "eval-source-map",
+    devtool: isEnvProduction ? (shouldUseSourceMap ? "source-map" : false) : "inline-source-map",
     mode: isEnvDevelopment ? "development" : "production",
     output: {
       path: options.outputPath,
