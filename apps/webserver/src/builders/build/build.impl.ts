@@ -23,7 +23,7 @@ import { getServerConfig } from "../../utils/server/server-config";
 import { getClientConfig } from "../../utils/client/client-config";
 import { checkBrowsers } from "react-dev-utils/browsersHelper";
 import FileSizeReporter from "react-dev-utils/FileSizeReporter";
-import { choosePort, createCompiler, prepareUrls } from "react-dev-utils/WebpackDevServerUtils";
+import { choosePort, createCompiler, prepareUrls, printInstructions } from "../../utils/client/WebpackDevServerUtils";
 import errorOverlayMiddleware from "react-dev-utils/errorOverlayMiddleware";
 import evalSourceMapMiddleware from "react-dev-utils/evalSourceMapMiddleware";
 import _ from "lodash";
@@ -276,6 +276,7 @@ function run(
 
           return clientBuildEventOrDevServerBuildOutput;
         } else {
+          printInstructions(context.target.project, options.devUrls_calculated, yarnExists);
           return clientBuildEventOrDevServerBuildOutput;
         }
       },
@@ -320,15 +321,12 @@ function createWebpackServerOptions(
   context: BuilderContext,
   serverReference: IWebpackDevServerReference,
 ) {
-  const config: WebpackDevServer.Configuration = {
+  const config: WebpackDevServer.Configuration & {logLevel: string} = {
     // this needs to remain disabled because our webpackdevserver runs on a
     // different port than the server app.
     disableHostCheck: true,
     // Enable gzip compression of generated files.
     compress: true,
-    // Silence WebpackDevServer's own logs since they're generally not useful.
-    // It will still show compile warnings and errors with this setting.
-    clientLogLevel: "none",
     // Enable hot reloading server. It will provide /sockjs-node/ endpoint
     // for the WebpackDevServer client so it can learn when the files were
     // updated. The WebpackDevServer client is included as an entry point
@@ -341,6 +339,9 @@ function createWebpackServerOptions(
     // WebpackDevServer is noisy by default so we emit custom message instead
     // by listening to the compiler events with `compiler.hooks[...].tap` calls above.
     quiet: true,
+    // Silence WebpackDevServer's own logs since they're generally not useful.
+    // It will still show compile warnings and errors with this setting.
+    logLevel: "warn",
     // Reportedly, this avoids CPU overload on some systems.
     // https://github.com/facebook/create-react-app/issues/293
     // src/node_modules is not ignored to support absolute imports

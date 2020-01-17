@@ -35,13 +35,13 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
     isEnvDevelopment &&
       options.notifier !== false &&
       new WebpackNotifier({
-        title: context.target.project,
+        title: `(${isEnvClient ? "Client" : "Server"}) ${context.target.project}`,
         ...notifierOptions,
       }),
     isEnvDevelopment &&
       options.notifier !== false &&
       new ForkTsNotifier({
-        title: context.target.project,
+        title: `(${isEnvClient ? "Client" : "Server"}) ${context.target.project}`,
         ...notifierOptions,
         skipSuccessful: true, // always skip successful for fork otherwise we get duplicate notifications
       }),
