@@ -76,6 +76,7 @@ function run(
     },
   };
   let yarnExists;
+  let devClientFirstTimeComplete = false, devServerFirstTimeComplete = false;
 
   return from(getSourceRoot(context)).pipe(
     map(sourceRoot => normalizeBuildOptions(options, context, sourceRoot)),
@@ -172,6 +173,10 @@ function run(
             runWebpack(serverConfig, context, {
               logging: stats => {
                 context.logger.info(stats.toString(serverConfig.stats));
+                devServerFirstTimeComplete = true;
+                if (devClientFirstTimeComplete && devServerFirstTimeComplete) {
+                  printInstructions(context.target.project, options.devUrls_calculated, yarnExists);
+                }
               },
               webpackFactory: (config: Configuration) =>
                 of(
@@ -191,6 +196,10 @@ function run(
             runWebpackDevServer(clientConfig, context, {
               logging: stats => {
                 context.logger.info(stats.toString(clientConfig.stats));
+                devClientFirstTimeComplete = true;
+                if (devClientFirstTimeComplete && devServerFirstTimeComplete) {
+                  printInstructions(context.target.project, options.devUrls_calculated, yarnExists);
+                }
               },
               devServerConfig: createWebpackServerOptions(options, context, devServer),
               webpackFactory: (config: webpack.Configuration) =>
@@ -321,7 +330,7 @@ function createWebpackServerOptions(
   context: BuilderContext,
   serverReference: IWebpackDevServerReference,
 ) {
-  const config: WebpackDevServer.Configuration & {logLevel: string} = {
+  const config: WebpackDevServer.Configuration & { logLevel?: string } = {
     // this needs to remain disabled because our webpackdevserver runs on a
     // different port than the server app.
     disableHostCheck: true,

@@ -128,7 +128,7 @@ export function createCompiler({
   // recompiling a bundle. WebpackDevServer takes care to pause serving the
   // bundle, so if you refresh, it'll wait instead of serving the old one.
   // "invalid" is short for "bundle invalidated", it doesn't imply any errors.
-  compiler.hooks.invalid.tap('invalid', () => {
+  compiler.hooks.invalid.tap(`${appName}-invalid`, () => {
     if (isInteractive) {
       clearConsole();
     }
@@ -140,7 +140,7 @@ export function createCompiler({
   let tsMessagesResolver;
 
   if (useTypeScript) {
-    compiler.hooks.beforeCompile.tap('beforeCompile', () => {
+    compiler.hooks.beforeCompile.tap(`${appName}-beforeCompile`, () => {
       tsMessagesPromise = new Promise(resolve => {
         tsMessagesResolver = msgs => resolve(msgs);
       });
@@ -148,7 +148,7 @@ export function createCompiler({
 
     forkTsCheckerWebpackPlugin
       .getCompilerHooks(compiler)
-      .receive.tap('afterTypeScriptCheck', (diagnostics, lints) => {
+      .receive.tap(`${appName}-afterTypeScriptCheck`, (diagnostics, lints) => {
       const allMsgs = [...diagnostics, ...lints];
       const format = message =>
         `${message.file}\n${typescriptFormatter(message, true)}`;
@@ -164,7 +164,7 @@ export function createCompiler({
 
   // "done" event fires when Webpack has finished recompiling the bundle.
   // Whether or not you have warnings or errors, you will get this event.
-  compiler.hooks.done.tap('done', async stats => {
+  compiler.hooks.done.tap(`${appName}-done`, async stats => {
     // We have switched off the default Webpack output in WebpackDevServer
     // options so we are going to "massage" the warnings and errors and present
     // them in a readable focused way.
@@ -184,6 +184,12 @@ export function createCompiler({
       );
 
       const messages = await tsMessagesPromise;
+      console.log(
+        chalk.yellow(
+          `(${appName}) typecheck results completed.`
+        )
+      );
+
       if (tscCompileOnError) {
         statsData.warnings.push(...messages.errors);
       } else {
@@ -255,11 +261,11 @@ export function createCompiler({
     arg => arg.indexOf('--smoke-test') > -1
   );
   if (isSmokeTest) {
-    compiler.hooks.failed.tap('smokeTest', async () => {
+    compiler.hooks.failed.tap(`${appName}-smokeTest`, async () => {
       await tsMessagesPromise;
       process.exit(1);
     });
-    compiler.hooks.done.tap('smokeTest', async stats => {
+    compiler.hooks.done.tap(`${appName}-smokeTest`, async stats => {
       await tsMessagesPromise;
       if (stats.hasErrors() || stats.hasWarnings()) {
         process.exit(1);

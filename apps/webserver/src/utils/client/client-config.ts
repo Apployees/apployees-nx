@@ -94,8 +94,6 @@ export function getClientConfig(
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: isEnvDevelopment,
       filename,
-      // TODO: remove this when upgrading to webpack 5
-      futureEmitAssets: false,
       chunkFilename,
       // We use "/" in development, can be configured in production
       publicPath: publicPath,

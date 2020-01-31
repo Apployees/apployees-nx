@@ -43,13 +43,18 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
       : cssOptions;
 
     return [
-      isEnvDevelopment && _.isString(require.resolve("style-loader"))
+      // For some reason, webpack is unable to load the CSS
+      // files that are extracted from this MiniCssExtractPlugin
+      // Therefore, for now, we are going to use style-loader regardless of dev or production mode,
+      // and comment out MiniCssExtractPlugin
+
+      /*isEnvDevelopment && **/_.isString(require.resolve("style-loader"))
         ? require.resolve("style-loader")
         : "style-loader",
-      isEnvProduction && {
-        loader: MiniCssExtractPlugin.loader,
-        options: Object.assign({}, shouldUseRelativeAssetPaths ? { publicPath: "../../" } : undefined),
-      },
+      //isEnvProduction && {
+      //  loader: MiniCssExtractPlugin.loader,
+      //  options: shouldUseRelativeAssetPaths ? { publicPath: '../../' } : {},
+      //},
       {
         loader: _.isString(require.resolve("css-loader")) ? require.resolve("css-loader") : "css-loader",
         options: {
