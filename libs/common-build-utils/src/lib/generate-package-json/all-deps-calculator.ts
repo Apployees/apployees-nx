@@ -3,21 +3,21 @@
  * All Rights Reserved.
  ******************************************************************************/
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { lastModifiedAmongProjectFiles, mtime, normalizedProjectRoot } from "@nrwl/workspace/src/command-line/shared";
 import { appRootPath } from "@nrwl/workspace/src/utils/app-root";
-import { ProjectNode } from "@nrwl/workspace/src/command-line/shared";
 import { directoryExists, fileExists } from "@nrwl/workspace/src/utils/fileutils";
 import { readJsonFile } from "@angular-devkit/schematics/tools/file-system-utility";
 import * as path from "path";
 import * as ts from "typescript";
 import { DependencyType } from "@nrwl/workspace/src/command-line/deps-calculator";
-import { output } from "@nrwl/workspace";
+import { output, readNxJson, readWorkspaceJson } from "@nrwl/workspace";
 import { BuilderContext } from "@angular-devkit/architect";
 import { getExternalizedLibraryImports } from "../node-externals/externalized-imports";
 import * as _ from "lodash";
 import * as stringify from "json-stable-stringify";
 import { ExternalDependencies } from "../types/common-types";
 import { readRootPackageJson } from "../builder/sources";
+import { createProjectGraph, ProjectGraphNode } from "@nrwl/workspace/src/core/project-graph";
+import {FileData, mtime, normalizedProjectRoot} from "@nrwl/workspace/src/core/file-utils";
 
 /**
  * Package name to version number to be used in package.json files.
@@ -45,15 +45,40 @@ export type IPackageJson = {
 
 export function doWritePackageJson(
   npmScope: string,
-  project: ProjectNode,
-  allProjects: ProjectNode[],
+  projectGraphNode: ProjectGraphNode,
+  allProjectGraphNodes: ProjectGraphNode[],
   context: BuilderContext,
   externalDependencies: ExternalDependencies,
   externalLibraries: ExternalDependencies,
 ): void {
+  // first read the workspace json and get the roots and build targets in architect
+  const workspaceJson = readWorkspaceJson();
+
+  const project = {
+    graph: projectGraphNode,
+    root: workspaceJson.projects[projectGraphNode.name].root,
+    architect: workspaceJson.projects[projectGraphNode.name].architect,
+  } as IProjectNode;
+
+  const allProjects: IProjectNode[] = _.reduce(
+    allProjectGraphNodes,
+    (agg, graphNode) => {
+      if ((graphNode.type === "app" || graphNode.type === "lib") &&
+          workspaceJson.projects[graphNode.name]) {
+        agg.push({
+          graph: graphNode,
+          root: workspaceJson.projects[graphNode.name].root,
+          architect: workspaceJson.projects[graphNode.name].architect,
+        } as IProjectNode);
+      }
+
+      return agg;
+    },
+    [],
+  );
+
   const projectOutputPath = getProjectOutputPath(project, context);
   const distPackageJsonPath = `${projectOutputPath}/package.json`;
-  const m = lastModifiedAmongProjectFiles([project]);
   if (!directoryExists(projectOutputPath)) {
     console.log(`Trying to mkdirSync ${projectOutputPath}`);
     mkdirSync(projectOutputPath);
@@ -62,8 +87,8 @@ export function doWritePackageJson(
     ? (readJsonFile(distPackageJsonPath) as IPackageJson)
     : null;
 
-  if (!existingBuiltPackageJson || m > mtime(distPackageJsonPath)) {
-    const rootPackageJson = readRootPackageJson(project);
+  if (!existingBuiltPackageJson) {
+    const rootPackageJson = readRootPackageJson();
 
     const isLibraryExternalized = getExternalizedLibraryImports(externalLibraries, npmScope);
 
@@ -95,7 +120,7 @@ export function doWritePackageJson(
   }
 }
 
-function getProjectOutputPath(project: ProjectNode, context: BuilderContext): string {
+function getProjectOutputPath(project: IProjectNode, context: BuilderContext): string {
   let outputPath;
   const target = context.target.target;
   if (project.architect[target].options) {
@@ -144,8 +169,8 @@ class DepsCalculator {
 
   constructor(
     private npmScope: string,
-    private project: ProjectNode,
-    private allProjects: ProjectNode[],
+    private project: IProjectNode,
+    private allProjects: IProjectNode[],
     private fileRead: (s: string) => string,
     private context: BuilderContext,
     private rootPackageJson: IPackageJson,
@@ -188,7 +213,8 @@ class DepsCalculator {
   /**
    * Process a file and update it's dependencies
    */
-  processFile(filePath: string): void {
+  processFile(fileData: FileData): void {
+    const filePath = fileData.file;
     const parsedPath = path.parse(filePath);
     if (
       (parsedPath.ext !== ".ts" &&
@@ -321,10 +347,10 @@ class DepsCalculator {
    * dependent project's package.json.
    */
   private generatePackageJsonOnly(): IPackageJson {
-    _.forEach(this.project.files, this.processFile.bind(this));
+    _.forEach(this.project.graph.data.files, this.processFile.bind(this));
 
     if (!this.projectPackageJson.name) {
-      const normalizedRoot = normalizedProjectRoot(this.project);
+      const normalizedRoot = normalizedProjectRoot(this.project.graph);
       const fullDependencyScope = `@${this.npmScope}/${normalizedRoot}`;
 
       this.projectPackageJson.name = fullDependencyScope;
@@ -373,7 +399,7 @@ class DepsCalculator {
 
   private addDepIfNeeded(expr: string, filePath: string, depType: DependencyType) {
     const matchingProject = this.allProjects.filter(a => {
-      const normalizedRoot = normalizedProjectRoot(a);
+      const normalizedRoot = normalizedProjectRoot(a.graph);
       return (
         expr === `@${this.npmScope}/${normalizedRoot}` ||
         expr.startsWith(`@${this.npmScope}/${normalizedRoot}#`) ||
@@ -514,8 +540,9 @@ class DepsCalculator {
   }
 
   /**
-   * Consolidates all dependencies, peerDependencies, devDependencies, etc. into a single map from across the given
-   * packageJsonFiles. The higher index number files in the given array overwrite the lower index files.
+   * Consolidates all dependencies, peerDependencies, devDependencies, etc. into a single map from
+   * across the given packageJsonFiles. The higher index number files in the given array overwrite
+   * the lower index files.
    * @param packageJsonFiles
    */
   private consolidateAllDependenciesIntoMap(packageJsonFiles: IPackageJson[]): PackageJsonDependencies {
@@ -538,7 +565,7 @@ class DepsCalculator {
     return merged;
   }
 
-  private readProjectPackageJson(projectNode: ProjectNode): IPackageJson {
+  private readProjectPackageJson(projectNode: IProjectNode): IPackageJson {
     const projectPackageJsonPath = `${appRootPath}/${projectNode.root}/package.json`;
     const projectPackageJson: IPackageJson = fileExists(projectPackageJsonPath)
       ? (readJsonFile(projectPackageJsonPath) as IPackageJson)
@@ -574,4 +601,10 @@ class DepsCalculator {
       base.dependencies[key] = value;
     });
   }
+}
+
+interface IProjectNode {
+  graph: ProjectGraphNode;
+  root: string;
+  architect: object;
 }

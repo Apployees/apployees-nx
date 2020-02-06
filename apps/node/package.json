@@ -16,8 +16,7 @@
     "migrations": "./migrations.json"
   },
   "dependencies": {
-    "ts-loader": "^5.3.1",
-    "@nrwl/jest": "^8.6.0",
+    "@nrwl/jest": "8.12.2",
     "webpack-dev-server": "^3.2.1",
     "fork-ts-checker-webpack-plugin": "^1.5.0"
   }

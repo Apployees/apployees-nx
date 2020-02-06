@@ -49,7 +49,7 @@ export function getBaseWebpackPartial(options: IBuildNodeBuilderOptions, context
         { parser: { requireEnsure: false } },
         {
           test: /\.(j|t)sx?$/,
-          loader: `ts-loader`,
+          loader: _.isString(require.resolve("ts-loader")) ? require.resolve("ts-loader") : "ts-loader",
           options: {
             configFile: options.tsConfig,
             transpileOnly: true,
