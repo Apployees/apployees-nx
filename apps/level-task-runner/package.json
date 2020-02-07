@@ -1,0 +1,9 @@
+{
+  "name": "@apployees-nx/level-task-runner",
+  "description": "A task runner for Nx that allows remote caches for various databases.",
+  "keywords": [
+    "Monorepo",
+    "Nx",
+    "cache"
+  ]
+}

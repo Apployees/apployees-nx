@@ -2,22 +2,21 @@
  * © Apployees Inc., 2019
  * All Rights Reserved.
  ******************************************************************************/
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { appRootPath } from "@nrwl/workspace/src/utils/app-root";
-import { directoryExists, fileExists } from "@nrwl/workspace/src/utils/fileutils";
-import { readJsonFile } from "@angular-devkit/schematics/tools/file-system-utility";
+import {copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
+import {appRootPath} from "@nrwl/workspace/src/utils/app-root";
+import {directoryExists, fileExists} from "@nrwl/workspace/src/utils/fileutils";
+import {readJsonFile} from "@angular-devkit/schematics/tools/file-system-utility";
 import * as path from "path";
 import * as ts from "typescript";
-import { DependencyType } from "@nrwl/workspace/src/command-line/deps-calculator";
-import { output, readNxJson, readWorkspaceJson } from "@nrwl/workspace";
-import { BuilderContext } from "@angular-devkit/architect";
-import { getExternalizedLibraryImports } from "../node-externals/externalized-imports";
+import {output, readWorkspaceJson} from "@nrwl/workspace";
+import {BuilderContext} from "@angular-devkit/architect";
+import {getExternalizedLibraryImports} from "../node-externals/externalized-imports";
 import * as _ from "lodash";
 import * as stringify from "json-stable-stringify";
-import { ExternalDependencies } from "../types/common-types";
-import { readRootPackageJson } from "../builder/sources";
-import { createProjectGraph, ProjectGraphNode } from "@nrwl/workspace/src/core/project-graph";
-import {FileData, mtime, normalizedProjectRoot} from "@nrwl/workspace/src/core/file-utils";
+import {ExternalDependencies} from "../types/common-types";
+import {readRootPackageJson} from "../builder/sources";
+import {ProjectGraphNode} from "@nrwl/workspace/src/core/project-graph";
+import {FileData, normalizedProjectRoot} from "@nrwl/workspace/src/core/file-utils";
 
 /**
  * Package name to version number to be used in package.json files.
@@ -247,8 +246,6 @@ class DepsCalculator {
           }
           this.addDepIfNeeded(
             this.getStringLiteralValue(moduleSpecifier, sourceFile),
-            filePath,
-            DependencyType.es6Import,
           );
           return;
         }
@@ -270,8 +267,6 @@ class DepsCalculator {
 
             this.addDepIfNeeded(
               this.getStringLiteralValue(externalModuleReference.expression, sourceFile),
-              filePath,
-              DependencyType.es6Import,
             );
             return;
           }
@@ -299,8 +294,6 @@ class DepsCalculator {
 
                 this.addDepIfNeeded(
                   this.getStringLiteralValue(argument, sourceFile),
-                  filePath,
-                  DependencyType.es6Import,
                 );
                 return;
               }
@@ -319,7 +312,7 @@ class DepsCalculator {
                   x.parent = argument2;
                 }
 
-                this.addDepIfNeeded(this.getStringLiteralValue(x, sourceFile), filePath, DependencyType.es6Import);
+                this.addDepIfNeeded(this.getStringLiteralValue(x, sourceFile));
                 return;
               });
             }
@@ -334,7 +327,7 @@ class DepsCalculator {
 
     if (ts.isImportDeclaration(node) || (ts.isExportDeclaration(node) && node.moduleSpecifier)) {
       const imp = this.getStringLiteralValue(node.moduleSpecifier, sourceFile);
-      this.addDepIfNeeded(imp, filePath, DependencyType.es6Import);
+      this.addDepIfNeeded(imp);
       return; // stop traversing downwards
     }
 
@@ -397,7 +390,7 @@ class DepsCalculator {
     }
   }
 
-  private addDepIfNeeded(expr: string, filePath: string, depType: DependencyType) {
+  private addDepIfNeeded(expr: string) {
     const matchingProject = this.allProjects.filter(a => {
       const normalizedRoot = normalizedProjectRoot(a.graph);
       return (
