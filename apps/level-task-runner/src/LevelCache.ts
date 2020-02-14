@@ -98,16 +98,24 @@ export class LevelCache implements RemoteCache {
             if (this.options.time_to_live &&
                 leveldownInstance.db &&
                 isFunction(leveldownInstance.db.expire)) {
-              leveldownInstance.db.expire(hash, this.options.time_to_live);
+              leveldownInstance.db.expire(hash, this.options.time_to_live, async expireErr => {
+                db.close(err => {
+                  if (err) {
+                    console.error("level-task-runner: Error while closing db after storing cache item ",
+                      err
+                    );
+                  }
+                });
+              });
+            } else {
+              db.close(err => {
+                if (err) {
+                  console.error("level-task-runner: Error while closing db after storing cache item ",
+                    err
+                  );
+                }
+              });
             }
-
-            db.close(err => {
-              if (err) {
-                console.error("level-task-runner: Error while closing db after storing cache item ",
-                  err
-                );
-              }
-            });
           });
         } catch (e) {
           console.error("level-task-runner: Error while storing cache item ", e);
@@ -162,6 +170,15 @@ export class LevelCache implements RemoteCache {
           finalOptions[suffix] = process.env[key];
         }
       }
+    }
+
+    // customize driver options based on driver.
+    switch (options[cacheOptionsEnvKeyDriver]) {
+      case "redisdown":
+        finalOptions["ownClient"] = true;
+        break;
+      default:
+        // nothing
     }
 
     return finalOptions;

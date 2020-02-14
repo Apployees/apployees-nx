@@ -8,6 +8,14 @@
     ".eslintrc": "*",
     "nx.json": "*"
   },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@apployees-nx/level-task-runner",
+      "options": {
+        "cacheableOperations": ["build", "test", "lint"]
+      }
+    }
+  },
   "projects": {
     "webserver": {
       "tags": []

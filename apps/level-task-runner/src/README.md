@@ -91,6 +91,6 @@ Yes, you can use the option `name` in `levelTaskRunnerOptions` or `level_task_ru
 
 ## How is cache evicted?
 
-It isn't. Lol. ¯\\_ (ツ) _/¯
+There is an option call `time_to_live` (in seconds) that tries to set the Redis expiry if the driver is redisdown.
 
-There is an option call time_to_live that tries to set the Redis expiry if the driver is redisdown. It doesn't seem to be working right now.
+However, you can setup your Redis cache to automatically evict old entries. See [https://redis.io/topics/lru-cache](https://redis.io/topics/lru-cache).
