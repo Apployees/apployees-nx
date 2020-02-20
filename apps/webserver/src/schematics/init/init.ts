@@ -24,13 +24,13 @@ function addDependencies(): Rule {
       // add them here because webserver doesn't directly depend on them and so
       // we cannot put them into webserver's own package.json. However, they
       // should be part of the project in which the code is being generated.
-      antd: "^3.24.3",
-      domurl: "^2.2.0",
-      "escape-string-regexp": "^2.0.0",
-      express: "^4.17.1",
-      react: "^16.10.2",
-      "react-dom": "^16.10.2",
-      selfsigned: "^1.10.7",
+      antd: "3.24.3",
+      domurl: "2.2.0",
+      "escape-string-regexp": "2.0.0",
+      express: "4.17.1",
+      react: "16.10.2",
+      "react-dom": "16.10.2",
+      selfsigned: "1.10.7",
       "@babel/preset-react": "7.0.0",
       "@typescript-eslint/eslint-plugin": "2.3.2",
       "@typescript-eslint/parser": "2.3.2",
@@ -42,10 +42,10 @@ function addDependencies(): Rule {
       "eslint-config-prettier": "6.0.0",
       "eslint-plugin-import": "2.18.2",
       "eslint-plugin-jsx-a11y": "6.2.3",
-      "eslint-plugin-react": "7.16.0",
+      "eslint-plugin-react": "7.14.3",
       "eslint-plugin-react-hooks": "2.1.2",
-      "jest-environment-jsdom-fourteen": "^0.1.0",
-      "react-app-polyfill": "^1.0.4",
+      "jest-environment-jsdom-fourteen": "0.1.0",
+      "react-app-polyfill": "1.0.4",
     },
   );
 }

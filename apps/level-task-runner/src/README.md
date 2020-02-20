@@ -38,6 +38,7 @@ In your `nx.json` file, add the following right after `implicitDependencies`:
         "cacheableOperations": ["build", "test", "lint"],
         "levelTaskRunnerOptions": {
           "driver": "redisdown",
+          "name": "my-build-cache",
           "host": "10.11.12.13",
           "port": 6379
         }
@@ -63,6 +64,7 @@ in node_redis is `password`, so:
         "cacheableOperations": ["build", "test", "lint"],
         "levelTaskRunnerOptions": {
           "driver": "redisdown",
+          "name": "my-build-cache",
           "host": "10.11.12.13",
           "port": 6379,
           "password": "hunter2"
@@ -88,6 +90,10 @@ level_task_runner_driver=redisdown level_task_runner_host=10.11.12.13 level_task
 ## Can I supply a name for the DB? Like if you give a name in redisdown, it uses it as the Redis namespace.
 
 Yes, you can use the option `name` in `levelTaskRunnerOptions` or `level_task_runner_name` as an environment variable.
+
+The `name` parameter will be given as the first argument to the constructor of the leveldown adapter.
+
+For example, for the [s3leveldown](https://www.npmjs.com/package/s3leveldown) adapter, the name parameter will get used as the S3 bucket name. 
 
 ## How is cache evicted?
 

@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@nrwl/jest": "8.12.2",
-    "webpack-dev-server": "^3.2.1",
-    "fork-ts-checker-webpack-plugin": "^1.5.0"
+    "webpack-dev-server": "3.2.1",
+    "fork-ts-checker-webpack-plugin": "1.5.0"
   }
 }
