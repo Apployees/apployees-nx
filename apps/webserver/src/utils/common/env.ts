@@ -98,5 +98,5 @@ export function getWebserverEnvironmentVariables(
     },
   );
 
-  return getProcessedEnvironmentVariables(raw, "env");
+  return getProcessedEnvironmentVariables(raw, isEnvClient ? "process.env" : "env");
 }

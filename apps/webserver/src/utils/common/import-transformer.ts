@@ -168,7 +168,7 @@ export function importTransformer(_options: Array<IImportTransformerOptions>) {
 
       const importedLibName = (node.moduleSpecifier as ts.StringLiteral).text;
 
-      const options = _options.find(_ => _.libraryName === importedLibName);
+      const options = _options.find(something => something.libraryName === importedLibName);
 
       if (!options) {
         return node;
