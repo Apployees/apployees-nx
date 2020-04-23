@@ -5,6 +5,7 @@
 import _ from "lodash";
 import { IBuildWebserverBuilderOptions } from "./webserver-types";
 import { importTransformer } from "./import-transformer";
+import path from "path";
 
 // style files regexes
 export const cssRegex = /\.css$/;
@@ -39,6 +40,8 @@ export function getBaseLoaders(
         experimentalWatchApi: true,
         compilerOptions: {
           sourceMap: isEnvServer || isEnvDevelopment,
+          incremental: true,
+          tsBuildInfoFile: options.outputPath + (isEnvServer ? "server" : "client") + ".tsbuildinfo",
         },
         getCustomTransformers: () => ({
           before: [importTransformer(options.importTransformers)],

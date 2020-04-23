@@ -74,7 +74,7 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
 
     // now we define the env variables loaded from .env files into the top-level
     // 'env' object.
-    new webpack.DefinePlugin(getWebserverEnvironmentVariables(options, context, isEnvClient).stringified),
+    new webpack.DefinePlugin(getWebserverEnvironmentVariables(options, context, isEnvClient).stringified as any),
 
     // This is necessary to emit hot updates
     isEnvDevelopment && new WriteFileWebpackPlugin(),
@@ -112,6 +112,10 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
       resolveModuleNameModule: (process.versions as any).pnp ? tsPnp : undefined,
       resolveTypeReferenceDirectiveModule: (process.versions as any).pnp ? tsPnp : undefined,
       tsconfig: options.tsConfig,
+      compilerOptions: {
+        incremental: true,
+        tsBuildInfoFile: options.outputPath + (isEnvClient ? "client" : "server") + "-forktschecker.tsbuildinfo",
+      },
       reportFiles: ["**", "!**/__tests__/**", "!**/?(*.)(spec|test).*", "!**/src/setupTests.*"],
       watch: rootPath,
       silent: true,

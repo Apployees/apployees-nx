@@ -31,7 +31,7 @@ interface INormalizedSchema extends Schema {
 }
 
 function updateNxJson(options: INormalizedSchema): Rule {
-  return updateJsonInTree(`/nx.json`, json => {
+  return updateJsonInTree<any, any>(`/nx.json`, (json, context) => {
     return {
       ...json,
       projects: {
@@ -88,7 +88,7 @@ function getServeConfig(options: INormalizedSchema) {
 }
 
 function updateWorkspaceJson(options: INormalizedSchema): Rule {
-  return updateWorkspaceInTree(workspaceJson => {
+  return updateWorkspaceInTree((workspaceJson) => {
     const project = {
       root: options.appProjectRoot,
       sourceRoot: join(options.appProjectRoot, "src"),
@@ -152,7 +152,7 @@ function addProxy(options: INormalizedSchema): Rule {
         ),
       );
 
-      updateWorkspaceInTree(json => {
+      updateWorkspaceInTree((json) => {
         projectConfig.architect.serve.options.proxyConfig = pathToProxyFile;
         json.projects[options.frontendProject] = projectConfig;
         return json;
@@ -163,7 +163,7 @@ function addProxy(options: INormalizedSchema): Rule {
 
 function updateRootPackageJson(options: INormalizedSchema): Rule {
   return (host: Tree) => {
-    return updateJsonInTree(`/package.json`, json => {
+    return updateJsonInTree(`/package.json`, (json) => {
       if (!json.scripts) {
         json.scripts = {};
       }
@@ -179,7 +179,7 @@ function updateRootPackageJson(options: INormalizedSchema): Rule {
   };
 }
 
-export default function(schema: Schema): Rule {
+export default function (schema: Schema): Rule {
   return (host: Tree, context: SchematicContext) => {
     const options = normalizeOptions(schema);
 
@@ -214,7 +214,7 @@ function normalizeOptions(options: Schema): INormalizedSchema {
 
   const appProjectRoot = join(normalize("apps"), appDirectory);
 
-  const parsedTags = options.tags ? options.tags.split(",").map(s => s.trim()) : [];
+  const parsedTags = options.tags ? options.tags.split(",").map((s) => s.trim()) : [];
 
   return {
     ...options,

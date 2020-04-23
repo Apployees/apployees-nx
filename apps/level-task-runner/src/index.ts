@@ -1,18 +1,12 @@
-import {Observable} from "rxjs";
-import {
-  AffectedEventType,
-  Task,
-  TaskCompleteEvent
-} from "@nrwl/workspace/src/tasks-runner/tasks-runner";
-import {TaskOrchestrator} from "@nrwl/workspace/src/tasks-runner/task-orchestrator";
-import {TaskOrderer} from "@nrwl/workspace/src/tasks-runner/task-orderer";
-import {NxJson} from "@nrwl/workspace";
-import {ProjectGraph} from "@nrwl/workspace/src/core/project-graph";
-import {
-  DefaultTasksRunnerOptions,
-  LifeCycle
-} from "@nrwl/workspace/src/tasks-runner/tasks-runner-v2";
-import {LevelCache} from "./LevelCache";
+import { Observable } from "rxjs";
+import { AffectedEventType, Task, TaskCompleteEvent } from "@nrwl/workspace/src/tasks-runner/tasks-runner";
+import { TaskOrchestrator } from "@nrwl/workspace/src/tasks-runner/task-orchestrator";
+import { TaskOrderer } from "@nrwl/workspace/src/tasks-runner/task-orderer";
+import { NxJson } from "@nrwl/workspace";
+import { ProjectGraph } from "@nrwl/workspace/src/core/project-graph";
+import { DefaultTasksRunnerOptions } from "@nrwl/workspace/src/tasks-runner/tasks-runner-v2";
+import { LevelCache } from "./LevelCache";
+import { LifeCycle } from "@nrwl/workspace/src/tasks-runner/default-tasks-runner";
 
 class NoopLifeCycle implements LifeCycle {
   startTask(task: Task): void {}
@@ -30,10 +24,10 @@ export const cachingTaskRunner = (
 
   options.remoteCache = new LevelCache(options.levelTaskRunnerOptions || {});
 
-  return new Observable(subscriber => {
+  return new Observable((subscriber) => {
     runAllTasks(tasks, options, context)
-      .then(data => data.forEach(d => subscriber.next(d)))
-      .catch(e => {
+      .then((data) => data.forEach((d) => subscriber.next(d)))
+      .catch((e) => {
         console.error("Unexpected error:");
         console.error(e);
         process.exit(1);
@@ -53,7 +47,7 @@ async function runAllTasks(
 ): Promise<Array<{ task: Task; type: any; success: boolean }>> {
   const stages = new TaskOrderer(context.target, context.projectGraph).splitTasksIntoStages(tasks);
 
-  const orchestrator = new TaskOrchestrator(context.projectGraph, options);
+  const orchestrator = new TaskOrchestrator(context.target, context.projectGraph, options);
 
   const res = [];
   for (let i = 0; i < stages.length; ++i) {
@@ -62,7 +56,7 @@ async function runAllTasks(
     res.push(...statuses);
 
     // any task failed, we need to skip further stages
-    if (statuses.find(s => !s.success)) {
+    if (statuses.find((s) => !s.success)) {
       res.push(...markStagesAsNotSuccessful(stages.splice(i + 1)));
       return res;
     }
@@ -75,7 +69,7 @@ function markStagesAsNotSuccessful(stages: Task[][]) {
 }
 
 function tasksToStatuses(tasks: Task[], success: boolean) {
-  return tasks.map(task => ({
+  return tasks.map((task) => ({
     task,
     type: AffectedEventType.TaskComplete,
     success,

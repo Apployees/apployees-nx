@@ -15,16 +15,11 @@ import { nxVersion } from "@apployees-nx/common-build-utils";
 import { JsonObject } from "@angular-devkit/core";
 
 function addDependencies(): Rule {
-  return addDepsToPackageJson(
-    {},
-    {
-      "@apployees-nx/node": nxVersion,
-    },
-  );
+  return addDepsToPackageJson({}, {});
 }
 
 function moveDependency(): Rule {
-  return updateJsonInTree("package.json", json => {
+  return updateJsonInTree("package.json", (json) => {
     json.dependencies = json.dependencies || {};
 
     delete json.dependencies["@apployees-nx/node"];
@@ -33,7 +28,7 @@ function moveDependency(): Rule {
 }
 
 function setDefault(): Rule {
-  return updateWorkspace(workspace => {
+  return updateWorkspace((workspace) => {
     workspace.extensions.cli = workspace.extensions.cli || {};
 
     const defaultCollection: string =
@@ -45,7 +40,7 @@ function setDefault(): Rule {
   });
 }
 
-export default function(schema: Schema) {
+export default function (schema: Schema) {
   return chain([
     setDefault(),
     addPackageWithInit("@nrwl/jest"),

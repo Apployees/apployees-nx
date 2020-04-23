@@ -51,7 +51,7 @@ export function getPluginsForNodeWebpack(options: IBuildNodeBuilderOptions, cont
     }),
 
     new webpack.DefinePlugin(
-      getProcessedEnvironmentVariables(loadEnvironmentVariables(options, context), "env").stringified,
+      getProcessedEnvironmentVariables(loadEnvironmentVariables(options, context), "env").stringified as any,
     ),
 
     getForkTsCheckerWebpackPlugin(options),

@@ -32,6 +32,12 @@ import escape from "escape-string-regexp";
 import WebpackDevServer from "webpack-dev-server";
 import noopServiceWorkerMiddleware from "react-dev-utils/noopServiceWorkerMiddleware";
 
+(process as NodeJS.EventEmitter).on("uncaughtException", async (thrown: any) => {
+  console.error("Uncaught error:", thrown);
+
+  process.exit(1);
+});
+
 const measureFileSizesBeforeBuild = FileSizeReporter.measureFileSizesBeforeBuild;
 const printFileSizesAfterBuild = FileSizeReporter.printFileSizesAfterBuild;
 
@@ -68,18 +74,19 @@ function run(
 
   const devServer: IWebpackDevServerReference = { server: null };
   const devSocket = {
-    warnings: warnings => {
+    warnings: (warnings) => {
       devServer.server.sockWrite(devServer.server.sockets, "warnings", warnings);
     },
-    errors: errors => {
+    errors: (errors) => {
       devServer.server.sockWrite(devServer.server.sockets, "errors", errors);
     },
   };
   let yarnExists;
-  let devClientFirstTimeComplete = false, devServerFirstTimeComplete = false;
+  let devClientFirstTimeComplete = false,
+    devServerFirstTimeComplete = false;
 
   return from(getSourceRoot(context)).pipe(
-    map(sourceRoot => normalizeBuildOptions(options, context, sourceRoot)),
+    map((sourceRoot) => normalizeBuildOptions(options, context, sourceRoot)),
     switchMap((options: IBuildWebserverBuilderOptions) =>
       checkBrowsers(path.resolve(options.root, options.sourceRoot), isInteractive).then(() => options),
     ),
@@ -88,7 +95,7 @@ function run(
       loadEnvironmentVariables(options, context);
 
       if (options.dev) {
-        return choosePort(options.devHost, options.devAppPort).then(appPort => {
+        return choosePort(options.devHost, options.devAppPort).then((appPort) => {
           if (_.isNil(appPort)) {
             throw new Error("Could not start because we could not find a port for app server.");
           }
@@ -96,7 +103,7 @@ function run(
           options.devAppPort = appPort;
           process.env.PORT = appPort;
 
-          return choosePort(options.devHost, options.devWebpackPort).then(webpackPort => {
+          return choosePort(options.devHost, options.devWebpackPort).then((webpackPort) => {
             if (_.isNil(webpackPort)) {
               throw new Error("Could not start because we could not find a port for the webpack server.");
             }
@@ -118,9 +125,9 @@ function run(
     }),
     switchMap((options: IBuildWebserverBuilderOptions) => {
       if (!options.dev) {
-        return measureFileSizesBeforeBuild(options.publicOutputFolder_calculated).then(
-          previousFileSizesForPublicFolder => [options, previousFileSizesForPublicFolder],
-        );
+        return measureFileSizesBeforeBuild(
+          options.publicOutputFolder_calculated,
+        ).then((previousFileSizesForPublicFolder) => [options, previousFileSizesForPublicFolder]);
       } else {
         return Promise.resolve([options, null]);
       }
@@ -171,7 +178,7 @@ function run(
 
           return forkJoin(
             runWebpack(serverConfig, context, {
-              logging: stats => {
+              logging: (stats) => {
                 context.logger.info(stats.toString(serverConfig.stats));
                 devServerFirstTimeComplete = true;
                 if (devClientFirstTimeComplete && devServerFirstTimeComplete) {
@@ -194,7 +201,7 @@ function run(
             }),
 
             runWebpackDevServer(clientConfig, context, {
-              logging: stats => {
+              logging: (stats) => {
                 context.logger.info(stats.toString(clientConfig.stats));
                 devClientFirstTimeComplete = true;
                 if (devClientFirstTimeComplete && devServerFirstTimeComplete) {
@@ -203,18 +210,20 @@ function run(
               },
               devServerConfig: createWebpackServerOptions(options, context, devServer),
               webpackFactory: (config: webpack.Configuration) =>
-                of(createCompiler({
-                  webpack: webpack,
-                  config: clientConfig,
-                  appName: context.target.project + " - Client",
-                  useYarn: yarnExists,
-                  tscCompileOnError: true,
-                  useTypeScript: true,
-                  devSocket: devSocket,
-                  urls: options.devUrls_calculated,
-                }) as webpack.Compiler),
+                of(
+                  createCompiler({
+                    webpack: webpack,
+                    config: clientConfig,
+                    appName: context.target.project + " - Client",
+                    useYarn: yarnExists,
+                    tscCompileOnError: true,
+                    useTypeScript: true,
+                    devSocket: devSocket,
+                    urls: options.devUrls_calculated,
+                  }) as webpack.Compiler,
+                ),
             }).pipe(
-              map(output => {
+              map((output) => {
                 output.baseUrl = options.devUrls_calculated.localUrlForBrowser;
                 return output;
               }),
@@ -228,13 +237,13 @@ function run(
            */
           return forkJoin(
             runWebpack(serverConfig, context, {
-              logging: stats => {
+              logging: (stats) => {
                 context.logger.info(stats.toString(serverConfig.stats));
               },
             }),
 
             runWebpack(clientConfig, context, {
-              logging: stats => {
+              logging: (stats) => {
                 context.logger.info(stats.toString(clientConfig.stats));
 
                 console.log(previousFileSizesForPublicFolder);

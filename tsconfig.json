@@ -12,7 +12,6 @@
     "target": "es5",
     "module": "esnext",
     "resolveJsonModule": true,
-    "noEmit": true,
     "jsx": "react",
     "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,

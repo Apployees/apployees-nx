@@ -45,7 +45,7 @@ export function nodeExecuteBuilderHandler(
   context: BuilderContext,
 ): Observable<BuilderOutput> {
   return runWaitUntilTargets(options, context).pipe(
-    concatMap(v => {
+    concatMap((v) => {
       if (!v.success) {
         context.logger.error(`One of the tasks specified in waitUntilTargets failed`);
         return of({ success: false });
@@ -69,7 +69,7 @@ export function nodeExecuteBuilderHandler(
 
 function getFileToRun(event: WebpackBuildEvent, options: INodeExecuteBuilderOptions, context: BuilderContext) {
   const fileEntry = event.emittedFiles
-    ? event.emittedFiles.filter(e => e.name === options.entryFile || e.file === options.entryFile)[0]
+    ? event.emittedFiles.filter((e) => e.name === options.entryFile || e.file === options.entryFile)[0]
     : null;
 
   const fileName = fileEntry && fileEntry.name ? fileEntry.name : "main";
@@ -115,7 +115,7 @@ function killProcess(context: BuilderContext): Observable<void | Error> {
 
   const observableTreeKill = bindCallback<number, string, Error>(treeKill);
   return observableTreeKill(subProcess.pid, "SIGTERM").pipe(
-    tap(err => {
+    tap((err) => {
       subProcess = null;
       if (err) {
         if (Array.isArray(err) && err[0] && err[2]) {
@@ -129,14 +129,15 @@ function killProcess(context: BuilderContext): Observable<void | Error> {
   );
 }
 
-function startBuild(options: INodeExecuteBuilderOptions, context: BuilderContext): Observable<WebpackBuildEvent> {
+function startBuild(options: INodeExecuteBuilderOptions, context: BuilderContext) {
   const target = targetFromTargetString(options.buildTarget);
   return from(
-    Promise.all([context.getTargetOptions(target), context.getBuilderNameForTarget(target)]).then(
-      ([options, builderName]) => context.validateOptions(options, builderName),
-    ),
+    Promise.all([
+      context.getTargetOptions(target),
+      context.getBuilderNameForTarget(target),
+    ]).then(([options, builderName]) => context.validateOptions(options, builderName)),
   ).pipe(
-    tap(options => {
+    tap((options) => {
       if (!options.dev) {
         context.logger.warn(stripIndents`
             ************************************************
@@ -148,11 +149,10 @@ function startBuild(options: INodeExecuteBuilderOptions, context: BuilderContext
             ************************************************`);
       }
     }),
-    concatMap(
-      () =>
-        scheduleTargetAndForget(context, target, {
-          watch: true,
-        }) as Observable<WebpackBuildEvent>,
+    concatMap(() =>
+      scheduleTargetAndForget(context, target, {
+        watch: true,
+      }),
     ),
   );
 }
@@ -161,15 +161,15 @@ function runWaitUntilTargets(options: INodeExecuteBuilderOptions, context: Build
   if (!options.waitUntilTargets || options.waitUntilTargets.length === 0) return of({ success: true });
 
   return zip(
-    ...options.waitUntilTargets.map(b => {
+    ...options.waitUntilTargets.map((b) => {
       return scheduleTargetAndForget(context, targetFromTargetString(b)).pipe(
-        filter(e => e.success !== undefined),
+        filter((e) => e.success !== undefined),
         first(),
       );
     }),
   ).pipe(
-    map(results => {
-      return { success: !results.some(r => !r.success) };
+    map((results) => {
+      return { success: !results.some((r) => !r.success) };
     }),
   );
 }
