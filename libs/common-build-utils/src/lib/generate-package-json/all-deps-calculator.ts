@@ -114,7 +114,7 @@ export function doWritePackageJson(
     const rootPackageLockLockFilePath = `${appRootPath}/package-lock.json`;
     if (fileExists(rootPackageLockLockFilePath)) {
       const distPackageLockLockFilePath = `${projectOutputPath}/package-lock.json`;
-      copyFileSync(rootYarnLockFilePath, distPackageLockLockFilePath);
+      copyFileSync(rootPackageLockLockFilePath, distPackageLockLockFilePath);
     }
   }
 }
