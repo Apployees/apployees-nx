@@ -163,7 +163,7 @@ function runWaitUntilTargets(options: INodeExecuteBuilderOptions, context: Build
   return zip(
     ...options.waitUntilTargets.map((b) => {
       return scheduleTargetAndForget(context, targetFromTargetString(b)).pipe(
-        filter((e) => e.success !== undefined),
+        filter((e, index) => e.success !== undefined),
         first(),
       );
     }),
