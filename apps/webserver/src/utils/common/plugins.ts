@@ -2,27 +2,28 @@
  * © Apployees Inc., 2019
  * All Rights Reserved.
  ******************************************************************************/
-import { IBuildWebserverBuilderOptions } from "./webserver-types";
-import { getWebserverEnvironmentVariables } from "./env";
-import resolve from "resolve";
+import {IBuildWebserverBuilderOptions} from "./webserver-types";
+import {getWebserverEnvironmentVariables} from "./env";
 import webpack from "webpack";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import WriteFileWebpackPlugin from "write-file-webpack-plugin";
 import CaseSensitivePathsPlugin from "case-sensitive-paths-webpack-plugin";
 import ModuleNotFoundPlugin from "react-dev-utils/ModuleNotFoundPlugin";
-import ForkTsCheckerWebpackPlugin from "react-dev-utils/ForkTsCheckerWebpackPlugin";
+import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import typescriptFormatter from "react-dev-utils/typescriptFormatter";
 import WatchMissingNodeModulesPlugin from "react-dev-utils/WatchMissingNodeModulesPlugin";
 import findup from "findup-sync";
-import { BuilderContext } from "@angular-devkit/architect";
+import {BuilderContext} from "@angular-devkit/architect";
 import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
 import WebpackNotifier from "webpack-notifier";
-import { getNotifierOptions } from "@apployees-nx/common-build-utils";
+import {getNotifierOptions} from "@apployees-nx/common-build-utils";
 import _ from "lodash";
+import path from "path";
+import HardSourceWebpackPlugin from "hard-source-webpack-plugin";
+import NodeObjectHash from "node-object-hash";
 
 export function getPlugins(options: IBuildWebserverBuilderOptions, context: BuilderContext, isEnvClient: boolean) {
   const isEnvDevelopment = options.dev;
-  const isEnvProduction = !options.dev;
   const nodeModulesPath = findup("node_modules");
   const rootPath = findup("angular.json") || findup("nx.json") || options.root;
   const notifierOptions = getNotifierOptions(options);
@@ -32,6 +33,37 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
     : "pnp-webpack-plugin/ts";
 
   return [
+    new HardSourceWebpackPlugin({
+      // Either an absolute path or relative to webpack's options.context.
+      configHash: function(webpackConfig) {
+        return NodeObjectHash({sort: false}).hash(webpackConfig);
+      },
+      // Either an absolute path or relative to webpack's options.context.
+      cacheDirectory: path.join(
+        options.buildCacheFolder,
+        "hard-source-webpack-plugin",
+        context.target.project + (isEnvClient ? "-client" : "-server"),
+      ),
+      environmentHash: {
+        root: options.root,
+        directories: [],
+        files: ['package-lock.json', 'yarn.lock']
+      },
+      // Clean up large, old caches automatically.
+      cachePrune: {
+        sizeThreshold: 500 * 1024 * 1024
+      },
+    }),
+    new HardSourceWebpackPlugin.ExcludeModulePlugin([
+      {
+        // HardSource works with mini-css-extract-plugin but due to how
+        // mini-css emits assets, assets are not emitted on repeated builds with
+        // mini-css and hard-source together. Ignoring the mini-css loader
+        // modules, but not the other css loader modules, excludes the modules
+        // that mini-css needs rebuilt to output assets every time.
+        test: /mini-css-extract-plugin[\\/]dist[\\/]loader/,
+      },
+    ]),
     isEnvDevelopment &&
       options.notifier !== false &&
       new WebpackNotifier({
@@ -88,7 +120,7 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
     // makes the discovery automatic so you don't have to restart.
     // See https://github.com/facebook/create-react-app/issues/186
     isEnvDevelopment && new WatchMissingNodeModulesPlugin(nodeModulesPath),
-    isEnvProduction &&
+    !isEnvDevelopment &&
       new MiniCssExtractPlugin({
         // Options similar to the same options in webpackOptions.output
         // both options are optional
@@ -103,24 +135,32 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     // TypeScript type checking
     new ForkTsCheckerWebpackPlugin({
-      typescript: resolve.sync("typescript", {
-        basedir: nodeModulesPath,
-      }),
-      async: isEnvDevelopment,
-      useTypescriptIncrementalApi: true,
-      checkSyntacticErrors: true,
-      resolveModuleNameModule: (process.versions as any).pnp ? tsPnp : undefined,
-      resolveTypeReferenceDirectiveModule: (process.versions as any).pnp ? tsPnp : undefined,
-      tsconfig: options.tsConfig,
-      compilerOptions: {
-        incremental: true,
-        tsBuildInfoFile: options.outputPath + (isEnvClient ? "client" : "server") + "-forktschecker.tsbuildinfo",
+      typescript: {
+        configFile: options.tsConfig,
+        configOverwrite: {
+          compilerOptions: {
+            incremental: true,
+            tsBuildInfoFile: path.join(
+              options.buildCacheFolder,
+              "fork-ts-checker-webpack-plugin",
+              context.target.project,
+              (isEnvClient ? "client" : "server") + ".tsbuildinfo",
+            ),
+            sourceMap: isEnvDevelopment,
+          },
+        },
+        mode: "write-tsbuildinfo",
       },
-      reportFiles: ["**", "!**/__tests__/**", "!**/?(*.)(spec|test).*", "!**/src/setupTests.*"],
-      watch: rootPath,
-      silent: true,
+      //issue: {
+      //  exclude: ["**/__tests__/**", "**/?(*.)(spec|test).*", "**/src/setupTests.*"]
+      //},
+      //logger: {
+      //  infrastructure: "silent",
+      //  issues: "silent",
+      //},
+      async: isEnvDevelopment,
       // The formatter is invoked directly in WebpackDevServerUtils during development
-      formatter: isEnvProduction ? typescriptFormatter : undefined,
+      formatter: !isEnvDevelopment ? typescriptFormatter : undefined,
     }),
   ];
 }

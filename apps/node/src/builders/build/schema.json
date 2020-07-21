@@ -136,6 +136,10 @@
       "description": "Extract all licenses in a separate file, in the case of production builds only.",
       "default": false
     },
+    "buildCacheFolder": {
+      "type": "string",
+      "description": "A path relative to the root of this workspace for storing webpack and typescript caches"
+    },
     "showCircularDependencies": {
       "type": "boolean",
       "description": "Show circular dependency warnings on builds.",

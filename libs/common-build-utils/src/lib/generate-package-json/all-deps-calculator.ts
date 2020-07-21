@@ -2,21 +2,21 @@
  * © Apployees Inc., 2019
  * All Rights Reserved.
  ******************************************************************************/
-import {copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
-import {appRootPath} from "@nrwl/workspace/src/utils/app-root";
-import {directoryExists, fileExists} from "@nrwl/workspace/src/utils/fileutils";
-import {readJsonFile} from "@angular-devkit/schematics/tools/file-system-utility";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { appRootPath } from "@nrwl/workspace/src/utils/app-root";
+import { directoryExists, fileExists } from "@nrwl/workspace/src/utils/fileutils";
+import { readJsonFile } from "@angular-devkit/schematics/tools/file-system-utility";
 import * as path from "path";
 import * as ts from "typescript";
-import {output, readWorkspaceJson} from "@nrwl/workspace";
-import {BuilderContext} from "@angular-devkit/architect";
-import {getExternalizedLibraryImports} from "../node-externals/externalized-imports";
+import { output, readWorkspaceJson } from "@nrwl/workspace";
+import { BuilderContext } from "@angular-devkit/architect";
+import { getExternalizedLibraryImports } from "../node-externals/externalized-imports";
 import * as _ from "lodash";
 import * as stringify from "json-stable-stringify";
-import {ExternalDependencies} from "../types/common-types";
-import {readRootPackageJson} from "../builder/sources";
-import {ProjectGraphNode} from "@nrwl/workspace/src/core/project-graph";
-import {FileData, normalizedProjectRoot} from "@nrwl/workspace/src/core/file-utils";
+import { ExternalDependencies } from "../types/common-types";
+import { readRootPackageJson } from "../builder/sources";
+import { ProjectGraphNode } from "@nrwl/workspace/src/core/project-graph";
+import { FileData, normalizedProjectRoot } from "@nrwl/workspace/src/core/file-utils";
 
 /**
  * Package name to version number to be used in package.json files.
@@ -62,8 +62,7 @@ export function doWritePackageJson(
   const allProjects: IProjectNode[] = _.reduce(
     allProjectGraphNodes,
     (agg, graphNode) => {
-      if ((graphNode.type === "app" || graphNode.type === "lib") &&
-          workspaceJson.projects[graphNode.name]) {
+      if ((graphNode.type === "app" || graphNode.type === "lib") && workspaceJson.projects[graphNode.name]) {
         agg.push({
           graph: graphNode,
           root: workspaceJson.projects[graphNode.name].root,
@@ -241,12 +240,7 @@ class DepsCalculator {
         // export x from "xyz";
         const moduleSpecifier = (node as ts.ImportDeclaration).moduleSpecifier;
         if (moduleSpecifier) {
-          if (!moduleSpecifier.parent) {
-            moduleSpecifier.parent = node;
-          }
-          this.addDepIfNeeded(
-            this.getStringLiteralValue(moduleSpecifier, sourceFile),
-          );
+          this.addDepIfNeeded(this.getStringLiteralValue(moduleSpecifier, sourceFile));
           return;
         }
         break;
@@ -256,18 +250,8 @@ class DepsCalculator {
         const externalModuleReference: ts.ExternalModuleReference = (node as ts.ImportEqualsDeclaration)
           .moduleReference as ts.ExternalModuleReference;
         if (externalModuleReference) {
-          if (!externalModuleReference.parent) {
-            externalModuleReference.parent = node as ts.ImportEqualsDeclaration;
-          }
-
           if (externalModuleReference.expression) {
-            if (!externalModuleReference.expression.parent) {
-              externalModuleReference.expression.parent = externalModuleReference;
-            }
-
-            this.addDepIfNeeded(
-              this.getStringLiteralValue(externalModuleReference.expression, sourceFile),
-            );
+            this.addDepIfNeeded(this.getStringLiteralValue(externalModuleReference.expression, sourceFile));
             return;
           }
         }
@@ -280,21 +264,11 @@ class DepsCalculator {
         if (callExpression) {
           const expression = callExpression.expression;
           if (expression) {
-            if (!expression.parent) {
-              expression.parent = callExpression;
-            }
-
             const callName: string = expression.getText(sourceFile);
             if (callName === "require" || callName === "require.resolve" || callName === "import") {
               const argument = callExpression.arguments[0];
               if (argument) {
-                if (!argument.parent) {
-                  argument.parent = callExpression;
-                }
-
-                this.addDepIfNeeded(
-                  this.getStringLiteralValue(argument, sourceFile),
-                );
+                this.addDepIfNeeded(this.getStringLiteralValue(argument, sourceFile));
                 return;
               }
             } else if (
@@ -303,15 +277,7 @@ class DepsCalculator {
               callExpression.arguments[0].kind === ts.SyntaxKind.ArrayLiteralExpression
             ) {
               const argument2 = callExpression.arguments[0];
-              if (!argument2.parent) {
-                argument2.parent = callExpression;
-              }
-
               (argument2 as ts.ArrayLiteralExpression).forEachChild((x: ts.Node) => {
-                if (!x.parent) {
-                  x.parent = argument2;
-                }
-
                 this.addDepIfNeeded(this.getStringLiteralValue(x, sourceFile));
                 return;
               });
@@ -332,7 +298,7 @@ class DepsCalculator {
     }
 
     // Continue traversing down the AST from the current node
-    ts.forEachChild(node, child => this.processNode(filePath, child, sourceFile));
+    ts.forEachChild(node, (child) => this.processNode(filePath, child, sourceFile));
   }
 
   /**
@@ -391,7 +357,7 @@ class DepsCalculator {
   }
 
   private addDepIfNeeded(expr: string) {
-    const matchingProject = this.allProjects.filter(a => {
+    const matchingProject = this.allProjects.filter((a) => {
       const normalizedRoot = normalizedProjectRoot(a.graph);
       return (
         expr === `@${this.npmScope}/${normalizedRoot}` ||
@@ -489,7 +455,7 @@ class DepsCalculator {
 
     // Build multiple possible names...e.g. if the name is `@scope/x/y/z`, then
     // the node_module could be @scope/x or @scope/x/y or @scope/x/y/z
-    const segments = name.split("/").filter(x => !!x);
+    const segments = name.split("/").filter((x) => !!x);
     const permutations = [];
     for (let i = 1; i <= segments.length; i++) {
       permutations.push(segments.slice(0, i).join("/"));
@@ -506,7 +472,7 @@ class DepsCalculator {
       if (versionToUse) {
         // now check if we should even put it in the package.json file according
         // to externalDependencies...
-        if (!_.isArray(this.externalDependencies) || this.externalDependencies.filter(a => a === permutation)) {
+        if (!_.isArray(this.externalDependencies) || this.externalDependencies.filter((a) => a === permutation)) {
           if (!this.projectPackageJson.dependencies) {
             this.projectPackageJson.dependencies = {};
           }
@@ -540,7 +506,7 @@ class DepsCalculator {
    */
   private consolidateAllDependenciesIntoMap(packageJsonFiles: IPackageJson[]): PackageJsonDependencies {
     const merged: PackageJsonDependencies = {};
-    _.forEach(packageJsonFiles, packageJsonFile => {
+    _.forEach(packageJsonFiles, (packageJsonFile) => {
       _.forEach(packageJsonFile.devDependencies || {}, (value, key) => {
         merged[key] = value;
       });

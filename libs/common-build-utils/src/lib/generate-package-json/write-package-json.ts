@@ -19,7 +19,7 @@ export function writePackageJson(
   const nxJson = readNxJson();
   const projectNodes = getProjectNodes(workspaceJson, nxJson);
 
-  const projectNode = _.find(projectNodes, node => node.name === context.target.project);
+  const projectNode = _.find(projectNodes, (node) => node.name === context.target.project);
 
   if (!projectNode) {
     output.warn({

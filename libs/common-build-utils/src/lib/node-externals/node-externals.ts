@@ -26,7 +26,7 @@ export function getNodeExternals(
   });
 
   return [
-    function(context, request, callback: Function) {
+    function (context, request, callback: Function) {
       if (_.isString(request) && request.startsWith(npmScopeStr)) {
         if (externalLibraries === "all" || isLibraryExternalized[request]) {
           // not bundled
@@ -34,7 +34,7 @@ export function getNodeExternals(
         } else if (externalizedLibrariesArray.length > 0) {
           // go through all the external libraries and check if it's a prefix
           // of any library we are externalizing...
-          const found = _.find(externalizedLibrariesArray, library => request.startsWith(library));
+          const found = _.find(externalizedLibrariesArray, (library) => request.startsWith(library));
           if (found) {
             // not bundled
             return callback(null, "commonjs " + request);

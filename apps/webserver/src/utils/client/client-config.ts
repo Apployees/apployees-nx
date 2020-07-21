@@ -44,7 +44,7 @@ export function getClientConfig(
   const isEnvProduction = !options.dev;
   const isScriptOptimizeOn = isEnvProduction;
 
-  const mainFields = [...(esm ? ["es2015"] : []), "module", "main"];
+  const mainFields = ["browser", ...(esm ? ["es2015"] : []), "module", "main"];
   const hashFormat = getOutputHashFormat(options.outputHashing);
   const suffixFormat = esm ? ".esm" : ".es5";
   const filename = isScriptOptimizeOn

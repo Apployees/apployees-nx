@@ -34,7 +34,7 @@ export function loadEnvironmentVariables(options: IBuildBuilderOptions, context:
   // that have already been set.  Variable expansion is supported in .env files.
   // https://github.com/motdotla/dotenv
   // https://github.com/motdotla/dotenv-expand
-  dotEnvFiles.forEach(dotenvFile => {
+  dotEnvFiles.forEach((dotenvFile) => {
     if (existsSync(dotenvFile)) {
       const parsed = require("dotenv-expand")(
         require("dotenv").config({

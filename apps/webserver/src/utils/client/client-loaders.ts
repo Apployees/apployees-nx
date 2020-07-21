@@ -2,9 +2,8 @@
  * © Apployees Inc., 2019
  * All Rights Reserved.
  ******************************************************************************/
-import { IBuildWebserverBuilderOptions } from "../common/webserver-types";
-import { getAssetsUrl } from "../common/env";
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import {IBuildWebserverBuilderOptions} from "../common/webserver-types";
+import {getAssetsUrl} from "../common/env";
 import postcssNormalize from "postcss-normalize";
 import {
   cssModuleRegex,

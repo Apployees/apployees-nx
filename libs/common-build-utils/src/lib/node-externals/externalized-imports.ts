@@ -36,10 +36,7 @@ export function getExternalizedLibraryImports(
      */
     _.forEach(workspaceJson.projects, (project, projectName) => {
       if (project.projectType === "library") {
-        const projectRootWithoutAppsOrLibs = project.root
-          .split("/")
-          .slice(1)
-          .join("/");
+        const projectRootWithoutAppsOrLibs = project.root.split("/").slice(1).join("/");
         const importName = `@${npmScope}/${projectRootWithoutAppsOrLibs}`;
 
         if (externalLibraries === "all") {
@@ -62,7 +59,7 @@ export function getExternalizedLibraryImports(
     externalized...
      */
     if (_.isArray(externalLibraries)) {
-      _.forEach(externalLibraries, externalLibrary => {
+      _.forEach(externalLibraries, (externalLibrary) => {
         const importName = possibleProjectIds[externalLibrary];
         if (importName) {
           isLibraryExternalized[importName] = true;

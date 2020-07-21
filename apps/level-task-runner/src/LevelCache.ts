@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import { RemoteCache } from "@nrwl/workspace/src/tasks-runner/tasks-runner-v2";
 import levelup from "levelup";
 import { archive, extract } from "simple-archiver";
@@ -59,10 +63,9 @@ export class LevelCache implements RemoteCache {
             }
           }
 
-          db.close(err => {
+          db.close((err) => {
             if (err) {
-              console.error(
-                "level-task-runner: Error while closing db after retrieving cache item ", err);
+              console.error("level-task-runner: Error while closing db after retrieving cache item ", err);
             }
           });
         });
@@ -86,7 +89,7 @@ export class LevelCache implements RemoteCache {
 
       return new Promise((resolve, reject) => {
         try {
-          db.put(hash, zippedVal, async err => {
+          db.put(hash, zippedVal, async (err) => {
             if (err) {
               console.error("level-task-runner: Error while storing cache item ", err);
               resolve(false);
@@ -95,24 +98,18 @@ export class LevelCache implements RemoteCache {
             }
 
             // Some leveldown drivers like redis have an expire method
-            if (this.options.time_to_live &&
-                leveldownInstance.db &&
-                isFunction(leveldownInstance.db.expire)) {
-              leveldownInstance.db.expire(hash, this.options.time_to_live, async expireErr => {
-                db.close(err => {
+            if (this.options.time_to_live && leveldownInstance.db && isFunction(leveldownInstance.db.expire)) {
+              leveldownInstance.db.expire(hash, this.options.time_to_live, async (expireErr) => {
+                db.close((err) => {
                   if (err) {
-                    console.error("level-task-runner: Error while closing db after storing cache item ",
-                      err
-                    );
+                    console.error("level-task-runner: Error while closing db after storing cache item ", err);
                   }
                 });
               });
             } else {
-              db.close(err => {
+              db.close((err) => {
                 if (err) {
-                  console.error("level-task-runner: Error while closing db after storing cache item ",
-                    err
-                  );
+                  console.error("level-task-runner: Error while closing db after storing cache item ", err);
                 }
               });
             }
@@ -178,7 +175,7 @@ export class LevelCache implements RemoteCache {
         finalOptions["ownClient"] = true;
         break;
       default:
-        // nothing
+      // nothing
     }
 
     return finalOptions;

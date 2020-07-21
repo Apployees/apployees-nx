@@ -22,14 +22,14 @@ interface ISomeInterfaceToTryToThrowLineNumbersOff {
 
 function isValidVersion(version: string) {
   // lazy loaded node_module
-  import("semver").then(semver => {
+  import("semver").then((semver) => {
     console.log(`semver ${version} is valid?? ${!!semver.valid(version)}`);
   });
 }
 
 function importLibraries() {
   // lazy loaded library
-  import("@apployees-nx/examples/library1").then(library1 => {
+  import("@apployees-nx/examples/library1").then((library1) => {
     console.log(library2());
     console.log(library1.library1());
   });

@@ -1,3 +1,7 @@
+/*******************************************************************************
+ * © Apployees Inc., 2019
+ * All Rights Reserved.
+ ******************************************************************************/
 import { Observable } from "rxjs";
 import { AffectedEventType, Task, TaskCompleteEvent } from "@nrwl/workspace/src/tasks-runner/tasks-runner";
 import { TaskOrchestrator } from "@nrwl/workspace/src/tasks-runner/task-orchestrator";

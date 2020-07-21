@@ -41,6 +41,7 @@ export interface IBuildBuilderOptions {
   notifier?: INotifierType | boolean;
   statsJson?: boolean;
   extractLicenses?: boolean;
+  buildCacheFolder?: string;
   verbose?: boolean;
 
   root?: string;

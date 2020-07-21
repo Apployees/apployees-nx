@@ -12,5 +12,5 @@
  * only rebuild the client webpack, not server webpack.
  */
 export const MyObject = {
-  someKey: "value at development"
+  someKey: "value at development",
 };

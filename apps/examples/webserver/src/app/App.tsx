@@ -140,7 +140,7 @@ function onWebWorkerTestClickFn(setWebWorkerText) {
       // webWorker = new Worker();
 
       // the rest of the code remains the same.
-      webWorker.onmessage = event => {
+      webWorker.onmessage = (event) => {
         setWebWorkerText("Test Web Worker: last message received=" + event.data);
       };
     }
@@ -156,7 +156,7 @@ function onLoadLibraryClickFn(dynamicLibraryText, initialDynamicLibraryText: str
        * Example of a lazy-loaded library. This library will be bundled in a
        * separate chunk and downloaded on-demand when this code executes.
        */
-      import("@apployees-nx/examples/library1").then(library1 => {
+      import("@apployees-nx/examples/library1").then((library1) => {
         setDynamicLibraryText(library1.library1());
       });
     }
