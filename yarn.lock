@@ -72,6 +72,45 @@
     lodash "^4.17.15"
     resize-observer-polyfill "^1.5.0"
 
+"@apployees-nx/node@*":
+  version "0.0.25"
+  resolved "https://registry.yarnpkg.com/@apployees-nx/node/-/node-0.0.25.tgz#f6ad8037a86a6d098c828adcd9ad6560e342fdbf"
+  integrity sha512-h0QwPDyOA7kM/hB7ccx/Epyj46f8wEUAPqrTl4T5w6xTPgJPuG5YYk+HoFz02imL0Wq8PqGEjGRmw8QnJHCDOg==
+  dependencies:
+    "@angular-devkit/architect" "~0.901.0"
+    "@angular-devkit/build-webpack" "~0.901.0"
+    "@angular-devkit/core" "~9.1.0"
+    "@angular-devkit/schematics" "~9.1.0"
+    "@nrwl/jest" "9.3.0"
+    "@nrwl/workspace" "9.3.0"
+    case-sensitive-paths-webpack-plugin "2.3.0"
+    circular-dependency-plugin "5.2.0"
+    copy-webpack-plugin "5.1.1"
+    dotenv "8.2.0"
+    dotenv-expand "5.1.0"
+    findup-sync "4.0.0"
+    fork-ts-checker-notifier-webpack-plugin "3.0.0"
+    fork-ts-checker-webpack-plugin "5.0.7"
+    fs-extra "9.0.0"
+    hard-source-webpack-plugin "0.13.1"
+    json-stable-stringify "1.0.1"
+    license-webpack-plugin "1.4.0"
+    lodash "4.17.15"
+    node-object-hash "2.0.0"
+    pnp-webpack-plugin "1.6.4"
+    react-dev-utils "9.1.0"
+    rxjs "6.5.4"
+    tree-kill "1.2.2"
+    ts-loader "6.2.2"
+    tsconfig-paths-webpack-plugin "3.2.0"
+    typescript "^3.9.3"
+    webpack "4.42.1"
+    webpack-dev-server "3.10.3"
+    webpack-merge "4.2.1"
+    webpack-node-externals "1.7.2"
+    webpack-notifier "1.8.0"
+    webpackbar "4.0.0"
+
 "@babel/code-frame@7.5.5", "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.5.5":
   version "7.5.5"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.5.5.tgz#bc0782f6d69f7b7d49531219699b988f669a8f9d"
@@ -14134,7 +14173,7 @@ typescript@^3.8.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz#409eb8544ea0335711205869ec458ab109ee1061"
   integrity sha512-MYlEfn5VrLNsgudQTVJeNaQFUAI7DkhnOjdpAp4T+ku1TfQClewlbSuTVHiA+8skNBgaf02TL/kLOvig4y3G8w==
 
-typescript@^3.9.3:
+typescript@^3.9.3, typescript@^3.9.6:
   version "3.9.7"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
   integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==

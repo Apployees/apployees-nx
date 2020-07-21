@@ -12,7 +12,6 @@ import { IBuildWebserverBuilderOptions } from "../common/webserver-types";
 import _ from "lodash";
 import { BuilderContext } from "@angular-devkit/architect";
 import { getBaseLoaders } from "../common/common-loaders";
-import { getAssetsUrl } from "../common/env";
 import { getPlugins } from "../common/plugins";
 import { extensions, FILENAMES, getAliases, getStatsConfig } from "../common/common-config";
 import { getServerLoaders } from "./server-loaders";
@@ -33,7 +32,6 @@ export function getServerConfig(
   const isEnvDevelopment = options.dev;
   const isEnvProduction = !options.dev;
   const shouldUseSourceMap = options.sourceMap;
-  const publicPath = getAssetsUrl(options);
   const nodeArgs = ["-r", "source-map-support/register"];
 
   if (options.inspect === true) {
@@ -61,14 +59,13 @@ export function getServerConfig(
     ]),
     output: {
       path: options.outputPath,
-      publicPath: publicPath,
       filename: "index.js",
       libraryTarget: "commonjs2",
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: isEnvProduction
-        ? info =>
+        ? (info) =>
             path.relative(path.resolve(options.root, options.sourceRoot), info.absoluteResourcePath).replace(/\\/g, "/")
-        : isEnvDevelopment && (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")),
+        : isEnvDevelopment && ((info) => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")),
     },
     resolve: {
       modules: ["node_modules", `${appRootPath}/node_modules`],
@@ -194,7 +191,7 @@ export function getServerConfig(
         "**/.DS_Store",
         "**/Thumbs.db",
         // don't overwrite the files we generated ourselves for the client
-        ..._.values(FILENAMES).filter(fileName => fileName !== FILENAMES.publicFolder),
+        ..._.values(FILENAMES).filter((fileName) => fileName !== FILENAMES.publicFolder),
       ],
     };
 

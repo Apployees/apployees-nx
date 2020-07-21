@@ -135,7 +135,7 @@ The Enhanced Node Builder is bootstrapped with Nx's default out-of-the-box Node 
 
 Here are the steps for developing @apployees-nx/node itself:
 
-1. In the angular.json file of this repo, change the `node` project:
+1. In the workspace.json file of this repo, change the `node` project:
    - Change `node:architect:build:builder` field to the value `@nrwl/node:build` instead of `@apployees-nx/node:build`.
    - Change `node:architect:build:options:main` field to the value `apps/node/src/builders/build/build.impl.ts`.
    - Change `node:architect:build:assets` to only have one entry: `apps/node/src`.
