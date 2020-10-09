@@ -2,8 +2,8 @@
  * © Apployees Inc., 2019
  * All Rights Reserved.
  ******************************************************************************/
-import {IBuildWebserverBuilderOptions} from "./webserver-types";
-import {getWebserverEnvironmentVariables} from "./env";
+import { IBuildWebserverBuilderOptions } from "./webserver-types";
+import { getWebserverEnvironmentVariables } from "./env";
 import webpack from "webpack";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import WriteFileWebpackPlugin from "write-file-webpack-plugin";
@@ -13,13 +13,13 @@ import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import typescriptFormatter from "react-dev-utils/typescriptFormatter";
 import WatchMissingNodeModulesPlugin from "react-dev-utils/WatchMissingNodeModulesPlugin";
 import findup from "findup-sync";
-import {BuilderContext} from "@angular-devkit/architect";
+import { BuilderContext } from "@angular-devkit/architect";
 import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
 import WebpackNotifier from "webpack-notifier";
-import {getNotifierOptions} from "@apployees-nx/common-build-utils";
+import { getNotifierOptions } from "@apployees-nx/common-build-utils";
 import _ from "lodash";
 import path from "path";
-import HardSourceWebpackPlugin from "hard-source-webpack-plugin";
+import HardSourceWebpackPlugin from "hard-source-webpack-plugin-fixed-hashbug";
 import NodeObjectHash from "node-object-hash";
 
 export function getPlugins(options: IBuildWebserverBuilderOptions, context: BuilderContext, isEnvClient: boolean) {
@@ -35,8 +35,8 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
   return [
     new HardSourceWebpackPlugin({
       // Either an absolute path or relative to webpack's options.context.
-      configHash: function(webpackConfig) {
-        return NodeObjectHash({sort: false}).hash(webpackConfig);
+      configHash: function (webpackConfig) {
+        return NodeObjectHash({ sort: false }).hash(webpackConfig);
       },
       // Either an absolute path or relative to webpack's options.context.
       cacheDirectory: path.join(
@@ -47,14 +47,17 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
       environmentHash: {
         root: options.root,
         directories: [],
-        files: ['package-lock.json', 'yarn.lock']
+        files: ["package-lock.json", "yarn.lock"],
       },
       // Clean up large, old caches automatically.
       cachePrune: {
-        sizeThreshold: 500 * 1024 * 1024
+        sizeThreshold: 500 * 1024 * 1024,
       },
     }),
     new HardSourceWebpackPlugin.ExcludeModulePlugin([
+      {
+        test: /file-loader/,
+      },
       {
         // HardSource works with mini-css-extract-plugin but due to how
         // mini-css emits assets, assets are not emitted on repeated builds with

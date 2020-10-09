@@ -19,7 +19,7 @@ import CircularDependencyPlugin from "circular-dependency-plugin";
 import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
 import WebpackNotifier from "webpack-notifier";
 import WebpackBar from "webpackbar";
-import path from 'path';
+import path from "path";
 import HardSourceWebpackPlugin from "hard-source-webpack-plugin";
 import NodeObjectHash from "node-object-hash";
 
@@ -48,22 +48,18 @@ export function getPluginsForNodeWebpack(options: IBuildNodeBuilderOptions, cont
   return [
     new HardSourceWebpackPlugin({
       // Either an absolute path or relative to webpack's options.context.
-      configHash: function(webpackConfig) {
-        return NodeObjectHash({sort: false}).hash(webpackConfig);
+      configHash: function (webpackConfig) {
+        return NodeObjectHash({ sort: false }).hash(webpackConfig);
       },
-      cacheDirectory: path.join(
-        options.buildCacheFolder,
-        "hard-source-webpack-plugin",
-        context.target.project,
-      ),
+      cacheDirectory: path.join(options.buildCacheFolder, "hard-source-webpack-plugin", context.target.project),
       environmentHash: {
         root: options.root,
         directories: [],
-        files: ['package-lock.json', 'yarn.lock']
+        files: ["package-lock.json", "yarn.lock"],
       },
       // Clean up large, old caches automatically.
       cachePrune: {
-        sizeThreshold: 500 * 1024 * 1024
+        sizeThreshold: 500 * 1024 * 1024,
       },
     }),
 
@@ -75,7 +71,7 @@ export function getPluginsForNodeWebpack(options: IBuildNodeBuilderOptions, cont
       getProcessedEnvironmentVariables(loadEnvironmentVariables(options, context), "env").stringified as any,
     ),
 
-    getForkTsCheckerWebpackPlugin(options, context, options.buildCacheFolder,),
+    getForkTsCheckerWebpackPlugin(options, context, options.buildCacheFolder),
 
     // Watcher doesn't work well if you mistype casing in a path so we use
     // a plugin that prints an error when you attempt to do this.
@@ -122,9 +118,11 @@ export function getPluginsForNodeWebpack(options: IBuildNodeBuilderOptions, cont
   ].filter(Boolean);
 }
 
-function getForkTsCheckerWebpackPlugin(options: IBuildNodeBuilderOptions,
-                                       context: BuilderContext,
-                                       cacheFolder: string) {
+function getForkTsCheckerWebpackPlugin(
+  options: IBuildNodeBuilderOptions,
+  context: BuilderContext,
+  cacheFolder: string,
+) {
   //const nodeModulesPath = findup("node_modules");
   const isEnvDevelopment = options.dev;
   //const rootPath = findup("angular.json") || findup("nx.json") || options.root;

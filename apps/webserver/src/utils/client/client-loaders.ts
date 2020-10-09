@@ -2,8 +2,8 @@
  * © Apployees Inc., 2019
  * All Rights Reserved.
  ******************************************************************************/
-import {IBuildWebserverBuilderOptions} from "../common/webserver-types";
-import {getAssetsUrl} from "../common/env";
+import { IBuildWebserverBuilderOptions } from "../common/webserver-types";
+import { getAssetsUrl } from "../common/env";
 import postcssNormalize from "postcss-normalize";
 import {
   cssModuleRegex,
@@ -15,6 +15,7 @@ import {
   sassRegex,
 } from "../common/common-loaders";
 import _ from "lodash";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
 export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
   const isEnvDevelopment: boolean = options.dev;
@@ -27,7 +28,21 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
   const publicPath = getAssetsUrl(options);
   // Some apps do not use client-side routing with pushState.
   // For these, "homepage" can be set to "." to enable relative asset paths.
-  const shouldUseRelativeAssetPaths = publicPath === "./";
+  const shouldUseRelativeAssetPaths = publicPath.startsWith(".");
+
+  let styleOrExtractLoader;
+  if (isEnvDevelopment) {
+    styleOrExtractLoader = _.isString(require.resolve("style-loader"))
+      ? require.resolve("style-loader")
+      : "style-loader";
+  } else {
+    styleOrExtractLoader = {
+      loader: MiniCssExtractPlugin.loader,
+      // css is located in `static/css`, use '../../' to locate index.html folder
+      // in production `paths.publicUrlOrPath` can be a relative path
+      options: shouldUseRelativeAssetPaths ? { publicPath: "../../" } : {},
+    };
+  }
 
   // common function to get style loaders
   const getStyleLoaders = (isForModule: boolean, cssOptions?) => {
@@ -47,13 +62,7 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
       // Therefore, for now, we are going to use style-loader regardless of dev or production mode,
       // and comment out MiniCssExtractPlugin
 
-      /*isEnvDevelopment && **/_.isString(require.resolve("style-loader"))
-        ? require.resolve("style-loader")
-        : "style-loader",
-      //isEnvProduction && {
-      //  loader: MiniCssExtractPlugin.loader,
-      //  options: shouldUseRelativeAssetPaths ? { publicPath: '../../' } : {},
-      //},
+      styleOrExtractLoader,
       {
         loader: _.isString(require.resolve("css-loader")) ? require.resolve("css-loader") : "css-loader",
         options: {
@@ -94,7 +103,7 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
     // smaller than specified limit in bytes as data URLs to avoid requests.
     // A missing `test` is equivalent to a match.
     {
-      test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+      test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/, /\.woff$/, /\.woff2$/, /\.avi$/, /\.mp4$/, /\.mp3$/],
       loader: _.isString(require.resolve("url-loader")) ? require.resolve("url-loader") : "url-loader",
       options: {
         limit: options.imageInlineSizeLimit,
