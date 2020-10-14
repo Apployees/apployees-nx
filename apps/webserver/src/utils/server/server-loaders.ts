@@ -14,11 +14,11 @@ import {
   sassRegex,
 } from "../common/common-loaders";
 import _ from "lodash";
+import NodeSass from "node-sass";
 
 export function getServerLoaders(options: IBuildWebserverBuilderOptions) {
   const isEnvDevelopment: boolean = options.dev;
   const isEnvProduction = !isEnvDevelopment;
-  const shouldUseSourceMap = options.sourceMap;
 
   // Webpack uses `publicPath` to determine where the app is being served from.
   // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -94,13 +94,14 @@ export function getServerLoaders(options: IBuildWebserverBuilderOptions) {
             ? require.resolve("resolve-url-loader")
             : "resolve-url-loader",
           options: {
-            sourceMap: isEnvProduction && shouldUseSourceMap,
+            sourceMap: false,
           },
         },
         {
           loader: _.isString(require.resolve("sass-loader")) ? require.resolve("sass-loader") : "sass-loader",
           options: {
-            sourceMap: true,
+            implementation: NodeSass,
+            sourceMap: false,
           },
         },
       ),
@@ -116,13 +117,14 @@ export function getServerLoaders(options: IBuildWebserverBuilderOptions) {
             ? require.resolve("resolve-url-loader")
             : "resolve-url-loader",
           options: {
-            sourceMap: isEnvProduction && shouldUseSourceMap,
+            sourceMap: false,
           },
         },
         {
           loader: _.isString(require.resolve("sass-loader")) ? require.resolve("sass-loader") : "sass-loader",
           options: {
-            sourceMap: true,
+            implementation: NodeSass,
+            sourceMap: false,
           },
         },
       ),
@@ -138,13 +140,13 @@ export function getServerLoaders(options: IBuildWebserverBuilderOptions) {
             ? require.resolve("resolve-url-loader")
             : "resolve-url-loader",
           options: {
-            sourceMap: isEnvProduction && shouldUseSourceMap,
+            sourceMap: false,
           },
         },
         {
           loader: _.isString(require.resolve("less-loader")) ? require.resolve("less-loader") : "less-loader",
           options: {
-            sourceMap: true,
+            sourceMap: false,
             javascriptEnabled: true,
             modifyVars: options.lessStyleVariables_calculated,
           },
@@ -162,13 +164,13 @@ export function getServerLoaders(options: IBuildWebserverBuilderOptions) {
             ? require.resolve("resolve-url-loader")
             : "resolve-url-loader",
           options: {
-            sourceMap: isEnvProduction && shouldUseSourceMap,
+            sourceMap: false,
           },
         },
         {
           loader: _.isString(require.resolve("less-loader")) ? require.resolve("less-loader") : "less-loader",
           options: {
-            sourceMap: true,
+            sourceMap: false,
             javascriptEnabled: true,
             modifyVars: options.lessStyleVariables_calculated,
           },

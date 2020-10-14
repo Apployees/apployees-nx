@@ -20,7 +20,7 @@ import ForkTsNotifier from "fork-ts-checker-notifier-webpack-plugin";
 import WebpackNotifier from "webpack-notifier";
 import WebpackBar from "webpackbar";
 import path from "path";
-import HardSourceWebpackPlugin from "hard-source-webpack-plugin";
+import HardSourceWebpackPlugin from "hard-source-webpack-plugin-fixed-hashbug";
 import NodeObjectHash from "node-object-hash";
 
 export function getPluginsForNodeWebpack(options: IBuildNodeBuilderOptions, context: BuilderContext) {

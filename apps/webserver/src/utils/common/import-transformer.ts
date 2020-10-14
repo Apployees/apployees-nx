@@ -27,17 +27,17 @@ function join(...params: string[]) {
 // borrow from https://github.com/ant-design/babel-plugin-import
 function camel2Dash(_str: string) {
   const str = _str[0].toLowerCase() + _str.substr(1);
-  return str.replace(/([A-Z])/g, $1 => `-${$1.toLowerCase()}`);
+  return str.replace(/([A-Z])/g, ($1) => `-${$1.toLowerCase()}`);
 }
 
 function camel2Underline(_str: string) {
   const str = _str[0].toLowerCase() + _str.substr(1);
-  return str.replace(/([A-Z])/g, $1 => `_${$1.toLowerCase()}`);
+  return str.replace(/([A-Z])/g, ($1) => `_${$1.toLowerCase()}`);
 }
 
 function getImportedStructs(node: ts.Node) {
   const structs = new Set<IImportedStruct>();
-  node.forEachChild(importChild => {
+  node.forEachChild((importChild) => {
     if (!ts.isImportClause(importChild)) {
       return;
     }
@@ -56,7 +56,7 @@ function getImportedStructs(node: ts.Node) {
       return;
     }
 
-    importChild.namedBindings.forEachChild(namedBinding => {
+    importChild.namedBindings.forEachChild((namedBinding) => {
       // ts.NamedImports.elements will always be ts.ImportSpecifier
       const importSpecifier = namedBinding as ts.ImportSpecifier;
 
@@ -156,8 +156,8 @@ function createDistAst(struct: IImportedStruct, options: IImportTransformerOptio
 }
 
 export function importTransformer(_options: Array<IImportTransformerOptions>) {
-  const transformer: ts.TransformerFactory<ts.SourceFile> = context => {
-    const visitor: ts.Visitor = node => {
+  const transformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
+    const visitor: ts.Visitor = (node) => {
       if (ts.isSourceFile(node)) {
         return ts.visitEachChild(node, visitor, context);
       }
@@ -168,7 +168,7 @@ export function importTransformer(_options: Array<IImportTransformerOptions>) {
 
       const importedLibName = (node.moduleSpecifier as ts.StringLiteral).text;
 
-      const options = _options.find(something => something.libraryName === importedLibName);
+      const options = _options.find((something) => something.libraryName === importedLibName);
 
       if (!options) {
         return node;
@@ -179,16 +179,13 @@ export function importTransformer(_options: Array<IImportTransformerOptions>) {
         return node;
       }
 
-      return Array.from(structs).reduce(
-        (acc, struct) => {
-          const nodes = createDistAst(struct, options);
-          return acc.concat(nodes);
-        },
-        [] as ts.Node[],
-      );
+      return Array.from(structs).reduce((acc, struct) => {
+        const nodes = createDistAst(struct, options);
+        return acc.concat(nodes);
+      }, [] as ts.Node[]);
     };
 
-    return node => ts.visitNode(node, visitor);
+    return (node) => ts.visitNode(node, visitor);
   };
   return transformer;
 }

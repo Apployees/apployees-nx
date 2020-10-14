@@ -58,7 +58,12 @@
     },
     "sourceMap": {
       "type": "boolean",
-      "description": "Produce source maps. This flag is only used when dev=false. When dev=true, source maps are always produced.",
+      "description": "Produce source maps for code in server build when dev=false. This flag is only used when dev=false and only for the server build. When dev=true, source maps are always produced for the server build and the client build. When dev=false, source maps on client are never produced.",
+      "default": false
+    },
+    "sourceMapForStyles": {
+      "type": "boolean",
+      "description": "Produce source maps for CSS, SCSS, and LESS styles on the client build when dev=true. This flag is only used for dev=true. When dev=false, source maps on client are never produced.",
       "default": false
     },
     "progress": {

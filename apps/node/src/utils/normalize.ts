@@ -28,7 +28,9 @@ export function normalizeBuildOptions<T extends IBuildNodeBuilderOptions>(
     envFolderPath: options.envFolderPath
       ? resolve(root, options.envFolderPath)
       : getDefaultEnvsFolderForProject(root, context),
-    buildCacheFolder: options.buildCacheFolder ? resolve(root, options.buildCacheFolder) : join(root, "node_modules", ".buildcache"),
+    buildCacheFolder: options.buildCacheFolder
+      ? resolve(root, options.buildCacheFolder)
+      : join(root, "node_modules", ".buildcache"),
     additionalEnvFile: options.additionalEnvFile ? resolve(root, options.additionalEnvFile) : options.additionalEnvFile,
     otherEntries: normalizeOtherEntries(root, options.otherEntries),
     outputPath: resolve(root, options.outputPath),

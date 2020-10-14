@@ -20,8 +20,9 @@ import { appRootPath } from "@nrwl/workspace/src/utils/app-root";
 import CircularDependencyPlugin from "circular-dependency-plugin";
 import PnpWebpackPlugin from "pnp-webpack-plugin";
 import StartServerPlugin from "start-server-webpack-plugin";
-import WorkerPlugin from "worker-plugin";
 import WebpackBar from "webpackbar";
+import ThreadsPlugin from "threads-plugin";
+import "tiny-worker";
 
 export function getServerConfig(
   options: IBuildWebserverBuilderOptions,
@@ -41,6 +42,19 @@ export function getServerConfig(
     nodeArgs.push(`--${options.inspect}=${options.inspectHost}:${options.inspectPort}`);
   }
 
+  let devTool;
+  if (isEnvProduction) {
+    if (shouldUseSourceMap) {
+      devTool = "source-map";
+    } else {
+      devTool = false;
+    }
+  } else {
+    // don't merge the logic into a single if condition because we want to test out different source maps for
+    // dev and prod builds in the future.
+    devTool = "inline-source-map";
+  }
+
   const webpackConfig: Configuration = {
     name: "server",
     target: "node",
@@ -48,7 +62,7 @@ export function getServerConfig(
     mode: isEnvProduction ? "production" : "development",
     // Stop compilation early in production
     bail: isEnvProduction,
-    devtool: isEnvProduction ? (shouldUseSourceMap ? "source-map" : false) : "inline-source-map",
+    devtool: devTool,
     entry: [isEnvDevelopment && "webpack/hot/poll?100", options.serverMain].filter(Boolean),
     externals: getNodeExternals(options.serverExternalLibraries, options.serverExternalDependencies, [
       isEnvDevelopment && "webpack/hot/poll?100",
@@ -129,8 +143,6 @@ export function getServerConfig(
           nodeArgs,
         }),
       isEnvDevelopment && new webpack.WatchIgnorePlugin([options.publicOutputFolder_calculated]),
-      // add support for web workers.
-      new WorkerPlugin(),
     ].filter(Boolean),
     node: {
       __console: false,
@@ -208,7 +220,17 @@ export function getServerConfig(
     );
   }
 
-  webpackConfig.plugins = [...webpackConfig.plugins, ...extraPlugins];
+  const plugins = [...webpackConfig.plugins, ...extraPlugins];
+
+  webpackConfig.plugins = [
+    new ThreadsPlugin({
+      globalObject: "self",
+      // this includes hard source as well, but we just want the DefinePlugin
+      // Needs further investigation
+      // plugins: plugins,
+    }),
+    ...plugins,
+  ];
 
   return webpackConfig;
 }

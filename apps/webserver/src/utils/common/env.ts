@@ -70,7 +70,7 @@ export function getWebserverEnvironmentVariables(
   let keys = Object.keys(envVars);
 
   if (isEnvClient) {
-    keys = keys.filter(key => IN_CLIENT_PREFIX.test(key));
+    keys = keys.filter((key) => IN_CLIENT_PREFIX.test(key));
   }
 
   const raw = keys.reduce(

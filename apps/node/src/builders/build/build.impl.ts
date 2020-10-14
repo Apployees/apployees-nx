@@ -39,8 +39,8 @@ function run(options: JsonObject & IBuildNodeBuilderOptions, context: BuilderCon
   let yarnExists;
 
   return from(getSourceRoot(context)).pipe(
-    map(sourceRoot => normalizeBuildOptions(options, context, sourceRoot)),
-    map(options => {
+    map((sourceRoot) => normalizeBuildOptions(options, context, sourceRoot)),
+    map((options) => {
       yarnExists = fs.existsSync(path.resolve(options.root, "yarn.lock"));
       let config = getNodeWebpackConfig(options, context);
       if (options.webpackConfig) {
@@ -58,9 +58,9 @@ function run(options: JsonObject & IBuildNodeBuilderOptions, context: BuilderCon
 
       return config;
     }),
-    concatMap(config =>
+    concatMap((config) =>
       runWebpack(config, context, {
-        logging: stats => {
+        logging: (stats) => {
           context.logger.info(stats.toString(config.stats));
         },
       }),

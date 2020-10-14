@@ -41,7 +41,7 @@ interface INormalizedSchema extends Schema {
 }
 
 function updateNxJson(options: INormalizedSchema): Rule {
-  return updateJsonInTree(`/nx.json`, json => {
+  return updateJsonInTree(`/nx.json`, (json) => {
     return {
       ...json,
       projects: {
@@ -97,7 +97,7 @@ function getBuildConfig(project: any, options: INormalizedSchema) {
 }
 
 function updateWorkspaceJson(options: INormalizedSchema): Rule {
-  return updateWorkspaceInTree(workspaceJson => {
+  return updateWorkspaceInTree((workspaceJson) => {
     const project = {
       root: options.appProjectRoot,
       sourceRoot: join(options.appProjectRoot, "src"),
@@ -241,7 +241,7 @@ function modifyRootJestConfig(options: INormalizedSchema, npmScope: string): Rul
 
       insert(host, jestConfigFilePath, [insertTransformChange, insertOtherLinesChange].filter(Boolean));
     } else {
-      return updateJsonInTree(`/package.json`, json => {
+      return updateJsonInTree(`/package.json`, (json) => {
         if (!json.jest) {
           return json;
         }
@@ -263,7 +263,7 @@ function modifyRootJestConfig(options: INormalizedSchema, npmScope: string): Rul
 
 function updateRootPackageJson(options: INormalizedSchema): Rule {
   return (host: Tree) => {
-    return updateJsonInTree(`/package.json`, json => {
+    return updateJsonInTree(`/package.json`, (json) => {
       if (!json.scripts) {
         json.scripts = {};
       }
@@ -278,7 +278,7 @@ function updateRootPackageJson(options: INormalizedSchema): Rule {
   };
 }
 
-export default function(schema: Schema): Rule {
+export default function (schema: Schema): Rule {
   return (host: Tree, context: SchematicContext) => {
     const options = normalizeOptions(schema);
     const npmScope = getNpmScope(host) || "yourOrg";
@@ -315,7 +315,7 @@ function normalizeOptions(options: Schema): INormalizedSchema {
 
   const appProjectRoot = join(normalize("apps"), appDirectory);
 
-  const parsedTags = options.tags ? options.tags.split(",").map(s => s.trim()) : [];
+  const parsedTags = options.tags ? options.tags.split(",").map((s) => s.trim()) : [];
 
   return {
     ...options,

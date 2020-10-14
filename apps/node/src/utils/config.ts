@@ -41,7 +41,7 @@ export function getBaseWebpackPartial(options: IBuildNodeBuilderOptions, context
       path: options.outputPath,
       filename: OUT_FILENAME,
       // Point sourcemap entries to original disk location (format as URL on Windows)
-      devtoolModuleFilenameTemplate: info => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/"),
+      devtoolModuleFilenameTemplate: (info) => path.resolve(info.absoluteResourcePath).replace(/\\/g, "/"),
     },
     module: {
       rules: [

@@ -8,7 +8,7 @@ import {
   addPackageWithInit,
   formatFiles,
   updateJsonInTree,
-  updateWorkspace
+  updateWorkspace,
 } from "@nrwl/workspace";
 import { Schema } from "./schema";
 import { JsonObject } from "@angular-devkit/core";

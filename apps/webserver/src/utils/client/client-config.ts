@@ -29,12 +29,12 @@ import ScriptExtHtmlWebpackPlugin from "script-ext-html-webpack-plugin";
 import FaviconsWebpackPlugin from "favicons-webpack-plugin-ex";
 import HtmlWebpackInjector from "html-webpack-injector";
 import { readJsonFile } from "@nrwl/workspace";
-import WorkerPlugin from "worker-plugin";
 import WorkboxWebpackPlugin from "workbox-webpack-plugin";
 import "worker-loader";
 import { IProcessedEnvironmentVariables } from "@apployees-nx/common-build-utils";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import WebpackBar from "webpackbar";
+import ThreadsPlugin from "threads-plugin";
 
 export function getClientConfig(
   options: IBuildWebserverBuilderOptions,
@@ -118,6 +118,13 @@ export function getClientConfig(
       splitChunks: {
         chunks: "all",
         name: false,
+        cacheGroups: {
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            name: "vendors",
+            chunks: "all",
+          },
+        },
       },
       runtimeChunk: true,
 
@@ -233,11 +240,6 @@ export function getClientConfig(
       // <link rel="shortcut icon" href="%ASSETS_URL%favicon.ico">
       new InterpolateHtmlPlugin(HtmlWebpackPlugin, webserverEnvironmentVariables.raw),
 
-      // add support for web workers.
-      new WorkerPlugin({
-        globalObject: "self",
-      }),
-
       // add support for service workers
       // Generate a service worker script that will precache, and keep up to date,
       // the HTML & assets that are part of the Webpack build.
@@ -323,7 +325,17 @@ export function getClientConfig(
     extraPlugins.push(new BundleAnalyzerPlugin());
   }
 
-  webpackConfig.plugins = [...webpackConfig.plugins, ...extraPlugins];
+  const plugins = [...webpackConfig.plugins, ...extraPlugins];
+
+  webpackConfig.plugins = [
+    new ThreadsPlugin({
+      globalObject: "self",
+      // this includes hard source as well, but we just want the DefinePlugin
+      // Needs further investigation
+      // plugins: plugins,
+    }),
+    ...plugins,
+  ];
 
   return webpackConfig;
 }

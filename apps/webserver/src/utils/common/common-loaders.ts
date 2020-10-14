@@ -39,9 +39,10 @@ export function getBaseLoaders(
         // https://github.com/TypeStrong/ts-loader/pull/685
         experimentalWatchApi: true,
         compilerOptions: {
-          sourceMap: isEnvServer || isEnvDevelopment,
+          sourceMap: (isEnvServer && options.sourceMap) || isEnvDevelopment,
           incremental: true,
           tsBuildInfoFile: options.outputPath + (isEnvServer ? "server" : "client") + ".tsbuildinfo",
+          module: "esnext",
         },
         getCustomTransformers: () => ({
           before: [importTransformer(options.importTransformers)],

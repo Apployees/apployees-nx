@@ -16,11 +16,13 @@ import {
 } from "../common/common-loaders";
 import _ from "lodash";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import NodeSass from "node-sass";
 
 export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
   const isEnvDevelopment: boolean = options.dev;
   const isEnvProduction = !isEnvDevelopment;
-  const shouldUseSourceMap = options.sourceMap;
+
+  const shouldUseSourceMap = isEnvDevelopment && options.sourceMapForStyles;
 
   // Webpack uses `publicPath` to determine where the app is being served from.
   // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -67,7 +69,7 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
         loader: _.isString(require.resolve("css-loader")) ? require.resolve("css-loader") : "css-loader",
         options: {
           ...cssOptions,
-          sourceMap: isEnvProduction && shouldUseSourceMap,
+          sourceMap: shouldUseSourceMap,
         },
       },
       {
@@ -92,7 +94,7 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
             // which in turn let's users customize the target behavior as per their needs.
             postcssNormalize(),
           ],
-          sourceMap: isEnvProduction && shouldUseSourceMap,
+          sourceMap: shouldUseSourceMap,
         },
       },
     ].filter(Boolean);
@@ -122,7 +124,7 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
       exclude: cssModuleRegex,
       use: getStyleLoaders(false, {
         importLoaders: 1,
-        sourceMap: isEnvProduction && shouldUseSourceMap,
+        sourceMap: shouldUseSourceMap,
       }),
       // Don't consider CSS imports dead code even if the
       // containing package claims to have no side effects.
@@ -149,7 +151,8 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
       }).concat({
         loader: _.isString(require.resolve("sass-loader")) ? require.resolve("sass-loader") : "sass-loader",
         options: {
-          sourceMap: isEnvProduction && shouldUseSourceMap,
+          implementation: NodeSass,
+          sourceMap: shouldUseSourceMap,
         },
       }),
       // Don't consider CSS imports dead code even if the
@@ -167,7 +170,8 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
       }).concat({
         loader: _.isString(require.resolve("sass-loader")) ? require.resolve("sass-loader") : "sass-loader",
         options: {
-          sourceMap: isEnvProduction && shouldUseSourceMap,
+          implementation: NodeSass,
+          sourceMap: shouldUseSourceMap,
         },
       }),
     },
@@ -182,7 +186,7 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
       }).concat({
         loader: _.isString(require.resolve("less-loader")) ? require.resolve("less-loader") : "less-loader",
         options: {
-          sourceMap: isEnvProduction && shouldUseSourceMap,
+          sourceMap: shouldUseSourceMap,
           javascriptEnabled: true,
           modifyVars: options.lessStyleVariables_calculated,
         },
@@ -202,7 +206,7 @@ export function getClientLoaders(options: IBuildWebserverBuilderOptions) {
       }).concat({
         loader: _.isString(require.resolve("less-loader")) ? require.resolve("less-loader") : "less-loader",
         options: {
-          sourceMap: isEnvProduction && shouldUseSourceMap,
+          sourceMap: shouldUseSourceMap,
           javascriptEnabled: true,
           modifyVars: options.lessStyleVariables_calculated,
         },

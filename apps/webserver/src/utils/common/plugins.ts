@@ -67,6 +67,7 @@ export function getPlugins(options: IBuildWebserverBuilderOptions, context: Buil
         test: /mini-css-extract-plugin[\\/]dist[\\/]loader/,
       },
     ]),
+
     isEnvDevelopment &&
       options.notifier !== false &&
       new WebpackNotifier({

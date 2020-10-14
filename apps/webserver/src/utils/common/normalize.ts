@@ -2,7 +2,7 @@
  * © Apployees Inc., 2019
  * All Rights Reserved.
  ******************************************************************************/
-import {join, resolve} from "path";
+import { join, resolve } from "path";
 import {
   getDefaultEnvsFolderForProject,
   normalizeAssets,
@@ -40,7 +40,9 @@ export function normalizeBuildOptions(
     envFolderPath: options.envFolderPath
       ? resolve(root, options.envFolderPath)
       : getDefaultEnvsFolderForProject(root, context),
-    buildCacheFolder: options.buildCacheFolder ? resolve(root, options.buildCacheFolder) : join(root, "node_modules", ".buildcache"),
+    buildCacheFolder: options.buildCacheFolder
+      ? resolve(root, options.buildCacheFolder)
+      : join(root, "node_modules", ".buildcache"),
     additionalEnvFile: options.additionalEnvFile ? resolve(root, options.additionalEnvFile) : options.additionalEnvFile,
     // eslint-disable-next-line @typescript-eslint/camelcase
     publicOutputFolder_calculated: resolve(outputPath, FILENAMES.publicFolder),

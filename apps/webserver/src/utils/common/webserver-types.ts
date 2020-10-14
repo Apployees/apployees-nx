@@ -28,6 +28,7 @@ export interface IBuildWebserverBuilderOptions extends IBuildBuilderOptions {
   clientMain: string;
   clientOtherEntries?: object;
   sourceMap?: boolean;
+  sourceMapForStyles?: boolean;
   outputHashing?: "none" | "all" | "media" | "bundles";
   imageInlineSizeLimit?: number;
   assetsUrl?: string;
