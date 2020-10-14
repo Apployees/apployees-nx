@@ -203,7 +203,7 @@
   "husky": {
     "hooks": {
       "prepare-commit-msg": "husky-add-issue-tracker",
-      "pre-commit": "yarn affected:lint --parallel --maxParallel=3 --uncommitted --fix && git add . && branch-naming-check 'issue-\\d+-[a-zA-Z0-9-]+' 'issue-XXX-name-of-my-issue'"
+      "pre-commit": "branch-naming-check 'issue-\\d+-[a-zA-Z0-9-]+' 'issue-XXX-name-of-my-issue'"
     }
   }
 }
