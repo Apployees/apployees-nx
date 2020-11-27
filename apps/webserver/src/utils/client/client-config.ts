@@ -35,6 +35,7 @@ import { IProcessedEnvironmentVariables } from "@apployees-nx/common-build-utils
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import WebpackBar from "webpackbar";
 import ThreadsPlugin from "threads-plugin";
+import * as os from "os";
 
 export function getClientConfig(
   options: IBuildWebserverBuilderOptions,
@@ -397,9 +398,9 @@ export function createTerserPlugin(shouldUseSourceMap: boolean) {
     },
     // Use multi-process parallel running to improve the build speed
     // Default number of concurrent runs: os.cpus().length - 1
-    // Disabled on WSL (Windows Subsystem for Linux) due to an issue with Terser
-    // https://github.com/webpack-contrib/terser-webpack-plugin/issues/21
-    parallel: !isWsl,
+    // On some CI systems, os.cpus() return many more CPUs than available, so we
+    // cap it.
+    parallel: Math.max(os.cpus().length - 1, 8),
     // Enable file caching
     cache: true,
     sourceMap: shouldUseSourceMap,
