@@ -26,6 +26,7 @@ import InlineChunkHtmlPlugin from "react-dev-utils/InlineChunkHtmlPlugin";
 import InterpolateHtmlPlugin from "react-dev-utils/InterpolateHtmlPlugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import ScriptExtHtmlWebpackPlugin from "script-ext-html-webpack-plugin";
+// @ts-ignore
 import FaviconsWebpackPlugin from "favicons-webpack-plugin-ex";
 import HtmlWebpackInjector from "html-webpack-injector";
 import { readJsonFile } from "@nrwl/workspace";
