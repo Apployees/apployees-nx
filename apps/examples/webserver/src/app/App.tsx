@@ -64,6 +64,10 @@ import "./styles/AppSass.sass";
 
 import { Button } from "antd";
 
+// This uses Method 1 for web workers (in workspace.json build options, set useThreadsPlugin: true)
+// If using Method 2 (useThreadsPlugin: false), then remove the next line.
+import { spawn, Worker, Thread } from "threads";
+
 /**
  * We'll declare a worker variable that we will use later on to load the
  * web worker.
@@ -114,38 +118,37 @@ export default function App() {
   );
 }
 function onWebWorkerTestClickFn(setWebWorkerText) {
-  return (event: React.MouseEvent) => {
+  return async (event: React.MouseEvent) => {
     event.preventDefault();
 
     if (!webWorker) {
       /**
        * There are two ways to load your web worker:
-       * 1. Using https://github.com/GoogleChromeLabs/worker-plugin
-       * 2. Using https://github.com/webpack-contrib/worker-loader
+       * 1. Using https://github.com/andywer/threads-plugin  (in workspace.json build options, set useThreadsPlugin: true)
+       * 2. Using https://github.com/webpack-contrib/worker-loader (in workspace.json build options, set useThreadsPlugin: false)
        *
        * If using method 1, your worker ts file MUST NOT be named *.worker.ts
        *
-       * If using method 2, your worker ts file MUST be named *.worker.js
-       *
-       * Note that method 1 currently DOES NOT work in development mode. See
-       * https://github.com/GoogleChromeLabs/worker-plugin/issues/36
+       * If using method 2, your worker ts file MUST be named *.worker.ts
        */
 
-      // This is method 1:
-      webWorker = new Worker("./webWorker", { type: "module" });
+      // This is method 1, it uses threads.js:
+      webWorker = await spawn(new Worker("./webWorker"));
 
       // This is method 2:
       // It uses inline web workers to overcome CORS problems in web workers.
       // const Worker = require("worker-loader?inline=true!./web.worker.ts");
       // webWorker = new Worker();
-
-      // the rest of the code remains the same.
-      webWorker.onmessage = (event) => {
-        setWebWorkerText("Test Web Worker: last message received=" + event.data);
-      };
+      // webWorker.onmessage = (event) => {
+      //   setWebWorkerText("Test Web Worker: last message received=" + event.data);
+      // };
     }
 
-    webWorker.postMessage("Current date from main thread is " + new Date());
+    // Method 1:
+    setWebWorkerText(await webWorker.echo("Current date from main thread is " + new Date()));
+
+    // Method 2:
+    // webWorker.postMessage("Current date from main thread is " + new Date());
   };
 }
 function onLoadLibraryClickFn(dynamicLibraryText, initialDynamicLibraryText: string, setDynamicLibraryText) {

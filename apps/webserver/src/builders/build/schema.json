@@ -205,6 +205,11 @@
       "description": "Show circular dependency warnings on builds.",
       "default": true
     },
+    "useThreadsPlugin": {
+      "type": "boolean",
+      "description": "Use threads-plugin from https://github.com/andywer/threads-plugin instead of worker-plugin from https://github.com/GoogleChromeLabs/worker-plugin",
+      "default": false
+    },
     "inlineRuntimeChunk": {
       "type": "boolean",
       "description": "Some apps do not need the benefits of saving a web request, so not inlining the chunk makes for a smoother build process.",

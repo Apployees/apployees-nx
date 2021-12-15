@@ -31,6 +31,7 @@ import FaviconsWebpackPlugin from "favicons-webpack-plugin-ex";
 import HtmlWebpackInjector from "html-webpack-injector";
 import { readJsonFile } from "@nrwl/workspace";
 import WorkboxWebpackPlugin from "workbox-webpack-plugin";
+import WorkerPlugin from "worker-plugin";
 import "worker-loader";
 import { IProcessedEnvironmentVariables } from "@apployees-nx/common-build-utils";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
@@ -330,12 +331,16 @@ export function getClientConfig(
   const plugins = [...webpackConfig.plugins, ...extraPlugins];
 
   webpackConfig.plugins = [
-    new ThreadsPlugin({
-      globalObject: "self",
-      // this includes hard source as well, but we just want the DefinePlugin
-      // Needs further investigation
-      // plugins: plugins,
-    }),
+    options.useThreadsPlugin
+      ? new ThreadsPlugin({
+          globalObject: "self",
+          // this includes hard source as well, but we just want the DefinePlugin
+          // Needs further investigation
+          // plugins: plugins,
+        })
+      : new WorkerPlugin({
+          globalObject: "self",
+        }),
     ...plugins,
   ];
 

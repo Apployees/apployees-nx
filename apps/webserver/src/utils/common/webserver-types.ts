@@ -50,4 +50,5 @@ export interface IBuildWebserverBuilderOptions extends IBuildBuilderOptions {
   inspectPort?: number;
   devClientBundleAnalyzer?: boolean;
   importTransformers: IImportTransformerOptions[];
+  useThreadsPlugin?: boolean;
 }

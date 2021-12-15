@@ -21,6 +21,7 @@ import CircularDependencyPlugin from "circular-dependency-plugin";
 import PnpWebpackPlugin from "pnp-webpack-plugin";
 import StartServerPlugin from "start-server-webpack-plugin";
 import WebpackBar from "webpackbar";
+import WorkerPlugin from "worker-plugin";
 import ThreadsPlugin from "threads-plugin";
 import "tiny-worker";
 
@@ -223,12 +224,14 @@ export function getServerConfig(
   const plugins = [...webpackConfig.plugins, ...extraPlugins];
 
   webpackConfig.plugins = [
-    new ThreadsPlugin({
-      globalObject: "self",
-      // this includes hard source as well, but we just want the DefinePlugin
-      // Needs further investigation
-      // plugins: plugins,
-    }),
+    options.useThreadsPlugin
+      ? new ThreadsPlugin({
+          globalObject: "self",
+          // this includes hard source as well, but we just want the DefinePlugin
+          // Needs further investigation
+          // plugins: plugins,
+        })
+      : new WorkerPlugin(),
     ...plugins,
   ];
 

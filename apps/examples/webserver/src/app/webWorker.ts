@@ -2,13 +2,11 @@
  * © Apployees Inc., 2019
  * All Rights Reserved.
  ******************************************************************************/
+import { expose } from "threads";
 
-declare function postMessage(data: any);
-declare function postMessage(json: any, arrayBuffer: ArrayBuffer);
-
-addEventListener("message", (event) => {
-  console.log(`webWorker.ts received a message: ${event.data}`);
-  postMessage(`Echo back: ${event.data}`);
+expose({
+  echo: function echo(message) {
+    console.log(`webWorker.ts received a message: ${message}`);
+    return `Echo back: ${message}`;
+  },
 });
-
-export const noop = 0;

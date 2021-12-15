@@ -318,6 +318,7 @@
             "clientWebpackConfig": "apps/examples/webserver/webpack.client.overrides.js",
             "lessStyleVariables": "apps/examples/webserver/antd-theme.less",
             "tsConfig": "apps/examples/webserver/tsconfig.app.json",
+            "useThreadsPlugin": true,
             "assets": [
               "apps/examples/webserver/src/public"
             ],
